@@ -12,7 +12,27 @@
     (termbind
       (strict)
       (vardecl WStrictPattern (all a (type) (fun a (fun a [StrictPattern a]))))
-      (abs a (type) (lam dt a (lam dt a [ [ { StrictPattern a } dt ] dt ])))
+      (abs
+        a
+        (type)
+        (lam
+          dt
+          a
+          (lam
+            dt
+            a
+            (let
+              (nonrec)
+              (termbind (strict) (vardecl dt a) dt)
+              (let
+                (nonrec)
+                (termbind (strict) (vardecl dt a) dt)
+                [ [ { StrictPattern a } dt ] dt ]
+              )
+            )
+          )
+        )
+      )
     )
     [ [ { WStrictPattern (con integer) } (con integer 1) ] (con integer 2) ]
   )

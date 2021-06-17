@@ -24,15 +24,14 @@
           (lam
             arg
             (con bytestring)
-            (let
-              (nonrec)
-              (termbind
-                (strict)
-                (vardecl b (con bool))
-                [ [ [ (builtin verifySignature) arg ] arg ] arg ]
+            [
+              (lam
+                b
+                (con bool)
+                [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
               )
-              [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-            )
+              [ [ [ (builtin verifySignature) arg ] arg ] arg ]
+            ]
           )
         )
       )

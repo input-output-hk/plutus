@@ -96,6 +96,7 @@ inline =
     , "constant"
     , "transitive"
     , "tyvar"
+    , "single"
     ]
 
 

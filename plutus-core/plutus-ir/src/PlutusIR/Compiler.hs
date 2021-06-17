@@ -13,6 +13,12 @@ module PlutusIR.Compiler (
     noProvenance,
     CompilationOpts,
     coOptimize,
+    coMaxSimplifierIterations,
+    coSimplifierUnwrapCancel,
+    coSimplifierBeta,
+    coSimplifierFloatTerm,
+    coSimplifierInline,
+    coSimplifierRemoveDeadBindings,
     defaultCompilationOpts,
     CompilationCtx,
     ccOpts,
@@ -40,21 +46,49 @@ import qualified PlutusIR.Transform.Unwrap          as Unwrap
 import           PlutusIR.TypeCheck.Internal
 
 import qualified PlutusCore                         as PLC
-import qualified PlutusCore.Constant.Meaning        as M
 
+import           Control.Lens
 import           Control.Monad
 import           Control.Monad.Reader
 import           PlutusPrelude
 
 -- | Actual simplifier
 simplify
-    :: (M.ToBuiltinMeaning uni fun, PLC.MonadQuote m)
+    :: forall m e uni fun a b. (Compiling m e uni fun a, Semigroup b)
     => Term TyName Name uni fun b -> m (Term TyName Name uni fun b)
-simplify = DeadCode.removeDeadBindings <=< Inline.inline . Beta.beta . Unwrap.unwrapCancel
+simplify term =
+  do
+    selectedPasses <- map snd <$> filterM (shouldRunPass . fst) availablePasses
+    let pass = foldl' (>=>) pure selectedPasses
+    pass term
+  where
+    availablePasses
+      :: [(Getting Bool CompilationOpts Bool,
+           Term TyName Name uni fun b -> m (Term TyName Name uni fun b))
+         ]
+    availablePasses =
+      [ (coSimplifierUnwrapCancel       , pure . Unwrap.unwrapCancel)
+      , (coSimplifierBeta               , pure . Beta.beta)
+      , (coSimplifierFloatTerm          , pure . LetFloat.floatTerm)
+      , (coSimplifierInline             , Inline.inline)
+      , (coSimplifierRemoveDeadBindings , DeadCode.removeDeadBindings)
+      ]
+
+    shouldRunPass :: Getting Bool CompilationOpts Bool -> m Bool
+    shouldRunPass coOpt = view (ccOpts . coOpt)
 
 -- | Perform some simplification of a 'Term'.
-simplifyTerm :: Compiling m e uni fun a => Term TyName Name uni fun b -> m (Term TyName Name uni fun b)
-simplifyTerm = PLC.rename >=> runIfOpts simplify
+simplifyTerm :: forall m e uni fun a b. (Compiling m e uni fun a, Semigroup b) => Term TyName Name uni fun b -> m (Term TyName Name uni fun b)
+simplifyTerm = runIfOpts $ PLC.rename >=> DeadCode.removeDeadBindings >=> simplify'
+    -- NOTE: we need at least one pass of dead code elimination
+    where
+        simplify' :: Term TyName Name uni fun b -> m (Term TyName Name uni fun b)
+        simplify' t = do
+            maxIterations <- asks $ view (ccOpts . coMaxSimplifierIterations)
+            simplifyNTimes maxIterations t
+        -- Run the simplifier @n@ times
+        simplifyNTimes :: Int -> Term TyName Name uni fun b -> m (Term TyName Name uni fun b)
+        simplifyNTimes n = foldl' (>=>) pure (replicate n simplify)
 -- Note: There was a bug in renamer handling non-rec terms, so we need to rename
 -- again.
 -- https://jira.iohk.io/browse/SCP-2156

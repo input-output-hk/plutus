@@ -28,13 +28,16 @@
                 (lam
                   default_arg1
                   (con integer)
-                  (lam thunk Unit (error (con integer)))
+                  (lam thunk Unit { (abs e (type) (error e)) (con integer) })
                 )
               )
             ]
             (lam a (con integer) (lam thunk Unit a))
           ]
-          (lam default_arg0 (con integer) (lam thunk Unit (error (con integer)))
+          (lam
+            default_arg0
+            (con integer)
+            (lam thunk Unit { (abs e (type) (error e)) (con integer) })
           )
         ]
         Unit

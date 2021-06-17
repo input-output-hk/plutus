@@ -1,6 +1,11 @@
 (program
   (let
     (nonrec)
+    (termbind
+      (strict)
+      (vardecl addInteger (fun (con integer) (fun (con integer) (con integer))))
+      (builtin addInteger)
+    )
     (datatypebind
       (datatype
         (tyvardecl Bool (type))
@@ -18,17 +23,23 @@
         (lam
           arg
           (con integer)
-          (let
-            (nonrec)
-            (termbind
-              (strict)
-              (vardecl b (con bool))
-              [ [ (builtin equalsInteger) arg ] arg ]
+          [
+            (lam
+              b
+              (con bool)
+              [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
             )
-            [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-          )
+            [ [ (builtin equalsInteger) arg ] arg ]
+          ]
         )
       )
+    )
+    (termbind
+      (strict)
+      (vardecl
+        subtractInteger (fun (con integer) (fun (con integer) (con integer)))
+      )
+      (builtin subtractInteger)
     )
     (datatypebind
       (datatype (tyvardecl Unit (type))  Unit_match (vardecl Unit Unit))
@@ -67,16 +78,10 @@
                       Unit
                       [
                         [
-                          (builtin addInteger)
-                          [
-                            fib
-                            [ [ (builtin subtractInteger) n ] (con integer 1) ]
-                          ]
+                          addInteger
+                          [ fib [ [ subtractInteger n ] (con integer 1) ] ]
                         ]
-                        [
-                          fib
-                          [ [ (builtin subtractInteger) n ] (con integer 2) ]
-                        ]
+                        [ fib [ [ subtractInteger n ] (con integer 2) ] ]
                       ]
                     )
                   ]

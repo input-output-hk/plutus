@@ -1,65 +1,15 @@
 (program 1.0.0
-  [
-    [
-      [
-        (lam
-          Nothing_i0
-          (all a_i0 (type) [(lam a_i0 (type) (all out_Maybe_i0 (type) (fun out_Maybe_i1 (fun (fun a_i2 out_Maybe_i1) out_Maybe_i1)))) a_i1])
-          (lam
-            Just_i0
-            (all a_i0 (type) (fun a_i1 [(lam a_i0 (type) (all out_Maybe_i0 (type) (fun out_Maybe_i1 (fun (fun a_i2 out_Maybe_i1) out_Maybe_i1)))) a_i1]))
-            (lam
-              match_Maybe_i0
-              (all a_i0 (type) (fun [(lam a_i0 (type) (all out_Maybe_i0 (type) (fun out_Maybe_i1 (fun (fun a_i2 out_Maybe_i1) out_Maybe_i1)))) a_i1] (all out_Maybe_i0 (type) (fun out_Maybe_i1 (fun (fun a_i2 out_Maybe_i1) out_Maybe_i1)))))
-              [
-                { Just_i2 (all a_i0 (type) (fun a_i1 a_i1)) }
-                (abs a_i0 (type) (lam x_i0 a_i2 x_i1))
-              ]
-            )
-          )
-        )
-        (abs
-          a_i0
-          (type)
-          (abs
-            out_Maybe_i0
-            (type)
-            (lam
-              case_Nothing_i0
-              out_Maybe_i2
-              (lam case_Just_i0 (fun a_i4 out_Maybe_i3) case_Nothing_i2)
-            )
-          )
-        )
-      ]
-      (abs
-        a_i0
-        (type)
-        (lam
-          arg_0_i0
-          a_i2
-          (abs
-            out_Maybe_i0
-            (type)
-            (lam
-              case_Nothing_i0
-              out_Maybe_i2
-              (lam
-                case_Just_i0 (fun a_i5 out_Maybe_i3) [ case_Just_i1 arg_0_i4 ]
-              )
-            )
-          )
-        )
-      )
-    ]
-    (abs
-      a_i0
-      (type)
+  (abs
+    out_Maybe_i0
+    (type)
+    (lam
+      case_Nothing_i0
+      out_Maybe_i2
       (lam
-        x_i0
-        [(lam a_i0 (type) (all out_Maybe_i0 (type) (fun out_Maybe_i1 (fun (fun a_i2 out_Maybe_i1) out_Maybe_i1)))) a_i2]
-        x_i1
+        case_Just_i0
+        (fun (all a_i0 (type) (fun a_i1 a_i1)) out_Maybe_i3)
+        [ case_Just_i1 (abs a_i0 (type) (lam x_i0 a_i2 x_i1)) ]
       )
     )
-  ]
+  )
 )

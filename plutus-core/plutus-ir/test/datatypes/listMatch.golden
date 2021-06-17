@@ -1,46 +1,16 @@
 (program 1.0.0
   [
     [
-      [
-        (lam
-          Nil_i0
-          (all a_i0 (type) [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i1])
+      {
+        [
           (lam
-            Cons_i0
-            (all a_i0 (type) (fun a_i1 (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i1] [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i1])))
-            (lam
-              match_List_i0
-              (all a_i0 (type) (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i1] (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i2] out_List_i1)) out_List_i1)))))
-              [
-                [
-                  {
-                    [
-                      { match_List_i1 (all a_i0 (type) (fun a_i1 a_i1)) }
-                      { Nil_i3 (all a_i0 (type) (fun a_i1 a_i1)) }
-                    ]
-                    (all a_i0 (type) (fun a_i1 a_i1))
-                  }
-                  (abs a_i0 (type) (lam x_i0 a_i2 x_i1))
-                ]
-                (lam
-                  head_i0
-                  (all a_i0 (type) (fun a_i1 a_i1))
-                  (lam
-                    tail_i0
-                    [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) (all a_i0 (type) (fun a_i1 a_i1))]
-                    head_i2
-                  )
-                )
-              ]
-            )
+            x_i0
+            [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) (all a_i0 (type) (fun a_i1 a_i1))]
+            (unwrap x_i1)
           )
-        )
-        (abs
-          a_i0
-          (type)
           (iwrap
             (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1)))))
-            a_i1
+            (all a_i0 (type) (fun a_i1 a_i1))
             (abs
               out_List_i0
               (type)
@@ -49,51 +19,24 @@
                 out_List_i2
                 (lam
                   case_Cons_i0
-                  (fun a_i4 (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i4] out_List_i3))
+                  (fun (all a_i0 (type) (fun a_i1 a_i1)) (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) (all a_i0 (type) (fun a_i1 a_i1))] out_List_i3))
                   case_Nil_i2
                 )
               )
             )
           )
-        )
-      ]
-      (abs
-        a_i0
-        (type)
-        (lam
-          arg_0_i0
-          a_i2
-          (lam
-            arg_1_i0
-            [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i3]
-            (iwrap
-              (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1)))))
-              a_i3
-              (abs
-                out_List_i0
-                (type)
-                (lam
-                  case_Nil_i0
-                  out_List_i2
-                  (lam
-                    case_Cons_i0
-                    (fun a_i6 (fun [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i6] out_List_i3))
-                    [ [ case_Cons_i1 arg_0_i5 ] arg_1_i4 ]
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+        ]
+        (all a_i0 (type) (fun a_i1 a_i1))
+      }
+      (abs a_i0 (type) (lam x_i0 a_i2 x_i1))
     ]
-    (abs
-      a_i0
-      (type)
+    (lam
+      head_i0
+      (all a_i0 (type) (fun a_i1 a_i1))
       (lam
-        x_i0
-        [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) a_i2]
-        (unwrap x_i1)
+        tail_i0
+        [(lam a_i0 (type) (ifix (lam List_i0 (fun (type) (type)) (lam a_i0 (type) (all out_List_i0 (type) (fun out_List_i1 (fun (fun a_i2 (fun [List_i3 a_i2] out_List_i1)) out_List_i1))))) a_i1)) (all a_i0 (type) (fun a_i1 a_i1))]
+        head_i2
       )
     )
   ]

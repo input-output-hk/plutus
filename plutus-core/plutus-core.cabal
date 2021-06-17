@@ -101,6 +101,7 @@ library
         PlutusIR
         PlutusIR.Core
         PlutusIR.Core.Instance
+        PlutusIR.Core.Instance.Flat
         PlutusIR.Core.Instance.Pretty
         PlutusIR.Core.Plated
         PlutusIR.Core.Type
@@ -420,6 +421,19 @@ executable plc
         serialise -any,
         split -any,
         text -any,
+        transformers -any
+
+executable pir
+    import: lang
+    main-is: Main.hs
+    hs-source-dirs: pir
+    build-depends:
+        plutus-core -any,
+        base <5,
+        bytestring -any,
+        flat -any,
+        lens -any,
+        optparse-applicative -any,
         transformers -any
 
 -- This runs the microbenchmarks used to generate the cost models for built-in functions,

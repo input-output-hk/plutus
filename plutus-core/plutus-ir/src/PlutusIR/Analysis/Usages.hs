@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 -- | Functions for computing variable usage inside terms and types.
-module PlutusIR.Analysis.Usages (runTermUsages, runTypeUsages, Usages, isUsed, allUsed) where
+module PlutusIR.Analysis.Usages (runTermUsages, runTypeUsages, Usages, isUsed, isUsedOnce, allUsed) where
 
 import           PlutusIR
 
@@ -26,9 +26,15 @@ addUsage n usages =
         old = Map.findWithDefault 0 u usages
     in Map.insert u (old+1) usages
 
+-- | Check if @n@ is used at least once.
 isUsed :: (PLC.HasUnique n unique) => n -> Usages -> Bool
 isUsed n usages = Map.findWithDefault 0 (n ^. PLC.unique . coerced) usages > 0
 
+-- | Check if @n@ is used exactly once.
+isUsedOnce :: (PLC.HasUnique n unique) => n -> Usages -> Bool
+isUsedOnce n usages = Map.findWithDefault 0 (n ^. PLC.unique . coerced) usages == 1
+
+-- | Get a set of all used @n@s.
 allUsed :: Usages -> Set.Set PLC.Unique
 allUsed usages = Map.keysSet $ Map.filter (> 0) usages
 

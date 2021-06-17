@@ -62,7 +62,9 @@ safeLift
 safeLift x = do
     lifted <- liftQuote $ runDefT () $ Lift.lift x
     tcConfig <- PLC.getDefTypeCheckConfig $ Original ()
-    compiled <- flip runReaderT (toDefaultCompilationCtx tcConfig) $ compileTerm lifted
+    -- NOTE:  Disabling simplifier, as it takes a lot of time during runtime
+    let ccConfig = set (ccOpts . coMaxSimplifierIterations) 0 (toDefaultCompilationCtx tcConfig)
+    compiled <- flip runReaderT ccConfig $ compileTerm lifted
     let erased = UPLC.erase compiled
     db <- UPLC.deBruijnTerm $ UPLC.simplifyTerm erased
     pure $ void db

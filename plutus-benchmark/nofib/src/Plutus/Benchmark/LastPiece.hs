@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:max-simplifier-iterations=1 #-}
 
 {-% Last piece puzzle, adapted from nofib/spectral/last-piece.
     This is a solver for a jigsaw problem:

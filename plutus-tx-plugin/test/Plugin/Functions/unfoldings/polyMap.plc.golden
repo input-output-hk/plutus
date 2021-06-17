@@ -1,103 +1,112 @@
 (program
   (let
-    (rec)
-    (datatypebind
-      (datatype
-        (tyvardecl List (fun (type) (type)))
-        (tyvardecl a (type))
-        Nil_match
-        (vardecl Nil [List a]) (vardecl Cons (fun a (fun [List a] [List a])))
-      )
+    (nonrec)
+    (termbind
+      (strict)
+      (vardecl addInteger (fun (con integer) (fun (con integer) (con integer))))
+      (builtin addInteger)
     )
     (let
-      (nonrec)
-      (termbind
-        (strict)
-        (vardecl
-          build
-          (all a (type) (fun (all b (type) (fun (fun a (fun b b)) (fun b b))) [List a]))
-        )
-        (abs
-          a
-          (type)
-          (lam
-            g
-            (all b (type) (fun (fun a (fun b b)) (fun b b)))
-            [ [ { g [List a] } { Cons a } ] { Nil a } ]
-          )
-        )
-      )
+      (rec)
       (datatypebind
-        (datatype (tyvardecl Unit (type))  Unit_match (vardecl Unit Unit))
+        (datatype
+          (tyvardecl List (fun (type) (type)))
+          (tyvardecl a (type))
+          Nil_match
+          (vardecl Nil [List a]) (vardecl Cons (fun a (fun [List a] [List a])))
+        )
       )
       (let
-        (rec)
+        (nonrec)
         (termbind
-          (nonstrict)
+          (strict)
           (vardecl
-            mapDirect
-            (all a (type) (all b (type) (fun (fun a b) (fun [List a] [List b]))))
+            build
+            (all a (type) (fun (all b (type) (fun (fun a (fun b b)) (fun b b))) [List a]))
           )
           (abs
             a
             (type)
+            (lam
+              g
+              (all b (type) (fun (fun a (fun b b)) (fun b b)))
+              [ [ { g [List a] } { Cons a } ] { Nil a } ]
+            )
+          )
+        )
+        (datatypebind
+          (datatype (tyvardecl Unit (type))  Unit_match (vardecl Unit Unit))
+        )
+        (let
+          (rec)
+          (termbind
+            (nonstrict)
+            (vardecl
+              mapDirect
+              (all a (type) (all b (type) (fun (fun a b) (fun [List a] [List b]))))
+            )
             (abs
-              b
+              a
               (type)
-              (lam
-                f
-                (fun a b)
+              (abs
+                b
+                (type)
                 (lam
-                  l
-                  [List a]
-                  [
+                  f
+                  (fun a b)
+                  (lam
+                    l
+                    [List a]
                     [
                       [
-                        { [ { Nil_match a } l ] (fun Unit [List b]) }
-                        (lam thunk Unit { Nil b })
-                      ]
-                      (lam
-                        x
-                        a
+                        [
+                          { [ { Nil_match a } l ] (fun Unit [List b]) }
+                          (lam thunk Unit { Nil b })
+                        ]
                         (lam
-                          xs
-                          [List a]
+                          x
+                          a
                           (lam
-                            thunk
-                            Unit
-                            [
-                              [ { Cons b } [ f x ] ]
-                              [ [ { { mapDirect a } b } f ] xs ]
-                            ]
+                            xs
+                            [List a]
+                            (lam
+                              thunk
+                              Unit
+                              [
+                                [ { Cons b } [ f x ] ]
+                                [ [ { { mapDirect a } b } f ] xs ]
+                              ]
+                            )
                           )
                         )
-                      )
+                      ]
+                      Unit
                     ]
-                    Unit
-                  ]
+                  )
                 )
               )
             )
           )
-        )
-        [
           [
-            { { mapDirect (con integer) } (con integer) }
-            [ (builtin addInteger) (con integer 1) ]
-          ]
-          [
-            { build (con integer) }
-            (abs
-              a
-              (type)
-              (lam
-                c
-                (fun (con integer) (fun a a))
-                (lam n a [ [ c (con integer 0) ] [ [ c (con integer 1) ] n ] ])
+            [
+              { { mapDirect (con integer) } (con integer) }
+              [ addInteger (con integer 1) ]
+            ]
+            [
+              { build (con integer) }
+              (abs
+                a
+                (type)
+                (lam
+                  c
+                  (fun (con integer) (fun a a))
+                  (lam n a [ [ c (con integer 0) ] [ [ c (con integer 1) ] n ] ]
+                  )
+                )
               )
-            )
+            ]
           ]
-        ]
+        )
       )
     )
   )

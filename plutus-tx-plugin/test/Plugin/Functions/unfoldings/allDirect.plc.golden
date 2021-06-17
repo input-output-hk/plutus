@@ -138,15 +138,14 @@
               (lam
                 arg
                 (con integer)
-                (let
-                  (nonrec)
-                  (termbind
-                    (strict)
-                    (vardecl b (con bool))
-                    [ [ (builtin greaterThanInteger) arg ] arg ]
+                [
+                  (lam
+                    b
+                    (con bool)
+                    [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
                   )
-                  [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-                )
+                  [ [ (builtin greaterThanInteger) arg ] arg ]
+                ]
               )
             )
           )

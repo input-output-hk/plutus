@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE UndecidableInstances  #-}
 module PlutusIR.Core.Type (
     TyName (..),
@@ -33,7 +32,6 @@ import qualified PlutusCore.Name     as PLC
 
 
 import qualified Data.Text           as T
-import           Flat                (Flat)
 
 -- Datatypes
 
@@ -47,15 +45,6 @@ terms can thus be used as backwards compatibility is not required.
 
 data Datatype tyname name uni fun a = Datatype a (TyVarDecl tyname a) [TyVarDecl tyname a] name [VarDecl tyname name uni fun a]
     deriving (Functor, Show, Generic)
-
-instance ( PLC.Closed uni
-         , uni `PLC.Everywhere` Flat
-         , Flat a
-         , Flat tyname
-         , Flat name
-         -- This was needed only for the Flat instance
-         , Flat fun
-         ) => Flat (Datatype tyname name uni fun a)
 
 varDeclNameString :: VarDecl tyname Name uni fun a -> String
 varDeclNameString = T.unpack . PLC.nameString . varDeclName
@@ -82,25 +71,13 @@ instance Semigroup Recursivity where
   NonRec <> x = x
   Rec <> _    = Rec
 
-instance Flat Recursivity
-
 data Strictness = NonStrict | Strict
     deriving (Show, Eq, Generic)
-
-instance Flat Strictness
 
 data Binding tyname name uni fun a = TermBind a Strictness (VarDecl tyname name uni fun a) (Term tyname name uni fun a)
                            | TypeBind a (TyVarDecl tyname a) (Type tyname uni a)
                            | DatatypeBind a (Datatype tyname name uni fun a)
     deriving (Functor, Show, Generic)
-
-instance ( PLC.Closed uni
-         , uni `PLC.Everywhere` Flat
-         , Flat fun
-         , Flat a
-         , Flat tyname
-         , Flat name
-         ) => Flat (Binding tyname name uni fun a)
 
 -- Terms
 
@@ -154,14 +131,6 @@ instance AsConstant (Term tyname name uni fun ann) where
 instance FromConstant (Term tyname name uni fun ()) where
     fromConstant = Constant ()
 
-instance ( PLC.Closed uni
-         , uni `PLC.Everywhere` Flat
-         , Flat fun
-         , Flat a
-         , Flat tyname
-         , Flat name
-         ) => Flat (Term tyname name uni fun a)
-
 instance TermLike (Term tyname name uni fun) tyname name uni fun where
     var      = Var
     tyAbs    = TyAbs
@@ -178,14 +147,6 @@ instance TermLike (Term tyname name uni fun) tyname name uni fun where
 
 -- no version as PIR is not versioned
 data Program tyname name uni fun a = Program a (Term tyname name uni fun a) deriving Generic
-
-instance ( PLC.Closed uni
-         , uni `PLC.Everywhere` Flat
-         , Flat fun
-         , Flat a
-         , Flat tyname
-         , Flat name
-         ) => Flat (Program tyname name uni fun a)
 
 type instance PLC.HasUniques (Term tyname name uni fun ann) = (PLC.HasUnique tyname PLC.TypeUnique, PLC.HasUnique name PLC.TermUnique)
 type instance PLC.HasUniques (Program tyname name uni fun ann) = PLC.HasUniques (Term tyname name uni fun ann)

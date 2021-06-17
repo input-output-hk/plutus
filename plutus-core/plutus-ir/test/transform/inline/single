@@ -1,0 +1,75 @@
+(let
+  (nonrec)
+
+  (termbind
+    (strict)
+    (vardecl x (con integer))
+    (con integer 42)
+  )
+
+  (termbind
+    (strict)
+    (vardecl simple (con integer))
+    (let
+      (nonrec)
+      (termbind
+        (strict)
+        (vardecl f (fun (con integer) (con integer)))
+        (lam y (con integer) y)
+      )
+      [ f (con integer 1) ]
+    )
+  )
+
+  (termbind
+    (strict)
+    (vardecl insideLambda (fun (con integer) (con integer)))
+    (let
+      (nonrec)
+      (termbind
+        (strict)
+        (vardecl f (fun (con integer) (con integer)))
+        (lam y (con integer) y)
+      )
+      (lam y (con integer) [ f y ])
+    )
+  )
+
+  (termbind
+    (strict)
+    (vardecl noInline (con integer))
+    (let
+      (nonrec)
+      (termbind
+        (strict)
+        (vardecl f (fun (con integer) (con integer)))
+        (lam y (con integer) y)
+      )
+      [ f [ f (con integer 1) ] ]
+    )
+  )
+
+  (termbind
+    (strict)
+    (vardecl variableCapture (con integer))
+    (let
+      (nonrec)
+      (termbind
+        (strict)
+        (vardecl f (fun (con integer) (con integer)))
+        (lam y (con integer) x)
+      )
+      (let
+        (nonrec)
+        (termbind
+          (strict)
+          (vardecl x (con integer))
+          (con integer 24)
+        )
+        [f x]
+      )
+    )
+  )
+
+  x
+)

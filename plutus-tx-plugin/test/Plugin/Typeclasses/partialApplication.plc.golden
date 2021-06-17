@@ -26,15 +26,14 @@
         (lam
           arg
           (con integer)
-          (let
-            (nonrec)
-            (termbind
-              (strict)
-              (vardecl b (con bool))
-              [ [ (builtin equalsInteger) arg ] arg ]
+          [
+            (lam
+              b
+              (con bool)
+              [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
             )
-            [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-          )
+            [ [ (builtin equalsInteger) arg ] arg ]
+          ]
         )
       )
     )
@@ -47,15 +46,14 @@
         (lam
           arg
           (con integer)
-          (let
-            (nonrec)
-            (termbind
-              (strict)
-              (vardecl b (con bool))
-              [ [ (builtin lessThanEqualsInteger) arg ] arg ]
+          [
+            (lam
+              b
+              (con bool)
+              [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
             )
-            [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-          )
+            [ [ (builtin lessThanEqualsInteger) arg ] arg ]
+          ]
         )
       )
     )

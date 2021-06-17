@@ -630,10 +630,18 @@
                       )
                     )
                   )
+                  (termbind
+                    (nonstrict)
+                    (vardecl
+                      sequence
+                      (all t (fun (type) (type)) (all f (fun (type) (type)) (all a (type) (fun [Traversable t] (fun [Applicative f] (fun [t [f a]] [f [t a]]))))))
+                    )
+                    sequenceA
+                  )
                   [
                     [
                       [
-                        { { { sequenceA List } Maybe } (con integer) }
+                        { { { sequence List } Maybe } (con integer) }
                         fTraversableNil
                       ]
                       fApplicativeMaybe

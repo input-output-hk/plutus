@@ -18,15 +18,14 @@
         (lam
           arg
           (con integer)
-          (let
-            (nonrec)
-            (termbind
-              (strict)
-              (vardecl b (con bool))
-              [ [ (builtin lessThanInteger) arg ] arg ]
+          [
+            (lam
+              b
+              (con bool)
+              [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
             )
-            [ [ [ { (builtin ifThenElse) Bool } b ] True ] False ]
-          )
+            [ [ (builtin lessThanInteger) arg ] arg ]
+          ]
         )
       )
     )

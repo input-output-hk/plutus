@@ -7,15 +7,7 @@
     (termbind
       (strict)
       (vardecl trace (fun (con string) Unit))
-      (lam
-        arg
-        (con string)
-        (let
-          (nonrec)
-          (termbind (strict) (vardecl b (con unit)) [ (builtin trace) arg ])
-          Unit
-        )
-      )
+      (lam arg (con string) [ (lam b (con unit) Unit) [ (builtin trace) arg ] ])
     )
     (lam ds (con string) [ trace ds ])
   )

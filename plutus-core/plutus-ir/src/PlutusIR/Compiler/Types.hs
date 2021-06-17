@@ -40,14 +40,21 @@ makeLenses ''PirTCConfig
 instance PLC.HasTypeCheckConfig (PirTCConfig uni fun) uni fun where
     typeCheckConfig = pirConfigTCConfig
 
-newtype CompilationOpts = CompilationOpts {
-    _coOptimize :: Bool
+data CompilationOpts = CompilationOpts {
+      _coOptimize                     :: Bool
+    , _coMaxSimplifierIterations      :: Int
+    -- Simplifier passes
+    , _coSimplifierUnwrapCancel       :: Bool
+    , _coSimplifierBeta               :: Bool
+    , _coSimplifierFloatTerm          :: Bool
+    , _coSimplifierInline             :: Bool
+    , _coSimplifierRemoveDeadBindings :: Bool
     } deriving (Eq, Show)
 
 makeLenses ''CompilationOpts
 
 defaultCompilationOpts :: CompilationOpts
-defaultCompilationOpts = CompilationOpts True
+defaultCompilationOpts = CompilationOpts True 8 True True True True True
 
 data CompilationCtx uni fun a = CompilationCtx {
     _ccOpts              :: CompilationOpts
@@ -67,10 +74,17 @@ getEnclosing = view ccEnclosing
 withEnclosing :: MonadReader (CompilationCtx uni fun a) m => (Provenance a -> Provenance a) -> m b -> m b
 withEnclosing f = local (over ccEnclosing f)
 
+runIf
+  :: MonadReader (CompilationCtx uni fun a) m
+  => Getting Bool (CompilationCtx uni fun a) Bool
+  -> (b -> m b)
+  -> (b -> m b)
+runIf getter pass arg = do
+  doPass <- view getter
+  if doPass then pass arg else pure arg
+
 runIfOpts :: MonadReader (CompilationCtx uni fun a) m => (b -> m b) -> (b -> m b)
-runIfOpts pass arg = do
-    doOpt <- view (ccOpts . coOptimize)
-    if doOpt then pass arg else pure arg
+runIfOpts = runIf (ccOpts . coOptimize)
 
 type PLCTerm uni fun a = PLC.Term PLC.TyName PLC.Name uni fun (Provenance a)
 type PLCType uni a = PLC.Type PLC.TyName uni (Provenance a)

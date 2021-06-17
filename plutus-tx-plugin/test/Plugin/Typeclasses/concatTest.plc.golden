@@ -136,6 +136,14 @@
           (let
             (nonrec)
             (termbind
+              (nonstrict)
+              (vardecl
+                fFoldableNil
+                [(lam t (fun (type) (type)) (all m (type) (all a (type) (fun [Monoid m] (fun (fun a m) (fun [t a] m)))))) List]
+              )
+              fFoldableNil_cfoldMap
+            )
+            (termbind
               (strict)
               (vardecl
                 bad_name
@@ -296,7 +304,7 @@
               )
             )
             [
-              [ { { concat List } (con integer) } fFoldableNil_cfoldMap ]
+              [ { { concat List } (con integer) } fFoldableNil ]
               [
                 { build [List (con integer)] }
                 (abs

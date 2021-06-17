@@ -12,6 +12,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 {-# OPTIONS_GHC -fno-ignore-interface-pragmas #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:max-simplifier-iterations=4 #-}
 module BasicApps where
 
 -- BLOCK0

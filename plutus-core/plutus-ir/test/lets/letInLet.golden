@@ -1,9 +1,3 @@
 (program 1.0.0
-  [
-    (lam unitval2_i0 (all a_i0 (type) (fun a_i1 a_i1)) unitval2_i1)
-    [
-      (lam unitval_i0 (all a_i0 (type) (fun a_i1 a_i1)) unitval_i1)
-      (abs a_i0 (type) (lam x_i0 a_i2 x_i1))
-    ]
-  ]
+  (abs a_i0 (type) (lam x_i0 a_i2 x_i1))
 )

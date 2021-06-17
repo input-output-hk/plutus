@@ -11,6 +11,11 @@
     )
     (termbind
       (strict)
+      (vardecl addInteger (fun (con integer) (fun (con integer) (con integer))))
+      (builtin addInteger)
+    )
+    (termbind
+      (strict)
       (vardecl
         csize
         (all a (type) (all b (type) (fun [(lam a (type) (fun a (con integer))) a] (fun [(lam a (type) (fun a (con integer))) b] (fun [[Tuple2 a] b] (con integer))))))
@@ -33,11 +38,7 @@
                 [
                   { [ { { Tuple2_match a } b } ds ] (con integer) }
                   (lam
-                    a
-                    a
-                    (lam
-                      b b [ [ (builtin addInteger) [ dSized a ] ] [ dSized b ] ]
-                    )
+                    a a (lam b b [ [ addInteger [ dSized a ] ] [ dSized b ] ])
                   )
                 ]
               )
@@ -47,6 +48,14 @@
       )
     )
     (termbind
+      (nonstrict)
+      (vardecl
+        fSizedTuple2
+        (all a (type) (all b (type) (fun [(lam a (type) (fun a (con integer))) a] (fun [(lam a (type) (fun a (con integer))) b] [(lam a (type) (fun a (con integer))) [[Tuple2 a] b]]))))
+      )
+      csize
+    )
+    (termbind
       (strict)
       (vardecl csize (fun (con integer) (con integer)))
       (lam x (con integer) x)
@@ -54,10 +63,20 @@
     (termbind
       (nonstrict)
       (vardecl
+        fSizedInteger [(lam a (type) (fun a (con integer))) (con integer)]
+      )
+      csize
+    )
+    (termbind
+      (nonstrict)
+      (vardecl
         dSized
         [(lam a (type) (fun a (con integer))) [[Tuple2 (con integer)] (con integer)]]
       )
-      [ [ { { csize (con integer) } (con integer) } csize ] csize ]
+      [
+        [ { { fSizedTuple2 (con integer) } (con integer) } fSizedInteger ]
+        fSizedInteger
+      ]
     )
     (termbind
       (strict)

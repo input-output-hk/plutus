@@ -13,6 +13,7 @@
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:debug-context #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:max-simplifier-iterations=4 #-}
 -- | A general-purpose escrow contract in Plutus
 module Plutus.Contracts.Escrow(
     -- $escrow
