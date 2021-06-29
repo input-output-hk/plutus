@@ -10,10 +10,7 @@
     "test:watch": "spago test --no-psa --watch",
     "docs": "spago docs",
     "repl": "spago repl",
-    "start": "npm install && plutus-pab-generate-purs && npm run purs:compile && npm run webpack:server",
-    "link-contracts": "nix-build ../default.nix -A marlowe-dashboard.contractsJSON -o contracts",
-    "install-contracts": "nix-build ../default.nix -A marlowe-dashboard.install-marlowe-contracts",
-    "setup-contracts": "npm run install-contracts && npm run link-contracts"
+    "start": "npm install && marlowe-pab-generate-purs && npm run purs:compile && npm run webpack:server"
   },
   "resolutions": {},
   "license": "Apache-2.0",

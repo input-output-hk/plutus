@@ -18,6 +18,9 @@ Start the threads for contract instances
 module Plutus.PAB.Core.ContractInstance(
     ContractInstanceMsg(..)
     , activateContractSTM
+    , activateContractSTM'
+    , ContractInstanceState(..)
+    , updateState
     -- * STM instances
     , startSTMInstanceThread
     , AppBackendConstraints
@@ -66,6 +69,40 @@ import           Plutus.PAB.Events.Contract                       (ContractInsta
 import           Plutus.PAB.Types                                 (PABError (..))
 import           Plutus.PAB.Webserver.Types                       (ContractActivationArgs (..))
 
+-- | Container for holding a few bits of state related to the contract
+-- instance that we may want to pass in.
+data ContractInstanceState t =
+  ContractInstanceState
+    { contractState :: Contract.State t
+    , stmState      :: STM InstanceState
+    }
+
+-- | Create a new instance of the contract, but where the
+-- activeContractInstanceId and the initial state are provided.
+activateContractSTM' ::
+    forall t m appBackend effs.
+    ( Member (LogMsg (ContractInstanceMsg t)) effs
+    , Member (ContractStore t) effs
+    , Member (Reader InstancesState) effs
+    , Contract.PABContract t
+    , AppBackendConstraints t m appBackend
+    , LastMember m (Reader ContractInstanceId ': appBackend)
+    , LastMember m effs
+    )
+    => ContractInstanceState t
+    -> ContractInstanceId
+    -> (Eff appBackend ~> IO)
+    -> ContractActivationArgs (ContractDef t)
+    -> Eff effs ContractInstanceId
+activateContractSTM' ContractInstanceState{contractState,stmState} activeContractInstanceId runAppBackend a@ContractActivationArgs{caID, caWallet} = do
+  logDebug @(ContractInstanceMsg t) $ InitialisingContract caID activeContractInstanceId
+  Contract.putStartInstance @t a activeContractInstanceId
+  Contract.putState @t a activeContractInstanceId contractState
+  s <- startSTMInstanceThread' @t @m stmState runAppBackend a activeContractInstanceId
+  ask >>= void . liftIO . STM.atomically . InstanceState.insertInstance activeContractInstanceId s
+  logInfo @(ContractInstanceMsg t) $ ActivatedContractInstance caID caWallet activeContractInstanceId
+  pure activeContractInstanceId
+
 -- | Create a new instance of the contract
 activateContractSTM ::
     forall t m appBackend effs.
@@ -82,16 +119,10 @@ activateContractSTM ::
     => (Eff appBackend ~> IO)
     -> ContractActivationArgs (ContractDef t)
     -> Eff effs ContractInstanceId
-activateContractSTM runAppBackend a@ContractActivationArgs{caID, caWallet} = do
-    activeContractInstanceId <- ContractInstanceId <$> uuidNextRandom
-    logDebug @(ContractInstanceMsg t) $ InitialisingContract caID activeContractInstanceId
-    initialState <- Contract.initialState @t activeContractInstanceId caID
-    Contract.putStartInstance @t a activeContractInstanceId
-    Contract.putState @t a activeContractInstanceId initialState
-    s <- startSTMInstanceThread @t @m runAppBackend a activeContractInstanceId
-    ask >>= void . liftIO . STM.atomically . InstanceState.insertInstance activeContractInstanceId s
-    logInfo @(ContractInstanceMsg t) $ ActivatedContractInstance caID caWallet activeContractInstanceId
-    pure activeContractInstanceId
+activateContractSTM runAppBackend a@ContractActivationArgs{caID} = do
+  activeContractInstanceId <- ContractInstanceId <$> uuidNextRandom
+  initialState <- Contract.initialState @t activeContractInstanceId caID
+  activateContractSTM' @t @m @appBackend @effs (ContractInstanceState initialState emptyInstanceState) activeContractInstanceId runAppBackend a
 
 processAwaitSlotRequestsSTM ::
     forall effs.
@@ -157,6 +188,30 @@ stmRequestHandler = fmap sequence (wrapHandler (fmap pure nonBlockingRequests) <
         <> processEndpointRequestsSTM @effs
 
 -- | Start the thread for the contract instance
+startSTMInstanceThread' ::
+    forall t m appBackend effs.
+    ( LastMember m effs
+    , Contract.PABContract t
+    , AppBackendConstraints t m appBackend
+    , LastMember m (Reader InstanceState ': Reader ContractInstanceId ': appBackend)
+    )
+    => STM InstanceState
+    -> (Eff appBackend ~> IO)
+    -> ContractActivationArgs (ContractDef t)
+    -> ContractInstanceId
+    -> Eff effs InstanceState
+startSTMInstanceThread' stmState runAppBackend def instanceID =  do
+    state <- liftIO $ STM.atomically stmState
+    _ <- liftIO
+        $ forkIO
+        $ runAppBackend
+        $ runReader instanceID
+        $ runReader state
+        $ stmInstanceLoop @t @m @(Reader InstanceState ': Reader ContractInstanceId ': appBackend) def instanceID
+    pure state
+    -- TODO: Separate chain index queries (non-blocking) from waiting for updates (blocking)
+
+-- | Start the thread for the contract instance
 startSTMInstanceThread ::
     forall t m appBackend effs.
     ( LastMember m effs
@@ -168,17 +223,7 @@ startSTMInstanceThread ::
     -> ContractActivationArgs (ContractDef t)
     -> ContractInstanceId
     -> Eff effs InstanceState
-startSTMInstanceThread runAppBackend def instanceID = do
-    state <- liftIO $ STM.atomically emptyInstanceState
-    _ <- liftIO
-        $ forkIO
-        $ runAppBackend
-        $ runReader instanceID
-        $ runReader state
-        $ stmInstanceLoop @t @m @(Reader InstanceState ': Reader ContractInstanceId ': appBackend) def instanceID
-
-    pure state
-    -- TODO: Separate chain index queries (non-blocking) from waiting for updates (blocking)
+startSTMInstanceThread = startSTMInstanceThread' @t @m @appBackend emptyInstanceState
 
 type AppBackendConstraints t m effs =
     ( LastMember m effs

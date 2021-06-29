@@ -54,6 +54,7 @@ data PABError
     | WalletNotFound Wallet
     | MissingConfigFileOption
     | ContractStateNotFound ContractInstanceId
+    | AesonDecodingError Text Text
     deriving stock (Show, Eq, Generic)
     deriving anyclass (ToJSON, FromJSON)
 
@@ -77,6 +78,7 @@ instance Pretty PABError where
         WalletNotFound w           -> "Wallet not found:" <+> pretty w
         MissingConfigFileOption    -> "The --config-file option is required"
         ContractStateNotFound i    -> "State for contract instance not found:" <+> pretty i
+        AesonDecodingError msg o   -> "Error while Aeson decoding: " <+> pretty msg <+> pretty o
 
 data DbConfig =
     DbConfig

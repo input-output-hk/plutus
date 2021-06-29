@@ -10,9 +10,6 @@
 , marlowe-dashboard
 , web-ghc
 , plutus-pab
-, marlowe-app
-, marlowe-companion-app
-, marlowe-follow-app
 , docs
 , vmCompileTests ? false
 }:
@@ -45,7 +42,6 @@ pkgs.recurseIntoAttrs {
 
   vmTests = pkgs.callPackage ./vm.nix {
     inherit vmCompileTests plutus-playground marlowe-playground
-      marlowe-dashboard web-ghc plutus-pab
-      marlowe-app marlowe-companion-app marlowe-follow-app docs;
+      marlowe-dashboard web-ghc plutus-pab docs;
   };
 }

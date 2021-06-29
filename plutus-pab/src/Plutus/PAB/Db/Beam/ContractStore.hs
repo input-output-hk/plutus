@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE GADTs             #-}
 {-# LANGUAGE LambdaCase        #-}
@@ -19,40 +19,42 @@ module Plutus.PAB.Db.Beam.ContractStore
   where
 
 import           Control.Lens
-import           Control.Monad                           (join)
-import           Control.Monad.Freer                     (Eff, Member, type (~>))
-import           Control.Monad.Freer.Error               (Error, throwError)
-import           Data.Aeson                              (decode, encode)
-import           Data.ByteString.Builder                 (toLazyByteString)
-import qualified Data.ByteString.Char8                   as B
-import qualified Data.ByteString.Lazy.Char8              as LB
-import           Data.Map                                (Map)
-import qualified Data.Map                                as Map
-import           Data.Maybe                              (fromMaybe)
-import           Data.Text                               (Text)
-import qualified Data.Text                               as Text
-import           Data.Text.Encoding                      (encodeUtf8Builder)
-import qualified Data.Text.Encoding                      as Text
-import           Data.UUID                               (fromText, toText)
-import           Database.Beam                           hiding (updateRow)
-import           Plutus.PAB.Effects.Contract             (ContractStore (..), PABContract (..))
-import           Plutus.PAB.Effects.Contract.ContractExe (ContractExe (..))
-import           Plutus.PAB.Effects.DbStore              hiding (ContractInstanceId, contractPath)
-import           Plutus.PAB.Types                        (PABError (..))
-import           Plutus.PAB.Webserver.Types              (ContractActivationArgs (..))
-import           Wallet.Emulator.Wallet                  (Wallet (..))
-import           Wallet.Types                            (ContractInstanceId (..))
+import           Control.Monad                       (join)
+import           Control.Monad.Freer                 (Eff, Member, type (~>))
+import           Control.Monad.Freer.Error           (Error, throwError)
+import           Control.Monad.Freer.Extras          (LogMsg)
+import           Data.Aeson                          (FromJSON, ToJSON, decode, encode)
+import           Data.ByteString.Builder             (toLazyByteString)
+import qualified Data.ByteString.Char8               as B
+import qualified Data.ByteString.Lazy.Char8          as LB
+import           Data.Map                            (Map)
+import qualified Data.Map                            as Map
+import           Data.Text                           (Text)
+import qualified Data.Text                           as Text
+import           Data.Text.Encoding                  (encodeUtf8Builder)
+import qualified Data.Text.Encoding                  as Text
+import           Data.UUID                           (fromText, toText)
+import           Database.Beam                       hiding (updateRow)
+import           Plutus.PAB.Effects.Contract         (ContractStore (..), PABContract (..))
+import           Plutus.PAB.Effects.Contract.Builtin (Builtin, HasDefinitions (getContract), fromResponse, getResponse)
+import           Plutus.PAB.Effects.DbStore          hiding (ContractInstanceId)
+import           Plutus.PAB.Monitoring.Monitoring    (PABMultiAgentMsg)
+import           Plutus.PAB.Types                    (PABError (..))
+import           Plutus.PAB.Webserver.Types          (ContractActivationArgs (..))
+import           Wallet.Emulator.Wallet              (Wallet (..))
+import           Wallet.Types                        (ContractInstanceId (..))
 
--- | Convert from the internal representation of a  contract into the database
+-- | Convert from the internal representation of a contract into the database
 -- representation.
 mkRow
-  :: ContractActivationArgs (ContractDef ContractExe)
+  :: (ToJSON a)
+  => ContractActivationArgs (ContractDef (Builtin a))
   -> ContractInstanceId
   -> ContractInstance
-mkRow (ContractActivationArgs{caID, caWallet}) instanceId
+mkRow ContractActivationArgs{caID, caWallet} instanceId
   = ContractInstance
       (uuidStr instanceId)
-      (ContractId $ Text.pack $ contractPath caID)
+      (Text.decodeUtf8 $ B.concat $ LB.toChunks $ encode caID)
       (Text.pack . show . getWallet $ caWallet)
       Nothing -- No state, initially
       True    -- 'Active' immediately
@@ -60,19 +62,27 @@ mkRow (ContractActivationArgs{caID, caWallet}) instanceId
 -- | Convert from the database representation of a contract into the
 -- internal representation.
 mkContracts
-  :: [ContractInstance]
-  -> Map ContractInstanceId (ContractActivationArgs (ContractDef ContractExe))
+  :: forall a.
+  ( FromJSON a )
+  => [ContractInstance]
+  -> Map ContractInstanceId (ContractActivationArgs (ContractDef (Builtin a)))
 mkContracts xs =
   Map.fromList xs'
     where
-      -- Silently drop those items that failed to decode to UUIDs
-      xs'    = [ (k, v) | (Just k, v) <- map f xs ]
+      -- Silently drop those items that failed to decode to UUIDs and contract id
+      xs'    = [ (k, v) | Just (k, v) <- map f xs ]
       toId i = ContractInstanceId <$> fromText i
-      f ci   = ( toId . _contractInstanceId $ ci
-               , ContractActivationArgs
-                   (ContractExe . Text.unpack . (\(ContractId x) -> x) . _contractInstanceContractPath $ ci)
-                   (Wallet . read . Text.unpack . _contractInstanceWallet $ ci)
-               )
+      f ci   = do
+          ciId <- toId $ _contractInstanceId ci
+          contractId <- decode
+                      . toLazyByteString
+                      . encodeUtf8Builder
+                      . _contractInstanceContractId
+                      $ ci
+          let wallet = Wallet . read . Text.unpack . _contractInstanceWallet $ ci
+          return ( ciId
+                 , ContractActivationArgs contractId wallet
+                 )
 
 -- | Our database doesn't store UUIDs natively, so we need to convert them
 -- from a string.
@@ -81,11 +91,15 @@ uuidStr = toText . unContractInstanceId
 
 -- | Run the 'ContractStore' actions in the 'DbStore' context.
 handleContractStore ::
-  forall effs.
+  forall a effs.
   ( Member DbStoreEffect effs
   , Member (Error PABError) effs
+  , Member (LogMsg (PABMultiAgentMsg (Builtin a))) effs
+  , ToJSON a
+  , FromJSON a
+  , HasDefinitions a
   )
-  => ContractStore ContractExe
+  => ContractStore (Builtin a)
   ~> Eff effs
 handleContractStore = \case
   PutStartInstance args instanceId ->
@@ -93,7 +107,7 @@ handleContractStore = \case
       $ mkRow args instanceId
 
   PutState _ instanceId state ->
-    let encode' = Just . Text.decodeUtf8 . B.concat . LB.toChunks . encode
+    let encode' = Just . Text.decodeUtf8 . B.concat . LB.toChunks . encode . getResponse
     in updateRow
         $ update (_contractInstances db)
             (\ci -> ci ^. contractInstanceState <-. val_ (encode' state))
@@ -104,8 +118,17 @@ handleContractStore = \case
         extractState = \case
           Nothing -> throwError $ ContractInstanceNotFound instanceId
           Just  c ->
-            fromMaybe (throwError $ ContractStateNotFound instanceId)
-                      (pure <$> (_contractInstanceState c >>= decodeText))
+            do
+              caID <- maybe (throwError $ AesonDecodingError "Couldn't this JSON decode as `a`" (_contractInstanceId c))
+                        pure
+                        (decode . toLazyByteString . encodeUtf8Builder $ _contractInstanceContractId c)
+
+              resp <- maybe (throwError $ ContractStateNotFound instanceId)
+                        pure
+                        (_contractInstanceState c >>= decodeText)
+
+              let cd = getContract @a caID
+              fromResponse @a instanceId cd resp
 
     join
       $ fmap extractState

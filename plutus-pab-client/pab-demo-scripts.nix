@@ -45,7 +45,7 @@ let
     in
     runCommand "pab-setup" { } ''
       echo "Creating PAB database"
-      ${pab} migrate ${conf.db-file}
+      ${pab-setup} migrate ${conf.db-file}
       ${sqlite-interactive}/bin/sqlite3 ${conf.db-file} '.tables'
       mkdir $out
       cp ${conf.db-file}* $out/
@@ -56,7 +56,7 @@ let
   node-port = "8082";
   db-file = "/tmp/pab-core.db";
 
-  pab = "${pab-exes.plutus-pab}/bin/plutus-pab";
+  pab-setup = "${pab-exes.plutus-pab-setup}/bin/plutus-pab-setup";
 
   primary-config = {
     inherit db-file client;
@@ -99,15 +99,6 @@ let
     echo "PAB database path: $DB_PATH"
     cat $CFG_PATH
     echo "-----------------------------------------------------------------------------"
-
-    ${pab} --config=$CFG_PATH contracts install --path ${plutus-currency}/bin/plutus-currency
-    ${pab} --config=$CFG_PATH contracts install --path ${plutus-atomic-swap}/bin/plutus-atomic-swap
-    ${pab} --config=$CFG_PATH contracts install --path ${plutus-game}/bin/plutus-game
-    ${pab} --config=$CFG_PATH contracts install --path ${plutus-pay-to-wallet}/bin/plutus-pay-to-wallet
-    ${pab} --config=$CFG_PATH contracts install --path ${prism-mirror}/bin/prism-mirror
-    ${pab} --config=$CFG_PATH contracts install --path ${prism-unlock-sto}/bin/prism-unlock-sto
-    ${pab} --config=$CFG_PATH contracts install --path ${prism-unlock-exchange}/bin/prism-unlock-exchange
-    ${pab} --config=$CFG_PATH ${cmd}
   '';
 
   start-all-servers = runWithContracts (mkSetup primary-config) "all-servers";

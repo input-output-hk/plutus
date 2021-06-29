@@ -58,7 +58,7 @@ import           Data.UUID              (UUID)
 import           GHC.Generics           (C1, Constructor, D1, Generic, K1 (K1), M1 (M1), Rec0, Rep, S1, Selector, U1,
                                          conIsRecord, conName, from, selName, (:*:) ((:*:)), (:+:) (L1, R1))
 import           Ledger                 (Ada, AssetClass, CurrencySymbol, DatumHash, Interval, POSIXTime,
-                                         POSIXTimeRange, PubKey, PubKeyHash, RedeemerHash, Signature, TokenName,
+                                         POSIXTimeRange, PubKey, PubKeyHash, RedeemerHash, Signature, TokenName, TxId,
                                          ValidatorHash, Value)
 import           Ledger.Bytes           (LedgerBytes)
 import qualified PlutusTx.AssocMap
@@ -394,6 +394,8 @@ deriving anyclass instance ToSchema RedeemerHash
 deriving anyclass instance ToSchema Signature
 
 deriving anyclass instance ToSchema TokenName
+
+deriving anyclass instance ToSchema TxId
 
 deriving anyclass instance ToSchema ValidatorHash
 
