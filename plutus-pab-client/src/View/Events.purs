@@ -16,11 +16,10 @@ import Halogen.HTML (HTML, div_, h2_, text)
 import Ledger.Index (UtxoIndex)
 import Plutus.V1.Ledger.Tx (TxOut, TxOutRef)
 import Playground.Lenses (_utxoIndexEntries)
-import Plutus.PAB.Effects.Contract.ContractExe (ContractExe)
 import Types (HAction(..))
 import View.Pretty (class Pretty, pretty)
 
-utxoIndexPane :: forall p. UtxoIndex -> HTML p HAction
+utxoIndexPane :: forall p a. UtxoIndex -> HTML p (HAction a)
 utxoIndexPane utxoIndex =
   card_
     [ cardHeader_
@@ -29,5 +28,5 @@ utxoIndexPane utxoIndex =
         (utxoEntryPane <$> Map.toUnfoldable (view _utxoIndexEntries utxoIndex))
     ]
 
-utxoEntryPane :: forall p. (TxOutRef /\ TxOut) -> HTML p HAction
+utxoEntryPane :: forall p a. (TxOutRef /\ TxOut) -> HTML p (HAction a)
 utxoEntryPane (txOutRef /\ txOut) = ChainAction <$> Chain.txOutOfView (const Nothing) false txOut Nothing

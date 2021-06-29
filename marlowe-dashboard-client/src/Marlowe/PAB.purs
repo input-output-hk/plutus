@@ -1,7 +1,5 @@
 module Marlowe.PAB
   ( PlutusApp(..)
-  , plutusAppPath
-  , plutusAppType
   , transactionFee
   , contractCreationFee
   , PlutusAppId(..)
@@ -17,14 +15,13 @@ import API.Contract (class ContractActivationId, defaultActivateContract, defaul
 import Data.BigInteger (BigInteger, fromInt)
 import Data.Either (Either)
 import Data.Generic.Rep (class Generic)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Tuple (Tuple)
 import Data.UUID (UUID)
 import Foreign.Class (class Encode, class Decode)
 import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Marlowe.Semantics (Contract, State, TransactionInput)
-import Plutus.PAB.Effects.Contract.ContractExe (ContractExe(..))
 import Plutus.V1.Ledger.Value (CurrencySymbol)
 import Wallet.Emulator.Wallet (Wallet) as Back
 import Wallet.Types (ContractInstanceId) as Back
@@ -75,38 +72,7 @@ instance plutusAppContractActivationId :: ContractActivationId PlutusApp where
   getAllContractInstances = defaultGetAllContractInstances
   getContractDefinitions = defaultGetContractDefinitions
 
-{-
-In order to activate instances of the Plutus "contracts" (or apps) in the PAB, we need to pass the path
-to the executable on the server. We get these paths from nix, which writes them to a `contracts.json` file.
-So we don't have to worry about this anywhere else, we provide here functions mapping `PlutusApp` to their
-paths (in the format that the PAB expects).
--}
-foreign import marloweAppPath_ :: String
-
-foreign import walletCompanionPath_ :: String
-
-foreign import marloweFollowerPath_ :: String
-
-plutusAppPath :: PlutusApp -> ContractExe
-plutusAppPath MarloweApp = ContractExe { contractPath: marloweAppPath_ }
-
-plutusAppPath WalletCompanion = ContractExe { contractPath: walletCompanionPath_ }
-
-plutusAppPath MarloweFollower = ContractExe { contractPath: marloweFollowerPath_ }
-
-plutusAppType :: ContractExe -> Maybe PlutusApp
-plutusAppType exe
-  | exe == plutusAppPath MarloweApp = Just MarloweApp
-
-plutusAppType exe
-  | exe == plutusAppPath WalletCompanion = Just WalletCompanion
-
-plutusAppType exe
-  | exe == plutusAppPath MarloweFollower = Just MarloweFollower
-
-plutusAppType _ = Nothing
-
--- in the PAB, transactions have a fixed cost of 10 lovelace; in the real node,transaction fees will vary,
+-- In the PAB, transactions have a fixed cost of 10 lovelace; in the real node,transaction fees will vary,
 -- but this may still serve as a good approximation
 transactionFee :: BigInteger
 transactionFee = fromInt 10

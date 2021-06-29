@@ -43,11 +43,6 @@ rec {
     plutus-atomic-swap
     plutus-pay-to-wallet;
 
-  inherit (haskell.packages.marlowe.components.exes)
-    marlowe-app
-    marlowe-companion-app
-    marlowe-follow-app;
-
   webCommon = pkgs.callPackage ./web-common { inherit (plutus.lib) gitignore-nix; };
   webCommonPlutus = pkgs.callPackage ./web-common-plutus { inherit (plutus.lib) gitignore-nix; };
   webCommonMarlowe = pkgs.callPackage ./web-common-marlowe { inherit (plutus.lib) gitignore-nix; };
@@ -71,15 +66,15 @@ rec {
 
   marlowe-dashboard = pkgs.recurseIntoAttrs rec {
     inherit (pkgs.callPackage ./marlowe-dashboard-client {
-      inherit plutus-pab marlowe-app marlowe-companion-app marlowe-follow-app;
+      inherit haskell plutus-pab;
       inherit (plutus.lib) buildPursPackage buildNodeModules filterNpm gitignore-nix;
       inherit webCommon webCommonMarlowe;
-    }) client server-invoker generated-purescript generate-purescript contractsJSON install-marlowe-contracts;
+    }) client server-setup-invoker marlowe-invoker generated-purescript generate-purescript;
   };
 
   marlowe-dashboard-fake-pab = pkgs.recurseIntoAttrs rec {
     inherit (pkgs.callPackage ./fake-pab {
-      inherit plutus-pab marlowe-app marlowe-companion-app marlowe-follow-app;
+      inherit plutus-pab;
       inherit (plutus.lib) buildPursPackage buildNodeModules filterNpm gitignore-nix;
       inherit haskell webCommon webCommonMarlowe;
     }) client fake-pab-exe fake-pab-generated-purescript;
@@ -104,8 +99,7 @@ rec {
     inherit (plutus.lib) gitignore-nix;
     inherit (plutus) fixStylishHaskell fixPurty fixPngOptimization;
     inherit (pkgs) terraform;
-    inherit plutus-playground marlowe-playground marlowe-dashboard web-ghc plutus-pab
-      marlowe-app marlowe-companion-app marlowe-follow-app;
+    inherit plutus-playground marlowe-playground marlowe-dashboard web-ghc plutus-pab;
     src = ./.;
   };
 
@@ -113,8 +107,7 @@ rec {
 
   deployment = pkgs.recurseIntoAttrs (pkgs.callPackage ./deployment/morph {
     plutus = {
-      inherit plutus-pab marlowe-app marlowe-companion-app marlowe-follow-app
-        marlowe-dashboard marlowe-playground plutus-playground web-ghc docs marlowe-web;
+      inherit plutus-pab marlowe-dashboard marlowe-playground plutus-playground web-ghc docs marlowe-web;
     };
   });
 

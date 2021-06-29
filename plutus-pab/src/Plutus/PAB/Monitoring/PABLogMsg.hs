@@ -67,7 +67,7 @@ deriving stock instance (Show (ContractDef t)) => Show (AppMsg t)
 deriving anyclass instance (ToJSON (ContractDef t)) => ToJSON (AppMsg t)
 deriving anyclass instance (FromJSON (ContractDef t)) => FromJSON (AppMsg t)
 
-instance (Pretty t, Pretty (ContractDef t)) => Pretty (AppMsg t) where
+instance (Pretty (ContractDef t)) => Pretty (AppMsg t) where
     pretty = \case
         InstalledContractsMsg            -> "Installed contracts"
         ActiveContractsMsg               -> "Active contracts"

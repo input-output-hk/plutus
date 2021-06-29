@@ -1,4 +1,4 @@
-{ pkgs, gitignore-nix, haskell, webCommon, webCommonMarlowe, buildPursPackage, buildNodeModules, filterNpm, plutus-pab, marlowe-app, marlowe-companion-app, marlowe-follow-app }:
+{ pkgs, gitignore-nix, haskell, webCommon, webCommonMarlowe, buildPursPackage, buildNodeModules, filterNpm, plutus-pab }:
 let
   cleanSrc = gitignore-nix.gitignoreSource ../marlowe-dashboard-client/.;
 
@@ -17,12 +17,6 @@ let
     githubSourceHashMap = { };
   };
 
-  contractsJSON = pkgs.writeTextDir "contracts.json" (builtins.toJSON {
-    marlowe = "${marlowe-app}/bin/marlowe-app";
-    walletCompanion = "${marlowe-companion-app}/bin/marlowe-companion-app";
-    walletFollower = "${marlowe-follow-app}/bin/marlowe-follow-app";
-  });
-
   client = buildPursPackage {
     inherit pkgs nodeModules;
     src = cleanSrc;
@@ -35,7 +29,6 @@ let
       web-common-marlowe = webCommonMarlowe;
       generated = plutus-pab.generated-purescript;
       fake-pab-generated = fake-pab-generated-purescript;
-      contracts = contractsJSON;
     };
     packages = pkgs.callPackage ../marlowe-dashboard-client/packages.nix { };
     spagoPackages = pkgs.callPackage ../marlowe-dashboard-client/spago-packages.nix { };

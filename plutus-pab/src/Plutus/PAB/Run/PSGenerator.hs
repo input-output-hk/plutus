@@ -9,8 +9,11 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
 
-module PSGenerator
-    ( generate
+module Plutus.PAB.Run.PSGenerator
+    ( HasPSTypes(..)
+    , generateDefault
+    , generateWith
+    , generateAPIModule
     , pabBridge
     , pabTypes
     ) where
@@ -23,6 +26,7 @@ import           Control.Lens                               (set, view, (&))
 import           Control.Monad.Freer.Extras.Log             (LogLevel, LogMessage)
 import           Data.Proxy                                 (Proxy (Proxy))
 import qualified Data.Text                                  as Text
+import           Data.Typeable                              (Typeable)
 import           Language.PureScript.Bridge                 (BridgePart, Language (Haskell), SumType,
                                                              TypeInfo (TypeInfo), buildBridge, equal, genericShow,
                                                              haskType, mkSumType, order, typeModule, typeName,
@@ -34,7 +38,7 @@ import qualified PSGenerator.Common
 import           Plutus.Contract.Checkpoint                 (CheckpointKey, CheckpointStore, CheckpointStoreItem)
 import           Plutus.Contract.Effects                    (TxConfirmed)
 import           Plutus.Contract.Resumable                  (Responses)
-import           Plutus.PAB.Effects.Contract.ContractExe    (ContractExe)
+import           Plutus.PAB.Effects.Contract.Builtin        (Builtin)
 import           Plutus.PAB.Events.ContractInstanceState    (PartiallyDecodedResponse)
 import qualified Plutus.PAB.Webserver.API                   as API
 import           Plutus.PAB.Webserver.Types                 (ChainReport, CombinedWSStreamToClient,
@@ -46,6 +50,9 @@ import           Servant                                    ((:<|>))
 import           Servant.PureScript                         (HasBridge, Settings, _generateSubscriberAPI, apiModuleName,
                                                              defaultBridge, defaultSettings, languageBridge,
                                                              writeAPIModuleWithSettings)
+
+class HasPSTypes a where
+  psTypes :: Proxy a -> [SumType 'Haskell]
 
 -- | PAB's main bridge that includes common bridges
 pabBridge :: BridgePart
@@ -85,7 +92,7 @@ pabTypes =
     PSGenerator.Common.ledgerTypes <>
     PSGenerator.Common.playgroundTypes <>
     PSGenerator.Common.walletTypes <>
-    [ (equal <*> (genericShow <*> mkSumType)) (Proxy @ContractExe)
+    [ (equal <*> (genericShow <*> mkSumType)) (Proxy @(Builtin A))
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @(FullReport A))
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @ChainReport)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @(ContractReport A))
@@ -112,7 +119,7 @@ pabTypes =
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @HashFunction)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @(AnnotatedSignature A))
 
-    -- * Web API types
+    -- Web API types
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @(ContractActivationArgs A))
     , (genericShow <*> mkSumType) (Proxy @(ContractInstanceClientState A))
     , (genericShow <*> mkSumType) (Proxy @InstanceStatusToClient)
@@ -127,16 +134,34 @@ mySettings =
         {_generateSubscriberAPI = False}
 
 ------------------------------------------------------------
-generate :: FilePath -> IO ()
-generate outputDir = do
+-- | Use the Proxy for specifying `a` when generating PS functions for the
+-- webserver using a specific Builtin (ex. generate 'Builtin Marlowe' instead
+-- of 'Builtin a').
+generateAPIModule :: forall a. (Typeable a) => Proxy a -> FilePath -> IO ()
+generateAPIModule _ outputDir = do
     writeAPIModuleWithSettings
         mySettings
         outputDir
         pabBridgeProxy
-        (Proxy @(API.API ContractExe :<|> API.NewAPI ContractExe Text.Text :<|> (API.WalletProxy Text.Text)))
+        (    Proxy @(API.API (Builtin a)
+        :<|> API.NewAPI (Builtin a) Text.Text
+        :<|> API.WalletProxy Text.Text)
+        )
+
+generateDefault :: FilePath -> IO ()
+generateDefault outputDir = do
     writePSTypesWith
         (genForeign (ForeignOptions {unwrapSingleConstructors = True}))
         outputDir
         (buildBridge pabBridge)
         pabTypes
+    putStrLn $ "Done: " <> outputDir
+
+generateWith :: HasPSTypes a => Proxy a -> FilePath -> IO ()
+generateWith proxy outputDir = do
+    writePSTypesWith
+        (genForeign (ForeignOptions {unwrapSingleConstructors = True}))
+        outputDir
+        (buildBridge pabBridge)
+        (psTypes proxy)
     putStrLn $ "Done: " <> outputDir

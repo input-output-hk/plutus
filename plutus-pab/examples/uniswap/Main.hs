@@ -8,15 +8,12 @@
 {-# LANGUAGE RankNTypes         #-}
 {-# LANGUAGE TypeApplications   #-}
 {-# LANGUAGE TypeFamilies       #-}
-{-# LANGUAGE TypeOperators      #-}
 module Main
     ( main
     ) where
 
 import           Control.Monad                       (forM, void)
-import           Control.Monad.Freer                 (Eff, Member, interpret, type (~>))
-import           Control.Monad.Freer.Error           (Error)
-import           Control.Monad.Freer.Extras.Log      (LogMsg)
+import           Control.Monad.Freer                 (interpret)
 import           Control.Monad.IO.Class              (MonadIO (..))
 import           Data.Aeson                          (FromJSON, Result (..), ToJSON, encode, fromJSON)
 import           Data.Default                        (Default (def))
@@ -31,13 +28,11 @@ import           Plutus.Contract
 import qualified Plutus.Contracts.Currency           as Currency
 import qualified Plutus.Contracts.Uniswap            as Uniswap
 import           Plutus.Contracts.Uniswap.Trace      as US
-import           Plutus.PAB.Effects.Contract         (ContractEffect (..))
-import           Plutus.PAB.Effects.Contract.Builtin (Builtin, SomeBuiltin (..))
+import           Plutus.PAB.Effects.Contract.Builtin (Builtin, BuiltinHandler (..), HasDefinitions (..),
+                                                      SomeBuiltin (..))
 import qualified Plutus.PAB.Effects.Contract.Builtin as Builtin
-import           Plutus.PAB.Monitoring.PABLogMsg     (PABMultiAgentMsg)
 import           Plutus.PAB.Simulator                (SimulatorEffectHandlers, logString)
 import qualified Plutus.PAB.Simulator                as Simulator
-import           Plutus.PAB.Types                    (PABError (..))
 import qualified Plutus.PAB.Webserver.Server         as PAB.Server
 import           Prelude                             hiding (init)
 import           Wallet.Emulator.Types               (Wallet (..))
@@ -98,23 +93,18 @@ data UniswapContracts =
 instance Pretty UniswapContracts where
     pretty = viaShow
 
-handleUniswapContract ::
-    ( Member (Error PABError) effs
-    , Member (LogMsg (PABMultiAgentMsg (Builtin UniswapContracts))) effs
-    )
-    => ContractEffect (Builtin UniswapContracts)
-    ~> Eff effs
-handleUniswapContract = Builtin.handleBuiltin getSchema getContract where
-  getSchema = \case
-    UniswapUser _ -> Builtin.endpointsToSchemas @Uniswap.UniswapUserSchema
-    UniswapStart  -> Builtin.endpointsToSchemas @Uniswap.UniswapOwnerSchema
-    Init          -> Builtin.endpointsToSchemas @Empty
-  getContract = \case
-    UniswapUser us -> SomeBuiltin $ Uniswap.userEndpoints us
-    UniswapStart   -> SomeBuiltin Uniswap.ownerEndpoint
-    Init           -> SomeBuiltin US.setupTokens
+instance HasDefinitions UniswapContracts where
+    getDefinitions = [Init, UniswapStart]
+    getSchema = \case
+        UniswapUser _ -> Builtin.endpointsToSchemas @Uniswap.UniswapUserSchema
+        UniswapStart  -> Builtin.endpointsToSchemas @Uniswap.UniswapOwnerSchema
+        Init          -> Builtin.endpointsToSchemas @Empty
+    getContract = \case
+        UniswapUser us -> SomeBuiltin $ Uniswap.userEndpoints us
+        UniswapStart   -> SomeBuiltin Uniswap.ownerEndpoint
+        Init           -> SomeBuiltin US.setupTokens
 
 handlers :: SimulatorEffectHandlers (Builtin UniswapContracts)
 handlers =
-    Simulator.mkSimulatorHandlers @(Builtin UniswapContracts) def [] -- [Init, UniswapStart, UniswapUser ???]
-    $ interpret handleUniswapContract
+    Simulator.mkSimulatorHandlers @(Builtin UniswapContracts) def
+    $ interpret (contractHandler (Builtin.handleBuiltin @UniswapContracts))

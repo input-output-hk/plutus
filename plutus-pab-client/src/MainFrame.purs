@@ -45,7 +45,6 @@ import Network.RemoteData (RemoteData(..))
 import Network.StreamData as Stream
 --import Playground.Lenses (_endpointDescription, _schema)
 --import Playground.Types (FunctionSchema(..), _FunctionSchema)
---import Plutus.PAB.Effects.Contract.ContractExe (ContractExe)
 --import Plutus.PAB.Events.ContractInstanceState (PartiallyDecodedResponse)
 import Plutus.PAB.Webserver (SPParams_(..))
 import Plutus.PAB.Webserver.Types (CombinedWSStreamToClient)
@@ -64,6 +63,7 @@ import View as View
 --import Wallet.Types (EndpointDescription)
 import WebSocket.Support (FromSocket)
 import WebSocket.Support as WS
+import ContractExample (ExampleContracts)
 
 -- | The PAB has been completely rewritten, and the PAB client will soon follow. The immediate
 --   priority is the new Marlowe dashboard, however, so in the meantime large chunks of the PAB
@@ -71,7 +71,7 @@ import WebSocket.Support as WS
 initialValue :: Value
 initialValue = adaToValue $ Lovelace { getLovelace: zero }
 
-initialState :: State
+initialState :: State ExampleContracts
 initialState =
   State
     { currentView: ActiveContracts
@@ -92,7 +92,7 @@ initialMainFrame ::
   forall m.
   MonadAff m =>
   MonadClipboard m =>
-  Component HTML Query HAction Output m
+  Component HTML Query (HAction ExampleContracts) Output m
 initialMainFrame =
   hoist (flip runReaderT ajaxSettings)
     $ H.mkComponent
@@ -110,7 +110,7 @@ initialMainFrame =
 
 handleQuery ::
   forall m a.
-  MonadState State m =>
+  MonadState (State ExampleContracts) m =>
   MonadApp m =>
   Query a -> m (Maybe a)
 handleQuery (ReceiveWebSocketMessage msg next) = do
@@ -119,7 +119,7 @@ handleQuery (ReceiveWebSocketMessage msg next) = do
 
 handleMessageFromSocket ::
   forall m.
-  MonadState State m =>
+  MonadState (State ExampleContracts) m =>
   MonadApp m =>
   FromSocket CombinedWSStreamToClient -> m Unit
 handleMessageFromSocket WS.WebSocketOpen = do
@@ -154,10 +154,10 @@ upsertProperty subject property =
 handleAction ::
   forall m.
   MonadApp m =>
-  MonadAnimate m State =>
+  MonadAnimate m (State ExampleContracts) =>
   MonadClipboard m =>
-  MonadState State m =>
-  HAction -> m Unit
+  MonadState (State ExampleContracts) m =>
+  (HAction ExampleContracts) -> m Unit
 handleAction _ = pure unit
 
 {-handleAction Init = handleAction LoadFullReport

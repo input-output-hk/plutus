@@ -74,7 +74,7 @@ import           Wallet.Rollup.Types                      (DereferencedInput, de
 import           Wallet.Types                             (ContractInstanceId)
 
 tests :: TestTree
-tests = testGroup "Plutus.PAB.Core" [installContractTests, executionTests]
+tests = testGroup "Plutus.PAB.Core" [activateContractTests, executionTests]
 
 runScenario :: Simulation (Builtin TestContracts) a -> IO ()
 runScenario sim = do
@@ -86,10 +86,10 @@ runScenario sim = do
 defaultWallet :: Wallet
 defaultWallet = Wallet 1
 
-installContractTests :: TestTree
-installContractTests =
+activateContractTests :: TestTree
+activateContractTests =
     testGroup
-        "installContract scenario"
+        "activateContract scenario"
         [ testCase "Initially there are no contracts active" $
             runScenario $ do
                 active <- Simulator.activeContracts

@@ -8,7 +8,8 @@
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeApplications   #-}
 {-# LANGUAGE TypeOperators      #-}
-module AtomicSwap(
+
+module ContractExample.AtomicSwap(
     AtomicSwapParams(..),
     AtomicSwapError(..),
     AsAtomicSwapError(..),
@@ -73,7 +74,7 @@ data AtomicSwapError =
     EscrowError Escrow.EscrowError
     | OtherAtomicSwapError ContractError
     | NotInvolvedError PubKey AtomicSwapParams -- ^ When the wallet's public key doesn't match either of the two keys specified in the 'AtomicSwapParams'
-    deriving (Show)
+    deriving (Show, Generic, ToJSON, FromJSON)
 
 makeClassyPrisms ''AtomicSwapError
 instance AsContractError AtomicSwapError where
@@ -101,3 +102,4 @@ atomicSwap = do
             | otherwise = throwError (NotInvolvedError pk p)
 
     ownPubKey >>= go
+
