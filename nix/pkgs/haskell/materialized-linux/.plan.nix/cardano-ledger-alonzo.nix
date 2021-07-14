@@ -82,4 +82,15 @@
         hsSourceDirs = [ "src" ];
         };
       };
-    } // rec { src = (pkgs.lib).mkDefault .././.source-repository-packages/47; }
+    } // {
+    src = (pkgs.lib).mkDefault (pkgs.fetchgit {
+      url = "8";
+      rev = "minimal";
+      sha256 = "";
+      }) // {
+      url = "8";
+      rev = "minimal";
+      sha256 = "";
+      };
+    postUnpack = "sourceRoot+=/alonzo/impl; echo source root reset to \$sourceRoot";
+    }

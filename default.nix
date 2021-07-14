@@ -31,6 +31,7 @@ let
   inherit (pkgs) lib haskell-nix;
   inherit (plutus) haskell agdaPackages;
   inherit (plutus) easyPS sphinxcontrib-haddock;
+  noCross = x: if crossSystem == null then x else {};
 in
 rec {
   inherit pkgs plutus;
@@ -109,16 +110,16 @@ rec {
     src = ./.;
   };
 
-  docs = import ./nix/docs.nix { inherit pkgs plutus; };
+  docs = noCross (import ./nix/docs.nix { inherit pkgs plutus; });
 
-  deployment = pkgs.recurseIntoAttrs (pkgs.callPackage ./deployment/morph {
+  deployment = noCross (pkgs.recurseIntoAttrs (pkgs.callPackage ./deployment/morph {
     plutus = {
       inherit plutus-pab marlowe-app marlowe-companion-app marlowe-follow-app
         marlowe-dashboard marlowe-playground plutus-playground web-ghc docs marlowe-web;
     };
-  });
+  }));
 
   # This builds a vscode devcontainer that can be used with the plutus-starter project (or probably the plutus project itself).
-  devcontainer = import ./nix/devcontainer/plutus-devcontainer.nix { inherit pkgs plutus; };
-  build-and-push-devcontainer-script = import ./nix/devcontainer/deploy/default.nix { inherit pkgs plutus; };
+  devcontainer = noCross (import ./nix/devcontainer/plutus-devcontainer.nix { inherit pkgs plutus; });
+  build-and-push-devcontainer-script = noCross (import ./nix/devcontainer/deploy/default.nix { inherit pkgs plutus; });
 }

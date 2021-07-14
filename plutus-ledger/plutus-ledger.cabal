@@ -99,7 +99,6 @@ library
         mtl -any,
         natural-transformation -any,
         operational -any,
-        plutus-tx-plugin -any,
         prettyprinter -any,
         plutus-tx -any,
         serialise -any,
@@ -120,7 +119,8 @@ library
         cardano-crypto -any,
         deepseq -any,
         freer-simple -any,
-        semigroups -any
+        semigroups -any,
+        plutus-tx-plugin -any
 
     ghc-options: -fprint-potential-instances
 

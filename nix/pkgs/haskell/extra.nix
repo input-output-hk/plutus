@@ -18,7 +18,10 @@ let
   agdaProject = haskell-nix.hackage-project {
     name = "Agda";
     version = "2.6.2";
-    plan-sha256 = lib.removeSuffix "\n" (builtins.readFile ./agda.sha);
+    plan-sha256 = lib.removeSuffix "\n" (builtins.readFile (
+      if stdenv.hostPlatform.isWindows
+        then ./agda-windows.sha
+        else ./agda.sha));
     # Should use the index-state from the target cabal.project, but that disables plan-sha256. Fixed
     # in recent haskell.nix, delete the index-state passing when we update.
     inherit compiler-nix-name index-state checkMaterialization;
@@ -98,6 +101,7 @@ let
   updateAllShaFiles = writeShellScript "updateShaFiles" ''
     ${updateShaFile cabalInstallProject ./cabal-install.sha}
     ${updateShaFile agdaProject ./agda.sha}
+    ${updateShaFile agdaProject.projectCross.mingwW64 ./agda-windows.sha}
     ${updateShaFile stylishHaskellProject ./stylish-haskell.sha}
     ${updateShaFile hlintProject ./hlint.sha}
     ${updateShaFile hlsProject hlsShaFile}

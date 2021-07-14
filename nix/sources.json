@@ -18,10 +18,10 @@
         "homepage": "",
         "owner": "justinwoo",
         "repo": "easy-purescript-nix",
-        "rev": "c2e49b4a94ee55df294212c561f2ac7225a8ebbf",
-        "sha256": "0jxg2bmniqpr94l51azbd887m5kv95g5n87ybwkip76468dxcqiq",
+        "rev": "47bdc016c7d56e987ca1aca690b1d6c9816a8584",
+        "sha256": "051fzxd03y0c63sll2bhn0h66dywy9lw6ylyh5vq8fymvix20q94",
         "type": "tarball",
-        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/c2e49b4a94ee55df294212c561f2ac7225a8ebbf.tar.gz",
+        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/47bdc016c7d56e987ca1aca690b1d6c9816a8584.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gitignore.nix": {
@@ -63,15 +63,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "haskell.nix": {
-        "branch": "master",
+        "branch": "hkm/use-source-repo",
         "description": "Alternative Haskell Infrastructure for Nixpkgs",
         "homepage": "https://input-output-hk.github.io/haskell.nix",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "3856d2d24dca0ecc71fcfc314253a2a2d07a3c4f",
-        "sha256": "0s69nasqhkv8n0qmdv075k83p3z584ja9vkzdnp2291mymghvx87",
+        "rev": "e0b203a8847e86e2288356746f89edab123eed85",
+        "sha256": "1hj539rbnhnz7cqbnqil37iqfnnz23daqz6z4mjcc4mq6bl73bgq",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/haskell.nix/archive/3856d2d24dca0ecc71fcfc314253a2a2d07a3c4f.tar.gz",
+        "url": "https://github.com/input-output-hk/haskell.nix/archive/e0b203a8847e86e2288356746f89edab123eed85.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "iohk-nix": {
@@ -80,23 +80,23 @@
         "homepage": null,
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "7f57f750e27c84def8e0ed2492eea01ea957cbf2",
-        "sha256": "0dpcibd0sn4a5687nywhd9j5pg6qpcwgjn6qxannj6isiv932m8a",
+        "rev": "baf39a5a5e782c934eab58337284d4c59c2c57c8",
+        "sha256": "1pf0nrrxf0kqdlghikgz6pas78sbcxzkvmma6rbg0df0hvyll5wn",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/iohk-nix/archive/7f57f750e27c84def8e0ed2492eea01ea957cbf2.tar.gz",
+        "url": "https://github.com/input-output-hk/iohk-nix/archive/baf39a5a5e782c934eab58337284d4c59c2c57c8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
         "branch": "nixpkgs-unstable",
         "builtin": true,
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "description": "Nix Packages collection",
         "homepage": "https://github.com/NixOS/nixpkgs",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7d71001b796340b219d1bfa8552c81995017544a",
-        "sha256": "09fv5rhnq6m770wy0wyyp8anhqsn2dyrk4c4gmka02r5600kbaiw",
+        "rev": "0747387223edf1aa5beaedf48983471315d95e16",
+        "sha256": "19hpz87vfcr6icxcjdlp2mnk8v5db4l3x32adzc5ynmxvfayg3lr",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/7d71001b796340b219d1bfa8552c81995017544a.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/0747387223edf1aa5beaedf48983471315d95e16.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "npmlock2nix": {

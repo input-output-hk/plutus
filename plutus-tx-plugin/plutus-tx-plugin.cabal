@@ -56,7 +56,6 @@ library
         containers -any,
         extra -any,
         flat -any,
-        ghc >=8.10 && <9,
         ghc-prim -any,
         plutus-core -any,
         lens -any,
@@ -66,8 +65,15 @@ library
         text -any,
         transformers -any,
         plutus-tx -any
+    if(os(windows))
+        build-depends: plutus-ghc-stub
+    else
+        build-depends: ghc >=8.10 && <9
+
 
 test-suite plutus-tx-tests
+    if os(windows)
+        buildable: False
     type: exitcode-stdio-1.0
     hs-source-dirs: test
     main-is: Spec.hs

@@ -57,4 +57,15 @@
         hsSourceDirs = [ "src" ];
         };
       };
-    } // rec { src = (pkgs.lib).mkDefault .././.source-repository-packages/6; }
+    } // {
+    src = (pkgs.lib).mkDefault (pkgs.fetchgit {
+      url = "4";
+      rev = "minimal";
+      sha256 = "";
+      }) // {
+      url = "4";
+      rev = "minimal";
+      sha256 = "";
+      };
+    postUnpack = "sourceRoot+=/slotting; echo source root reset to \$sourceRoot";
+    }

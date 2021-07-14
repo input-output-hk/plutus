@@ -19,14 +19,15 @@
 let
   inherit (pkgs) lib;
   cleanSrc = gitignore-nix.gitignoreSource src;
+  noCross = x: if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform then x else {};
 in
 pkgs.recurseIntoAttrs {
   shellcheck = pkgs.callPackage ./shellcheck.nix { src = cleanSrc; };
 
-  stylishHaskell = pkgs.callPackage ./stylish-haskell.nix {
+  stylishHaskell = noCross (pkgs.callPackage ./stylish-haskell.nix {
     src = cleanSrc;
     inherit fixStylishHaskell;
-  };
+  });
 
   purty = pkgs.callPackage ./purty.nix {
     src = cleanSrc;
@@ -43,9 +44,9 @@ pkgs.recurseIntoAttrs {
     inherit fixPngOptimization;
   };
 
-  vmTests = pkgs.callPackage ./vm.nix {
+  vmTests = noCross (pkgs.callPackage ./vm.nix {
     inherit vmCompileTests plutus-playground marlowe-playground
       marlowe-dashboard web-ghc plutus-pab
       marlowe-app marlowe-companion-app marlowe-follow-app docs;
-  };
+  });
 }

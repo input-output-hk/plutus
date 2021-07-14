@@ -34,7 +34,7 @@ common lang
                  -Wincomplete-uni-patterns -Wincomplete-record-updates
                  -Wredundant-constraints -Widentities
                  -Wnoncanonical-monoid-instances
-                 -Wunused-packages
+                --  -Wunused-packages
 
 library
     import: lang

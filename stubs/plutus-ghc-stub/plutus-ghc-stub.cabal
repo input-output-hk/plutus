@@ -1,0 +1,55 @@
+Name: plutus-ghc-stub
+Version: 8.6.5
+License: BSD3
+License-File: LICENSE
+Author: The GHC Team
+Maintainer: glasgow-haskell-users@haskell.org
+Homepage: http://www.haskell.org/ghc/
+Synopsis: The GHC API
+Description:
+   Stub functionality for the Plutus plugin, for cross compilers that
+   don't have a GHC library installed, like GHCJS
+
+   This should contain all the types and functions that the Plutus
+   compiler uses.
+
+   For technical reasons (Cabal), we need to be able to compile the plutus-tx
+   compiler for the host platform, even if we are going to load the plugin
+   from the build platform libraries.
+Category: Development
+Build-Type: Simple
+Cabal-Version: >=1.10
+
+Library
+    Default-Language: Haskell2010
+    Exposed: False
+
+    Build-Depends: base,
+                   ghc-boot,
+                   bytestring -any,
+                   template-haskell -any
+
+    hs-source-dirs:
+        src
+
+    Exposed-Modules:
+        Plugins
+        GhcPlugins
+        FamInstEnv
+        Panic
+        LoadIface
+        Finder
+        OccName
+        TcRnTypes
+        CoreSyn
+        Kind
+        TysPrim
+        PrimOp
+        Class
+        FV
+        MkId
+        PrelNames
+        TcRnMonad
+
+    Other-Modules:
+        StubTypes

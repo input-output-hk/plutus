@@ -1,0 +1,2 @@
+module Panic where
+

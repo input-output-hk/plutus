@@ -27,6 +27,7 @@ packages: doc
           quickcheck-dynamic
           web-ghc
           word-array
+          stubs/plutus-ghc-stub
 
 -- We never, ever, want this.
 write-ghc-environment-files: never
@@ -53,6 +54,14 @@ allow-newer:
            , beam-sqlite:aeson
            , beam-sqlite:dlist
            , beam-migrate:aeson
+
+           , stm:base
+
+           -- ghc-boot 8.10.4 is not in hackage, so haskell.nix needs consider 8.8.3
+           -- when cross compiling for windows or it will fail to find a solution including
+           -- a new Win32 version (ghc-boot depends on Win32 via directory)
+           , ghc-boot:base
+           , ghc-boot:ghc-boot-th
 
 constraints:
   -- big breaking change here, inline-r doens't have an upper bound
@@ -149,20 +158,23 @@ source-repository-package
   location: https://github.com/input-output-hk/cardano-ledger-specs
   tag: b8f1ebb46a91f1c634e616feb89ae34de5937e17
   subdir:
+    alonzo/impl
     byron/chain/executable-spec
     byron/crypto
     byron/crypto/test
     byron/ledger/executable-spec
     byron/ledger/impl
     byron/ledger/impl/test
+    cardano-ledger-core
     semantics/executable-spec
     semantics/small-steps-test
     shelley/chain-and-ledger/dependencies/non-integer
     shelley/chain-and-ledger/executable-spec
     shelley/chain-and-ledger/shelley-spec-ledger-test
     shelley-ma/impl
-    cardano-ledger-core
-    alonzo/impl
+    shelley-ma/shelley-ma-test
+--TODO: disabled until it drops its dep on plutus-tx-plugin
+--  alonzo/test
 
 -- A lot of plutus dependencies have to be synchronized with the dependencies of
 -- cardano-node. If you update cardano-node, please make sure that all dependencies
@@ -193,5 +205,4 @@ source-repository-package
   type: git
   location: https://github.com/input-output-hk/goblins
   tag: cde90a2b27f79187ca8310b6549331e59595e7ba
-
 

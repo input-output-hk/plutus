@@ -38,6 +38,8 @@ common lang
 
 executable doc-doctests
     import: lang
+    if(impl(ghcjs) || os(windows))
+      buildable: False
     hs-source-dirs: plutus/tutorials
     main-is: Main.hs
     ghc-options: -Wno-unused-imports
@@ -68,7 +70,5 @@ executable doc-doctests
       QuickCheck -any,
       random -any,
       text -any,
-      aeson -any
-
-    if !(impl(ghcjs) || os(ghcjs))
-        build-depends: plutus-tx-plugin -any
+      aeson -any,
+      plutus-tx-plugin -any

@@ -293,4 +293,15 @@
           else [ "src-unix" ]);
         };
       };
-    } // rec { src = (pkgs.lib).mkDefault .././.source-repository-packages/19; }
+    } // {
+    src = (pkgs.lib).mkDefault (pkgs.fetchgit {
+      url = "6";
+      rev = "minimal";
+      sha256 = "";
+      }) // {
+      url = "6";
+      rev = "minimal";
+      sha256 = "";
+      };
+    postUnpack = "sourceRoot+=/ouroboros-consensus; echo source root reset to \$sourceRoot";
+    }

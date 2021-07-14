@@ -9,6 +9,8 @@ let
   # limit supportedSystems to what the CI can actually build
   # currently that is linux and darwin.
   systems = filterSystems supportedSystems;
+  crossSystems = let pkgs = (import ./default.nix {}).pkgs;
+                 in { inherit (pkgs.lib.systems.examples) mingwW64; };
 
   # Collects haskell derivations and builds an attrset:
   #
@@ -47,26 +49,36 @@ let
   mkSystemDimension = systems:
     let
       # given a system ("x86_64-linux") return an attrset of derivations to build
-      select = _: system:
+      _select = _: system: crossSystem:
         let
-          packages = import ./default.nix { inherit system; checkMaterialization = true; };
+          packages = import ./default.nix { inherit system crossSystem; checkMaterialization = true; };
+          # haskell.nix bug. If we set checkMaterialization, plan-nix.json doesn't exist on project.
+          packages2 = import ./default.nix { inherit system crossSystem; };
+          nativePackages = import ./default.nix { inherit system; };
+
           pkgs = packages.pkgs;
           plutus = packages.plutus;
           isBuildable = platformFilterGeneric pkgs system;
         in
-        filterAttrsOnlyRecursive (_: drv: isBuildable drv) {
+        filterAttrsOnlyRecursive (_: drv: isBuildable drv) ({
           # build relevant top level attributes from default.nix
-          inherit (packages) docs tests plutus-playground marlowe-playground marlowe-dashboard marlowe-dashboard-fake-pab plutus-pab deployment;
+          inherit (packages) docs tests plutus-playground marlowe-playground marlowe-dashboard marlowe-dashboard-fake-pab plutus-pab;
           # The haskell.nix IFD roots for the Haskell project. We include these so they won't be GCd and will be in the
           # cache for users
           inherit (plutus.haskell.project) roots;
 
+          # build all haskell packages and tests
+          haskell = pkgs.recurseIntoAttrs (mkHaskellDimension pkgs plutus.haskell.projectPackages);
+        } // pkgs.lib.optionalAttrs (crossSystem == null) {
+          # no deployment for cross compiled targets
+          inherit (packages) deployment;
+        } // pkgs.lib.optionalAttrs (crossSystem == null) {
           # Build the shell expression to be sure it works on all platforms
           #
           # The shell should never depend on any of our Haskell packages, which can
           # sometimes happen by accident. In practice, everything depends transitively
           # on 'plutus-core', so this does the job.
-          # FIXME: this should simply be set on the main shell derivation, but this breaks 
+          # FIXME: this should simply be set on the main shell derivation, but this breaks
           # lorri: https://github.com/target/lorri/issues/489. In the mean time, we set it
           # only on the CI version, so that we still catch it, but lorri doesn't see it.
           shell = (import ./shell.nix { inherit packages; }).overrideAttrs (attrs: attrs // {
@@ -75,8 +87,9 @@ let
 
           # build all haskell packages and tests
           haskell = pkgs.recurseIntoAttrs (mkHaskellDimension pkgs plutus.haskell.projectPackages);
-        };
+        });
     in
-    dimension "System" systems select;
+    dimension "System" systems (name: sys: _select name sys null)
+    // dimension "Cross System" crossSystems (name: crossSys: _select name "x86_64-linux" crossSys);
 in
 mkSystemDimension systems

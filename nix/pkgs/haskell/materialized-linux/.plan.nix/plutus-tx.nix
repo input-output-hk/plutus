@@ -105,7 +105,9 @@
           build-tools = [
             (hsPkgs.buildPackages.doctest.components.exes.doctest or (pkgs.buildPackages.doctest or (errorHandler.buildToolDepError "doctest:doctest")))
             ];
-          buildable = true;
+          buildable = if compiler.isGhcjs && true || system.isWindows
+            then false
+            else true;
           hsSourceDirs = [ "test" ];
           mainPath = [ "Spec.hs" ];
           };

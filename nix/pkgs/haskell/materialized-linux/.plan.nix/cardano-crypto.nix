@@ -139,4 +139,14 @@
           };
         };
       };
-    } // rec { src = (pkgs.lib).mkDefault .././.source-repository-packages/3; }
+    } // {
+    src = (pkgs.lib).mkDefault (pkgs.fetchgit {
+      url = "3";
+      rev = "minimal";
+      sha256 = "";
+      }) // {
+      url = "3";
+      rev = "minimal";
+      sha256 = "";
+      };
+    }
