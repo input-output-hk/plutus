@@ -26,6 +26,7 @@ import           Plutus.PAB.Monitoring.Monitoring    (handleLogMsgTrace)
 import           Plutus.PAB.Monitoring.PABLogMsg     (PABLogMsg (..), PABMultiAgentMsg (..))
 import           Plutus.PAB.Types                    (PABError)
 
+
 -- | Run the ContractStore and ContractDefinitionStore effects on the
 --   SQLite database.
 runBeamStoreAction ::

@@ -43,23 +43,21 @@ import qualified Data.Aeson                                       as JSON
 import           Data.Bifunctor                                   (Bifunctor (first))
 import           Data.Foldable                                    (foldlM, traverse_)
 import           Data.Row
-
-import           Plutus.Contract.Effects                          (PABReq, PABResp)
-import           Plutus.Contract.Types                            (ResumableResult (..), SuspendedContract (..))
-import           Plutus.PAB.Effects.Contract                      (ContractEffect (..), PABContract (..))
-import           Plutus.PAB.Monitoring.PABLogMsg                  (PABMultiAgentMsg (..))
-import           Plutus.PAB.Types                                 (PABError (..))
-
 import qualified Data.Text                                        as Text
 import           GHC.Generics                                     (Generic)
 import           Playground.Schema                                (endpointsToSchemas)
 import           Playground.Types                                 (FunctionSchema)
 import           Plutus.Contract                                  (Contract, ContractInstanceId, EmptySchema)
+import           Plutus.Contract.Effects                          (PABReq, PABResp)
 import           Plutus.Contract.Resumable                        (Response, responses, rspResponse)
 import           Plutus.Contract.Schema                           (Input, Output)
 import           Plutus.Contract.State                            (ContractResponse (..), State (..))
 import qualified Plutus.Contract.State                            as ContractState
+import           Plutus.Contract.Types                            (ResumableResult (..), SuspendedContract (..))
 import           Plutus.PAB.Core.ContractInstance.RequestHandlers (ContractInstanceMsg (ContractLog, ProcessFirstInboxMessage))
+import           Plutus.PAB.Effects.Contract                      (ContractEffect (..), PABContract (..))
+import           Plutus.PAB.Monitoring.PABLogMsg                  (PABMultiAgentMsg (..))
+import           Plutus.PAB.Types                                 (PABError (..))
 import           Plutus.Trace.Emulator.Types                      (ContractInstanceStateInternal (..))
 import qualified Plutus.Trace.Emulator.Types                      as Emulator
 import           Schema                                           (FormSchema)
