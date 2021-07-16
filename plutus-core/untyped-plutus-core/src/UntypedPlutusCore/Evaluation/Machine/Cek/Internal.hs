@@ -73,7 +73,9 @@ import           Data.Proxy
 import           Data.STRef
 import           Data.Semigroup                                           (stimes)
 import           Data.Text.Prettyprint.Doc
+import           Data.Time.Clock                                          (getCurrentTime)
 import           Data.Word64Array.Word8
+import           System.IO.Unsafe                                         (unsafePerformIO)
 import           Universe
 
 {- Note [Compilation peculiarities]
@@ -472,9 +474,12 @@ spendBudgetCek = let (CekBudgetSpender spend) = ?cekBudgetSpender in spend
 emitCek :: GivenCekEmitter s => String -> CekM uni fun s ()
 emitCek str =
     let mayLogsRef = ?cekEmitter
+        withTime = str ++ (show $ unsafePerformIO getCurrentTime)
     in case mayLogsRef of
         Nothing      -> pure ()
-        Just logsRef -> CekCarryingM $ modifySTRef logsRef (`DList.snoc` str)
+        Just logsRef ->
+            CekCarryingM $
+                modifySTRef logsRef (`DList.snoc` withTime)
 
 -- see Note [Scoping].
 -- | Instantiate all the free variables of a term by looking them up in an environment.
