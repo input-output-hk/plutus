@@ -11,7 +11,7 @@ A simple inlining pass.
 The point of this pass is mainly to tidy up the code, not to particularly optimize performance.
 In particular, we want to get rid of "trivial" let bindings which the Plutus Tx compiler sometimes creates.
 -}
-module PlutusIR.Transform.Inline (inline) where
+module PlutusIR.Transform.Inline where
 
 import           PlutusIR
 import qualified PlutusIR.Analysis.Dependencies as Deps
@@ -30,7 +30,6 @@ import           Control.Lens                   hiding (Strict)
 import           Control.Monad.Reader
 import           Control.Monad.State
 
-import qualified Algebra.Graph                  as G
 import qualified Data.Map                       as Map
 import           Data.Semigroup.Generic         (GenericSemigroupMonoid (..))
 import           Witherable
@@ -154,12 +153,12 @@ inline
     :: ExternalConstraints tyname name uni fun m
     => Term tyname name uni fun a
     -> m (Term tyname name uni fun a)
-inline t =
-    let
-        -- We actually just want the variable strictness information here!
-        deps :: (G.Graph Deps.Node, Map.Map PLC.Unique Strictness)
-        deps = Deps.runTermDeps t
-    in flip runReaderT (snd deps) $ flip evalStateT mempty $ processTerm t
+inline t = pure t
+    -- let
+    --     -- We actually just want the variable strictness information here!
+    --     deps :: (G.Graph Deps.Node, Map.Map PLC.Unique Strictness)
+    --     deps = Deps.runTermDeps t
+    -- in flip runReaderT (snd deps) $ flip evalStateT mempty $ processTerm t
 
 {- Note [Removing inlined bindings]
 We *do* remove bindings that we inline (since we only do unconditional inlining). We *could*
