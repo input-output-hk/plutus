@@ -72,27 +72,7 @@ module.exports = {
         "5vw": "5vw",
         "10vw": "10vw",
       },
-      height: {
-        // This corresponds to the height of the hero image
-        main: "700px",
-        "banner-section-sm": "308px",
-        "banner-section": "470px",
-        "play-img-sm": "100px",
-        "play-img-md": "200px",
-      },
-      maxWidth: {
-        // All content must be at most this size and centered if the screen is wider
-        screen: "1440px",
-      },
-      backgroundImage: (theme) => ({
-        main: "url('/static/img/hero-background.jpg')",
-        "play-banner": "url('/static/img/marlowe-play-banner-background-mobile.png')",
-        "market-banner": "url('/static/img/marlowe-market-banner-background-mobile.png')",
-      }),
-      backgroundPosition: {
-        "pos-play-banner-mobile": "-118px",
-        "pos-market-banner-mobile": "76px",
-      },
+            
       borderWidth: {
         3: "3px",
       },

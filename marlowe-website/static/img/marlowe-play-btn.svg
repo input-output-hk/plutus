@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>marlowe-play-btn</title>
+    <defs>
+        <linearGradient x1="0.249945367%" y1="49.7500546%" x2="99.7500546%" y2="49.7500546%" id="linearGradient-1">
+            <stop stop-color="#4700C3" offset="0%"></stop>
+            <stop stop-color="#8701FC" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Pages" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-Marlowe-Home-Page-D" transform="translate(-1150.000000, -2288.000000)" fill-rule="nonzero">
+            <g id="marlowe-play-btn" transform="translate(1150.000000, 2288.000000)">
+                <circle id="Oval-Copy-2" fill="url(#linearGradient-1)" cx="30" cy="30" r="30"></circle>
+                <g id="Path" transform="translate(25.113000, 21.119981)" fill="#FFFFFF">
+                    <path d="M0,1.43858744 L0,16.32145 C0,17.45634 1.24981567,18.1458935 2.2123174,17.5281685 L13.905995,10.0867373 C14.7966683,9.52647508 14.7966683,8.2335623 13.905995,7.65893441 L2.2123174,0.231868863 C1.24981567,-0.385856125 0,0.30369735 0,1.43858744 Z"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

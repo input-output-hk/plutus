@@ -6,13 +6,153 @@
 
 body {
   @apply h-full text-black bg-lightgray;
-
-  font-family: Barlow, sans-serif;
+  font-family: Barlow, sans-serif; 
 }
 
+/* Russ CSS */
+
+.external a::after {
+  content: url("/static/img/chevron-external-light.svg");
+  width:24px;
+  background-size: 24px;
+  position: absolute;
+  bottom:6px;
+}
+
+.logo-height {
+  height: 82px;
+}
+
+.vert-text-right {
+  position: absolute; top:10%; transform: translateY(-50%); left: 40%; transform: translateX(50%); 
+}
+
+.vert-text-left {
+  position: absolute; top: 50%; transform: translateY(-50%);
+}
+
+.text-link::before {
+  content: url("/static/img/caret-right.svg");
+  margin-right: 10px;
+  width: 24px;
+  background-size: 24px;
+}
+
+.circle-btn {
+  width: 60px;
+}
+
+.menu-item a {
+  border-bottom:4px solid white;
+  padding-bottom: 32px;
+}
+
+.menu-item a:hover {
+   border-bottom:4px solid #273245;
+}
+
+.section-circle-top-right {
+	position: absolute;
+	display: inline-block;
+	width: 364px;
+	height: 260px;
+	right: 0px;
+  top: 0px;
+  z-index: 0;
+}
+
+.section-circle-bottom-left {
+	position: absolute;
+	display: inline-block;
+	width: 364px;
+	height: 260px;
+	left: 0px;
+    bottom: 0px;
+    z-index: 0;
+}
+
+.section-m-top-right {
+	position: absolute;
+	display: inline-block;
+	width: 1440px;
+	right: 0px;
+  top: 0px;
+  z-index: 0 !important;
+  opacity: 0.8;
+}
+
+.pink-m-left {
+	position: absolute;
+	display: inline-block;
+	width: 300px;
+	left: 0px;
+  top: 0px;
+  z-index: 0 !important;
+  opacity: 0.8;
+}
+
+.pink-m-right {
+	position: absolute;
+	display: inline-block;
+	width: 310px;
+	right: 0px;
+  bottom: 0px;
+  z-index: 0 !important;
+  opacity: 0.8;
+}
+
+.scale img {
+	-webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+
+.scale img:hover {
+	/*transform: rotate(90deg) !important;*/
+	 backface-visibility: hidden;
+	transform: scaleX(1.05) scaleY(1.05) !important;
+}
+
+.back-to-top {
+	position: fixed;
+  width: 60px;
+  height: 60px;
+  border-radius: 35px;
+	bottom: 20px;
+	right: 20px;
+	z-index: 999;
+  @apply bg-gradient-to-r from-purple to-lightpurple;
+  box-shadow:0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04);
+  -webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+
+.back-to-top:hover {
+  	/*transform: rotate(90deg) !important;*/
+    backface-visibility: hidden;
+    transform: scaleX(1.05) scaleY(1.05) !important;
+}
+
+.back-to-top-icon {
+  width: 36px;
+  position: absolute;
+  left: 12px;
+  top: 11px;
+}
+
+.hide {
+  opacity:0 !important;
+}
+
+.show {
+  opacity:1 !important;
+}
+/* Russ CSS */
+
 .button-base {
-  @apply rounded-full px-5 py-2;
-  @apply hover:shadow;
+  @apply rounded-full px-20 py-5;
+  @apply hover:shadow-lg;
 }
 
 .primary-button-outline {
@@ -22,9 +162,18 @@ body {
 .primary-button {
   @apply button-base;
   @apply primary-button-outline;
+  -webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
 }
 
-.primary-button::after {
+.primary-button:hover {
+  	/*transform: rotate(90deg) !important;*/
+    backface-visibility: hidden;
+    transform: scaleX(1.1) scaleY(1.1) !important;
+}
+
+.primary-button-icon::after {
   content: url("/static/img/caret-right.svg");
   position: relative;
   top: 4px;
@@ -53,7 +202,6 @@ body {
 */
 .bg-blured {
   @apply bg-white;
-
   box-shadow: 0 2px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
@@ -133,4 +281,31 @@ body {
   @apply font-comfortaa font-bold;
 
   -webkit-text-stroke-width: 2px;
+}
+
+/* Russ media queries */
+
+/*Tablet portrait*/
+@media (max-width: 1024px) { 
+
+  .vert-text-right {
+    position: initial;
+    display: block;
+    transform: initial;
+  }
+
+  .vert-text-left {
+    position: initial;
+    display: block;
+    transform: initial;
+  }
+
+}
+
+@media (max-width: 768px) { 
+
+  .logo-height {
+    height: 100px;
+  }
+
 }

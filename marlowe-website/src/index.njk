@@ -10,196 +10,247 @@
     <meta property="og:description" content="Democratizing Finance on Cardano">
     {# FIXME add a social image #}
     {# <meta property="og:image" content="http://something.jpg"> #}
+    <script src="jquery-3.6.0.js"></script>
     <meta property="og:url" content="https://marlowe-finance.io">
     <meta name="twitter:card" content="summary_large_image">
   </head>
 
   <body>
-    <header class=" fixed top-0 left-0 right-0 z-10 transition-colors duration-300 ease-out">
-      <div class="m-6 md:mx-5vw xl:mx-10vw widest:mx-auto max-w-screen flex items-center ">
-        <img loading="lazy" class="h-10 hidden md:block" src="{% static './static/img/marlowe-prototype-logo.svg' %}" alt="Marlowe prototype logo">
-        <img loading="lazy" class="h-10 block md:hidden" src="{% static './static/img/marlowe-logo.svg' %}" alt="Marlowe prototype logo">
-        <div id="header-try-buttons" class="transition-opacity duration-300 ease-out text-sm flex-grow flex justify-end mr-2 sm:mr-4 md:mr-5 lg:mr-7">
-          <div class="hidden md:block">
-            {# FIXME change links back to xxx.marlowe-finance.io #}
-            <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button flex-shrink-0 mr-2 sm:mr-4 md:mr-5 lg:mr-7">Try Marlowe Run</a>
-            <a href="https://staging.marlowe.iohkdev.io" target="_blank" class="secondary-button flex-shrink-0">Try Marlowe Play</a>
-          </div>
 
-          <div class="md:hidden">
-            {# FIXME change links back to xxx.marlowe-finance.io #}
-            <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="button-base primary-button-outline flex-shrink-0 mr-2 sm:mr-4 md:mr-5 lg:mr-7">Try Run</a>
-            <a href="https://staging.marlowe.iohkdev.io" target="_blank" class="button-base secondary-button-outline flex-shrink-0">Try Play</a>
-          </div>
+    <span id="top"></span>
+    <a id="myID" class="back-to-top hide scale relative" href="#top">
+    <img loading="lazy" class="back-to-top-icon" src="{% static './static/img/back-to-top.svg' %}" alt="Back to top">
+    </a>
 
-        </div>
-        <a class="text-lightpurple font-bold text-sm" href="">Docs</a>
+    <header class="fixed top-0 left-0 right-0 z-20 shadow-sm bg-white">
+
+      <div class="md:m-5 m-3 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
+
+        <a href="#top" class="scale"><img loading="lazy" class="md:w-36 w-32 block mr-16" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
+        <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
+        <ul class="hidden md:block">
+          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#run">Marlowe Run</a></li>
+          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#build">For Engineers</a></li>
+          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#faq">FAQs</a></li>
+          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#pioneers">Pioneers</a></li>
+          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#">Docs</a></li>
+        </ul>
+
       </div>
 
     </header>
-    <section class="sm:bg-main bg-no-repeat bg-cover bg-center sm:h-main w-full overflow-hidden">
-      <div class="relative mx-6 md:ml-5vw xl:ml-10vw sm:w-full max-w-screen widest:mx-auto">
-        <div class="sm:absolute sm:w-min inset-0 ">
-          <h1 class="text-3xl md:text-4xl lg:text-5xl flex flex-col font-comfortaa-bolder leading-tight pt-28 lg:pt-40 pb-4">
-            <span class="min-w-max">Financial</span>
-            <span class="min-w-max">Test Contracts,</span>
-            <span>reimagined.</span>
-          </h1>
-          <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Marlowe puts the power of financial agreements into the hands of millions.</h2>
-          <div id="main-try-buttons" class="flex mb-10 text-sm">
-            {# FIXME change links back to xxx.marlowe-finance.io #}
-            <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button flex-shrink-0 mr-2 sm:mr-4 md:mr-5 lg:mr-7">Marlowe Run</a>
-            <a href="https://staging.marlowe.iohkdev.io" target="_blank" class="secondary-button flex-shrink-0">Marlowe Playground</a>
-          </div>
 
+    
+
+
+    <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center md:pt-44 md:pb-20 pt-32 pb-14"><!--Hero-->
+    
+      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
+      
+        <div class="inset-0"><!--Column-->
+          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-logo-dark.svg' %}" alt="">
+          <h1 class="text-3xl md:text-4xl lg:text-5xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4">Peer to peer financial agreements are here</h1>
+          <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Try our demo products built on Marlowe, the language made for finance.</h2>
+          <a href="" class="text-link text-xl lg:text-2xl xl:text-27px white font-semibold mt-5 mb-26">Discover the Marlowe language</a>
         </div>
+
       </div>
 
-    </section>
-    <img loading="lazy" class="w-full sm:hidden" src="{% static './static/img/woman-using-cellphone-small.jpg' %}" alt="Marlowe Prototype">
+      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 mt-8"><!--Row-->
+        <div class="mb-20 md:mb-0" style=""><!--Left column-->
+          <h3 class="text-27px font-semibold pb-4 md:hidden block mt-12">Run Marlowe contracts</h3>
+          <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-run-image.png' %}" alt="Marlowe Run Demo">
+          <h3 class="text-27px font-semibold pb-4 md:block hidden">Run Marlowe contracts</h3>
+          <p class="text-lg font-semibold">Run our first collection of smart contract templates with the Marlowe Run app.</p>
+        </div>
 
-    <section class="bg-green pb-14">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-5vw xl:gap-x-10vw mx-6 md:mx-5vw xl:mx-10vw widest:mx-auto max-w-screen">
-        <div class="relative -top-12 rounded-lg px-4 py-6 bg-blured">
-          <h4 class="text-xl font-semibold text-lightpurple">Marlowe Run</h4>
-          <h3 class="text-2xl font-comfortaa-bold my-4">Run and manage peer-to-peer financial agreements.</h3>
-          <p class="text-lg my-4">Choose from our off-the-shelf template contracts to set up peer-to-peer loans, escrows and swaps. We've automated contract management so you can relax.</p>
-          {# FIXME change link back to run.marlowe-finance.io #}
-          <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button flex-shrink-0 my-4">Try it!</a>
+        <div class="" style=""><!--Right column-->
+        <h3 class="text-27px font-semibold pb-4 md:hidden block">Build Marlowe contracts</h3>
+          <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-build-image.png' %}" alt="Marlowe Build Demo">
+          <h3 class="text-27px font-semibold pb-4 md:block hidden">Build Marlowe contracts</h3>
+          <p class="text-lg font-semibold">Write, build and simulate financial smart contracts with the Marlowe Build sandbox.</p>
+        </div>
 
-        </div>
-        <div class="md:flex gap-4">
-          <div class="py-6">
-            <h4 class="font-bold">Lower Costs</h4>
-            <p>No more third-party fees. No more developer fees. We do it all.</p>
+      </div>
 
-          </div>
-          <div class="py-6">
-            <h4 class="font-bold">Fast and Safe</h4>
-            <p>Tested, secured and good to go.</p>
-          </div>
-        </div>
-        <div class="">
-          <p class="text-xl font-comfortaa font-bold py-8">Marlowe Run is a prototype running on a simulated blockchain. We invite users to test out its functionality and features and give us feedback to make sure we get it right!
-          </p>
-        </div>
-        <div class="rounded-lg bg-lightgray p-4">
-          <h4 class="text-lightpurple text-xl font-semibold mb-3">Already tried Marlowe Run?</h4>
-          <p class="text-lg">Tell us what you think, we need your feedback to turn great into exceptional.</p>
-          <div class="flex items-end justify-end">
-            <img class="relative top-2" src="{% static './static/img/top-down-arrow.svg' %}" alt="Arrow">
-            <button class="text-sm flex-shrink-0 primary-button">Submit feedback</button>
-          </div>
-        </div>
-        <div class="md:row-start-1 md:row-end-5 relative justify-self-end md:-top-20 mt-16 md:mt-0 pr-10">
-          <div class="bg-white rounded px-2 pb-3 shadow-lg w-min">
-            <div class="ml-3 py-3 flex">
-              <div class="bg-mac-red w-3 h-3 rounded-full mr-2"></div>
-              <div class="bg-mac-yellow w-3 h-3 rounded-full mr-2"></div>
-              <div class="bg-mac-green w-3 h-3 rounded-full"></div>
+      <div class="grid grid-cols-1 md:mt-20 mt-5 md:w-5/6 mx-auto w-11/12"><!--Row-->
+      <a href="#run" class="scale">
+        <h3 class="text-27px font-semibold pb-2 mx-auto md:block hidden">Discover more</h3>
+        <img loading="lazy" class="w-12 mx-auto pb-0" src="{% static './static/img/chevron-down-dark.svg' %}" alt="Discover more">
+      </a>
+      </div>
+      
+    <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
+    <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
+    <span id="run"></span>
+    </section><!--Hero-->
+
+
+
+
+  
+
+    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-24 pt-20 pb-24"><!--S1 - Marlowe Run-->
+
+      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
+        <div class="inset-0"><!--Column-->
+
+          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
+          <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Financial smart contracts made easy</h2>
+          <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Interact with running smart contracts on the web.</h2>
+
+        </div><!--Column-->
+      </div><!--Row-->
+
+      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
+        <div class="inset-0"><!--Column-->
+
+          <h3 class="text-lg font-semibold mt-5 pb-4 md:block hidden">Try the first of many smart contract templates, more coming soon.</h3>
+          <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 hidden md:block" src="{% static './static/img/run-tabs.png' %}" alt="">
+          <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 block md:hidden" src="{% static './static/img/tabs-mobile.jpg' %}" alt="">
+
+        </div><!--Column-->
+      </div><!--Row-->
+
+      <div class="relative mx-auto lg:w-3/4 md:w-5/6 w-11/12"><!--Row-->
+        <div class="inset-0"><!--Column-->
+
+          <h3 class="pt-16 text-xl font-semibold pb-4 md:block hidden">See how it works</h3>
+
+          <div class="relative xl:w-3/4 w-full mx-auto"><!--Video thumbnail-->
+            <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
+              <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
             </div>
-            <div class="rounded-t overflow-hidden w-max">
-              <img loading="lazy" src="{% static './static/img/marlowe-run-desktop.png' %}" alt="Marlowe run desktop screenshot">
+            <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/run-video-thumbnail.png' %}" alt="">
+
+           
+          </div><!--Video thumbnail-->
+          
+
+        </div><!--Column-->
+      </div><!--Row-->
+
+      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-24 md:mt-14 mt-16"><!--Row-->
+        <div class="relative inset-0 lg:w-3/4 w-full mx-auto"><!--Column-->
+           <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try demo</a>
+           <img loading="lazy" class="w-36 absolute lg:right-10 bottom-3 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+        </div><!--Column-->
+      </div><!--Row-->
+
+    <img loading="lazy" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
+    <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
+    <span id="build"></span>
+    </section><!--S1 - Marlowe Run-->
+
+
+
+
+
+
+
+    <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-28 pt-20 pb-24 text-white"><!--S1 - Marlowe Build-->
+
+
+    <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white mb-8 z-10"><!--Row-->
+        <div class="inset-0"><!--Column-->
+          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
+          <h3 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Sandbox for financial engineers</h3>
+          <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
+        </div><!--Column-->
+      </div><!--Row-->
+
+
+
+     <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10"><!--Row-->
+
+          <div class="lg:w-full md:w-2/3 w-10/12 mb-8 md:mt-0 mt-8 md:mb-0 lg:-mx-0 mx-auto lg:block hidden" style=""><!--Left column-->
+            <div class="vert-text-left" style="">
+              <h3 class=" text-green text-xl font-semibold mt-5 pb-4">No code? No problem.</h3>
+              <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
+              <p class="md:text-xl text-lg">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
+                <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-8"><!--Row-->
+                  <div class="relative w-full"><!--Column-->
+                    <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+                    <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+                  </div><!--Column-->
+                </div>
             </div>
+          </div><!--Left column-->
+
+          <div class="" style=""><!--Right column-->
+            <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt="">
           </div>
-          <div class="absolute top-16 right-0 shadow-lg rounded">
-            <div class="bg-white rounded p-2 pt-3">
-              <div class="rounded overflow-hidden">
-                <img loading="lazy" src="{% static './static/img/marlowe-run-mobile.jpg' %}" alt="Marlowe run mobile screenshot">
-              </div>
+
+          <div class="mb-8 md:mt-0 md:mb-10 w-10/12 lg:-mx-0 mx-auto lg:hidden block" style=""><!--Left column-->
+            <div class="lg:w-1/3 md:w-2/3 w-11/12 vert-text-left" style="">
+              <h3 class=" text-green text-xl font-semibold mt-0 pb-4">No code? No problem.</h3>
+              <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
+              <p class="md:text-xl text-lg">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
+                <div class="relative md:w-5/6 w-11/12 mt-12"><!--Row-->
+                  <div class="relative w-full"><!--Column-->
+                    <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+                    <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+                  </div><!--Column-->
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </div><!--Left column-->
 
-    </section>
-    <section class="w-full overflow-hidden">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-5vw xl:gap-x-10vw mx-6 md:mx-5vw xl:mx-10vw widest:mx-auto max-w-screen">
-        <div>
-          <h4 class="text-lightpurple text-xl font-semibold mt-20 mb-8">Marlowe Playground</h4>
-          <h3 class="text-2xl font-comfortaa-bold leading-tight mb-8">Build, verify, simulate.</h3>
-          <p class="text-lg mb-8">There's a variety of ways to create financial smart contracts including JavaScript. Send contracts through simulations and analyses provided to ensure your contract is behaving as you want.</p>
-          <a href="" target="_blank" class="primary-button mb-6">Tutorial</a>
-        </div>
-        <div class=" md:flex gap-4">
-          <div class="py-6">
-            <h4 class="font-bold">Easy onboarding</h4>
-            <p>It's web-based. Get started quickly and easily, no need to download anything or set up an extensive development environment.</p>
+      </div><!--Row-->
 
-          </div>
-          <div class="py-6">
-            <h4 class="font-bold">Use Javascript or Haskell</h4>
-            <p>Develop Marlowe contracts in either language using our editors, then the Playground converts them to Marlowe.</p>
-          </div>
-        </div>
-        <div class="md:row-start-1 md:row-end-3 md:col-start-2 self-end mt-6 lg:mt-20 ">
-          <div class="bg-white rounded-t px-2 shadow-lg w-min">
-            <div class="ml-3 py-3 flex">
-              <div class="bg-mac-red w-3 h-3 rounded-full mr-2"></div>
-              <div class="bg-mac-yellow w-3 h-3 rounded-full mr-2"></div>
-              <div class="bg-mac-green w-3 h-3 rounded-full"></div>
+
+      <div class="relative mx-auto h-auto lg:w-3/4 md:w-5/6 w-11/12 text-center md:pb-10 pb-0 z-10"><!--Row-->
+
+        <div class="inset-0"><!--Column-->
+          <h3 class="pt-16 text-xl font-semibold pb-4 md:block text-green">See how it works</h3>
+          <div class="relative xl:w-3/4 w-full mx-auto"><!--Video thumbnail-->
+            <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
+              <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
             </div>
-            <div class="rounded-t overflow-hidden w-max">
-              <img class="hidden sm:block" loading="lazy" src="{% static './static/img/marlowe-play.png' %}" alt="Marlowe play screenshot">
-              <img class="sm:hidden" loading="lazy" src="{% static './static/img/marlowe-play-small.png' %}" alt="Marlowe play screenshot">
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="bg-green h-banner-section-sm md:h-banner-section w-full overflow-hidden">
-      {# For displaying this banner we use a background image in the second element if its small or a
-      2 element grid if it's big. I tried to put them both as grid or as background image but I couldn't
-      make it work that way. #}
-      <div class="grid grid-cols-1 md:grid-cols-2 widest:mx-auto max-w-screen h-full">
-        <div class="bg-market-banner md:bg-none bg-no-repeat bg-cover bg-pos-market-banner-mobile flex flex-col i items-start pl-4 md:pl-0 md:items-center pt-8 md:pt-0 md:justify-center">
-          <img loading="lazy" class="h-play-img-sm md:h-play-img-md" src="{% static './static/img/marlowe-market-coming-soon.svg' %}" alt="Marlowe play Update coming 2021 on the third or fourth quarter">
-        </div>
-        <div class="hidden md:block w-max">
-          <img loading="lazy" src="{% static './static/img/marlowe-market-banner-background-desktop.png' %}" alt="Woman using marlowe market on her cellphone">
+            <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/marlowe-build-video-thumbnail.png' %}" alt="">
+          </div><!--Video thumbnail-->
+        </div><!--Column-->
+
+      </div><!--Row-->
+
+
+      <div class="relative grid grid-cols-1 lg:grid-cols-2 grid-cols-1 xl:w-3/4 lg:w-11/12 mx-auto  mt-8 z-10"><!--Row-->
+
+        <div class="md:pt-0 pt-10 md:mb-0 mb-0 pb-0" style=""><!--Left column-->
+          <img loading="lazy" class="" src="{% static './static/img/marlowe-build-code-module.png' %}" alt="">
         </div>
 
-      </div>
-    </section>
-    <section class="pt-6 pb-20 lg:py-20 grid grid-cols-1 md:grid-cols-2 md:auto-rows-fr md:gap-x-6 lg:gap-x-5vw xl:gap-x-10vw mx-6 lg:mx-5vw xl:mx-10vw max-w-screen widest:mx-auto">
-      <div>
-        <h4 class="text-lightpurple text-xl font-semibold mb-6">The core of Marlowe is our special-purpose language.</h4>
-        <h3 class="text-2xl font-comfortaa-bold leading-tight mb-6">Marlowe is a new language for modeling financial contracts as smart contracts on a blockchain.</h3>
-        <p class="text-lg mb-6">Access the benefits of the Cardano blockchain to create financial contracts that are secure, automated, and easy to manage.</p>
-        <a href="" target="_blank" class="primary-button mb-6">Learn more</a>
-      </div>
-      <div class="md:flex gap-4">
-        <div class="py-6">
-          <h4 class="font-bold">Designed for finance</h4>
-          <p>Marlowe contracts are written in the language of finance.</p>
-
-        </div>
-        <div class="py-6">
-          <h4 class="font-bold">Safe and Easy to Use</h4>
-          <p>Secure by design. Built for anyone to easily understand and safely use.</p>
-        </div>
-      </div>
-      <div class="md:row-start-1 md:row-end-3">
-        <div class="bg-white rounded px-2 pb-2 shadow-lg">
-          <div class="ml-3 py-3 flex">
-            <div class="bg-mac-red w-3 h-3 rounded-full mr-2"></div>
-            <div class="bg-mac-yellow w-3 h-3 rounded-full mr-2"></div>
-            <div class="bg-mac-green w-3 h-3 rounded-full"></div>
+        <div class="lg:w-full w-10/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto" style=""><!--Right column-->
+          <div class="vert-text-right" style="">
+            <h3 class=" text-green text-xl font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
+            <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your own smart contract ideas</h4>
+            <p class="md:text-xl text-lg">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
+              <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-12"><!--Row-->
+                <div class="relative w-full"><!--Column-->
+                  <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+                  <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+                </div><!--Column-->
+              </div><!--Row-->
           </div>
-          <div class="rounded overflow-hidden">
-            <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-code.svg' %}" alt="Marlowe contract example">
-          </div>
-        </div>
-      </div>
+        </div><!--Right column-->
 
-    </section>
-    <section class="pb-10 mx-6 md:mx-5vw xl:mx-10vw max-w-screen widest:mx-auto">
+      </div><!--Row-->
+      <img loading="lazy" style="" class="section-m-top-right absolute invisible lg:visible w-full" src="{% static './static/img/marlowe-background-m.svg' %}" alt="xx">
+    <span id="faq"></span>
+    </section><!--S1 - Marlowe Build-->
+
+
+
+    
+    <section class="relative block bg-white h-auto w-full md:pt-24 md:pb-24 pt-20 pb-24"> <!--FAQs-->
       {# The current faqContent was taken from:
          https://docs.google.com/document/d/1Ydm7k6UhTFr-Oj5wY7V3JLC6vUA3-S_PRUzl6D7Ziec/edit#
          I did not include questions in red or the Q suggestions.
          Last update (on google doc) Apr 27 7:20 AM
          #}
-      <h3 class="text-2xl font-comfortaa-bold  mb-6 md:text-center">Marlowe FAQ’s</h3>
+
+    <div class="relative mx-auto lg:w-5/6 w-11/12">
+         <span id="faq"></span>
+      <h3 class="md:text-2xl lg:text-3xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
       {% macro faqComponent(index, question, answer) %}
         <div class="faq border-t border-darkgray pt-5 mt-5">
           <h4 class="text-lightpurple text-xl font-semibold flex cursor-pointer">
@@ -217,43 +268,102 @@
         {{faqComponent(loop.index, item.question, item.answer)}}
       {% endfor %}
       <div id="faq"></div>
-    </section>
-    <section class="bg-lightpurple h-banner-section-sm md:h-banner-section">
-      {# For displaying this banner we use a background image in the second element if its small or a
-      2 element grid if it's big. I tried to put them both as grid or as background image but I couldn't
-      make it work that way. #}
-      <div class="grid grid-cols-1 md:grid-cols-2 widest:mx-auto max-w-screen h-full">
-        <div class="hidden md:block w-max justify-self-end">
-          <img loading="lazy" class="" src="{% static './static/img/marlowe-play-banner-background-desktop.png' %}" alt="Man using notebook">
-        </div>
-        <div class="bg-play-banner md:bg-none bg-no-repeat bg-cover bg-pos-play-banner-mobile flex flex-col i items-end pr-4 md:pr-0 md:items-center pt-16 md:pt-0 md:justify-center">
-          <img loading="lazy" class="h-play-img-sm md:h-play-img-md" src="{% static './static/img/marlowe-play-coming-soon.svg' %}" alt="Marlowe play Update coming 2021 on the third or fourth quarter">
-        </div>
       </div>
-    </section>
-    {# FIXME should we remove this section? #}
-    <section class="bg-green py-20">
-      <div class="mx-6 md:mx-5vw xl:mx-10vw widest:mx-auto max-w-screen">
-        <h3 class="text-2xl font-comfortaa-bold leading-tight mb-6">Sign up to the testing program</h3>
-        {# FIXME this button does nothing #}
-        <button class="primary-button">Help make Marlowe better</button>
+       
+    </section><!--FAQs-->
+
+
+        <section class="relative block bg-grayblue h-auto w-full md:pt-34 md:pb-30 pt-20 pb-24 text-center"><!--S1 - Marlowe Pioneers-->
+         <div class="relative mx-auto md:w-1/2 w-11/12"><!--Row-->
+          <div class="inset-0"><!--Column-->
+            <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Marlowe Pioneers</h2>
+            <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Be the first to test and feedback on this groundbreaking new DeFi technology.</h2>
+            <div class="relative mx-auto md:w-5/6 w-11/12 md:mt-18 md:mb-5 mt-12"><!--Row-->
+              <div class="relative inset-0 w-full mx-auto"><!--Column-->
+                <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Register now</a>
+                <img loading="lazy" class="w-36 absolute xl:right-0 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+              </div><!--Column-->
+            </div><!--Row-->
+          </div><!--Column-->
+        </div><!--Row-->
+        <img loading="lazy" style="" class="pink-m-left invisible lg:visible" src="{% static './static/img/pink-m-left.svg' %}" alt="xx">
+        <img loading="lazy" style="" class="pink-m-right invisible lg:visible" src="{% static './static/img/pink-m-right.svg' %}" alt="xx">
+        </section>
+
+
+
+    <footer class="shadow-sm bg-white h-auto md:py-5 py-10">
+
+      <div class="m-5 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
+
+        <ul class="inline w-full">
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline"><a class="" href="#run">Privacy</a></li>
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline"><a class="" href="#build">Terms</a></li>
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item external block md:inline"><a class="" href="#build">iohk.io</a></li>
+          <li class="relative text-base font-bold md:mr-7 md:mb-0 menu-item external block md:inline"><a class="" href="#run">cardano.org</a></li>
+        </ul>
+
       </div>
-    </section>
-    <footer class="py-10 mx-6 md:mx-5vw xl:mx-10vw widest:mx-auto max-w-screen flex flex-col md:flex-row md:items-center">
-      <div class="self-center md:mr-6">
-        <img class="h-10" src="{% static './static/img/marlowe-prototype-logo.svg' %}" alt="Marlowe prototype logo">
-      </div>
-      <div class="flex flex-col md:flex-row mt-6 md:mt-0">
-        {# FIXME add links #}
-        <a href="" class="text-lightpurple font-semibold mr-6">Privacy</a>
-        <a href="" class="text-lightpurple font-semibold">Terms
-        </a>
-      </div>
-      <div class="flex-grow  flex flex-col md:flex-row md:justify-end mt-6 md:mt-0">
-        <a href="https://cardano.org/" class="text-lightpurple font-semibold mr-6">cardano.org</a>
-        <a href="https://iohk.io/" class="text-lightpurple font-semibold">iohk.io</a>
-      </div>
+
     </footer>
+
+<!--Hide and show the back to top CTA-->
+<script type="text/javascript">
+  	
+  	myID = document.getElementById("myID");
+
+	var myScrollFunc = function () {
+	    var y = window.scrollY;
+	    if (y >= 400) {
+	        myID.className = "back-to-top show"
+	    } else {
+	        myID.className = "back-to-top hide"
+	    }
+	};
+
+	window.addEventListener("scroll", myScrollFunc);
+  </script>
+
+<!--Smooth scrolling-->
+<script type="text/javascript">
+	// Select all links with hashes
+$('a[href*="#"]')
+  // Remove links that don't actually link to anything
+  .not('[href="#"]')
+  .not('[href="#0"]')
+  .click(function(event) {
+    // On-page links
+    if (
+      location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') 
+      && 
+      location.hostname == this.hostname
+    ) {
+      // Figure out element to scroll to
+      var target = $(this.hash);
+      target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+      // Does a scroll target exist?
+      if (target.length) {
+        // Only prevent default if animation is actually gonna happen
+        event.preventDefault();
+        $('html, body').animate({
+          scrollTop: target.offset().top
+        }, 500, function() {
+          // Callback after animation
+          // Must change focus!
+          var $target = $(target);
+          $target.focus();
+          if ($target.is(":focus")) { // Checking if the target was focused
+            return false;
+          } else {
+            $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
+            $target.focus(); // Set focus again
+          };
+        });
+      }
+    }
+  });
+</script>
+
   </body>
 
 </html>
