@@ -79,6 +79,7 @@ module Plutus.Contracts.Stablecoin(
   , checkValidState
   ) where
 
+import           Control.Lens                 (makeClassyPrisms)
 import           Control.Monad                (forever, guard)
 import           Data.Aeson                   (FromJSON, ToJSON)
 import           Data.Functor.Identity        (Identity (..))
@@ -94,7 +95,8 @@ import           Ledger.Typed.Tx              (TypedScriptTxOut (..))
 import           Ledger.Value                 (AssetClass, TokenName, Value)
 import qualified Ledger.Value                 as Value
 import           Plutus.Contract
-import           Plutus.Contract.StateMachine (SMContractError, State (..), StateMachine, StateMachineClient (..), Void)
+import           Plutus.Contract.StateMachine (AsSMContractError, SMContractError, State (..), StateMachine,
+                                               StateMachineClient (..), Void)
 import qualified Plutus.Contract.StateMachine as StateMachine
 import qualified PlutusTx
 import           PlutusTx.Prelude
@@ -387,17 +389,23 @@ data StablecoinError =
     deriving stock (Haskell.Show, Generic)
     deriving anyclass (ToJSON, FromJSON)
 
+makeClassyPrisms ''StablecoinError
+
+instance AsContractError StablecoinError where
+    _ContractError = _InitialiseEPError . _ContractError
+
+instance AsSMContractError StablecoinError where
+    _SMContractError = _StateMachineError . StateMachine._SMContractError
+
 -- | A 'Contract' that initialises the state machine and then accepts 'Input'
 --   transitions.
-contract :: Contract () StablecoinSchema StablecoinError ()
-contract = do
-    sc <- mapError InitialiseEPError $ endpoint @"initialise"
+contract :: Contract () StablecoinSchema StablecoinError (Waited ())
+contract = endpoint @"initialise" $ \sc -> do
     let theClient = machineClient (typedValidator sc) sc
-    _ <- mapError StateMachineError $ StateMachine.runInitialise theClient (initialState theClient) mempty
-    forever $ do
-        i <- mapError RunStepError (endpoint @"run step")
+    _ <- StateMachine.runInitialise theClient (initialState theClient) mempty
+    forever $ endpoint @"run step" $ \i -> do
         checkTransition theClient sc i
-        mapError StateMachineError $ StateMachine.runStep theClient i
+        StateMachine.runStep theClient i
 
 -- | Apply 'checkValidState' to the states before and after a transition
 --   and log a warning if something isn't right.

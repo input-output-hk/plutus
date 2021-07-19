@@ -187,7 +187,7 @@ campaignAddress = Scripts.validatorHash . contributionScript
 
 -- | The crowdfunding contract for the 'Campaign'.
 crowdfunding :: Campaign -> Contract () CrowdfundingSchema ContractError ()
-crowdfunding c = contribute c `select` scheduleCollection c
+crowdfunding c = selectList [contribute c, scheduleCollection c]
 
 -- | A sample campaign
 theCampaign :: Campaign
@@ -201,9 +201,8 @@ theCampaign = Campaign
 --   an endpoint that allows the user to enter their public key and the
 --   contribution. Then waits until the campaign is over, and collects the
 --   refund if the funding was not collected.
-contribute :: Campaign -> Contract () CrowdfundingSchema ContractError ()
-contribute cmp = do
-    Contribution{contribValue} <- endpoint @"contribute"
+contribute :: Campaign -> Contract () CrowdfundingSchema ContractError (Waited ())
+contribute cmp = endpoint @"contribute" $ \Contribution{contribValue} -> do
     logInfo @Text $ "Contributing " <> Text.pack (Haskell.show contribValue)
     contributor <- ownPubKey
     let inst = typedValidator cmp
@@ -230,14 +229,13 @@ contribute cmp = do
 -- | The campaign owner's branch of the contract for a given 'Campaign'. It
 --   watches the campaign address for contributions and collects them if
 --   the funding goal was reached in time.
-scheduleCollection :: Campaign -> Contract () CrowdfundingSchema ContractError ()
-scheduleCollection cmp = do
+scheduleCollection :: Campaign -> Contract () CrowdfundingSchema ContractError (Waited ())
+scheduleCollection cmp = endpoint @"schedule collection" $ \() -> do
     let inst = typedValidator cmp
 
     -- Expose an endpoint that lets the user fire the starting gun on the
     -- campaign. (This endpoint isn't technically necessary, we could just
     -- run the 'trg' action right away)
-    () <- endpoint @"schedule collection"
     logInfo @Text "Campaign started. Waiting for campaign deadline to collect funds."
 
     _ <- awaitTime $ campaignDeadline cmp

@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeApplications   #-}
 {-# LANGUAGE TypeOperators      #-}
 
@@ -62,6 +63,7 @@ module Plutus.Contracts.Prism(
     , contract
     ) where
 
+import           Control.Lens
 import           Data.Aeson                          (FromJSON, ToJSON)
 import           GHC.Generics                        (Generic)
 import           Plutus.Contracts.Prism.Credential
@@ -93,13 +95,17 @@ data PrismError =
     deriving stock (Eq, Generic, Show)
     deriving anyclass (ToJSON, FromJSON)
 
+makeClassyPrisms ''PrismError
+
+instance AsContractError PrismError where
+    _ContractError = _EPError . _ContractError
+
 -- | A wrapper around the four prism contracts. This is just a workaround
 --   for the emulator, where we can only ever run a single 'Contract'. In
 --   the PAB we could simply start all four contracts (credentialManager,
 --   mirror, subscribeSTO, subscribeExchange) separately.
 contract :: Contract () PrismSchema PrismError ()
-contract = do
-    r <- mapError EPError $ endpoint @"role"
+contract = fmap getWaited $ endpoint @"role" $ \r -> do
     case r of
         Mirror         -> mapError MirrorErr mirror
         UnlockSTO      -> mapError UnlockSTOErr subscribeSTO

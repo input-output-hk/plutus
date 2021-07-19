@@ -75,15 +75,15 @@ tests =
         , check 1 "watchAddressUntilSlot" (void $ watchAddressUntilSlot someAddress 5) $ \con ->
             waitingForSlot con tag 5
 
-        , check 1 "endpoint" (endpoint @"ep") $ \con ->
+        , check 1 "endpoint" (void $ endpoint @"ep" pure) $ \con ->
             endpointAvailable @"ep" con tag
 
-        , check 1 "forever" (forever $ endpoint @"ep") $ \con ->
+        , check 1 "forever" (forever $ endpoint @"ep" pure) $ \con ->
             endpointAvailable @"ep" con tag
 
         , let
-            oneTwo :: Contract () Schema ContractError Int = endpoint @"1" >> endpoint @"2" >> endpoint @"4"
-            oneThree :: Contract () Schema ContractError Int = endpoint @"1" >> endpoint @"3" >> endpoint @"4"
+            oneTwo :: Contract () Schema ContractError (Waited Int) = endpoint @"1" pure >> endpoint @"2" pure >> endpoint @"4" pure
+            oneThree :: Contract () Schema ContractError (Waited Int) = endpoint @"1" pure >> endpoint @"3" pure >> endpoint @"4" pure
             con = void (oneTwo `select` oneThree)
           in
             run 1 "alternative"
@@ -93,24 +93,24 @@ tests =
                     hdl <- activateContract w1 con tag
                     callEndpoint @"1" hdl 1
 
-        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int >> endpoint @"2" @Int
+        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int pure >> endpoint @"2" @Int pure
           in run 1 "call endpoint (1)"
                 (endpointAvailable @"1" theContract tag)
                 (void $ activateContract w1 theContract tag)
 
-        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int >> endpoint @"2" @Int
+        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int pure >> endpoint @"2" @Int pure
           in run 1 "call endpoint (2)"
                 (endpointAvailable @"2" theContract tag
                     .&&. not (endpointAvailable @"1" theContract tag))
                 (activateContract w1 theContract tag >>= \hdl -> callEndpoint @"1" hdl 1)
 
-        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int >> endpoint @"2" @Int
+        , let theContract :: Contract () Schema ContractError () = void $ endpoint @"1" @Int pure >> endpoint @"2" @Int pure
           in run 1 "call endpoint (3)"
                 (not (endpointAvailable @"2" theContract tag)
                     .&&. not (endpointAvailable @"1" theContract tag))
                 (activateContract w1 theContract tag >>= \hdl -> callEndpoint @"1" hdl 1 >> callEndpoint @"2" hdl 2)
 
-        , let theContract :: Contract () Schema ContractError [ActiveEndpoint] = endpoint @"5" @[ActiveEndpoint]
+        , let theContract :: Contract () Schema ContractError [ActiveEndpoint] = getWaited <$> endpoint @"5" @[ActiveEndpoint] pure
               expected = ActiveEndpoint{ aeDescription = EndpointDescription "5", aeMetadata = Nothing}
           in run 5 "active endpoints"
                 (assertDone theContract tag ((==) [expected]) "should be done")
@@ -126,21 +126,21 @@ tests =
                 (void $ activateContract w1 theContract tag)
 
         , let smallTx = Constraints.mustPayToPubKey (Crypto.pubKeyHash $ walletPubKey (Wallet 2)) (Ada.lovelaceValueOf 10)
-              theContract :: Contract () Schema ContractError () = submitTx smallTx >>= awaitTxConfirmed . Ledger.txId >> submitTx smallTx >>= awaitTxConfirmed . Ledger.txId
+              theContract :: Contract () Schema ContractError (Waited ()) = submitTx smallTx >>= awaitTxConfirmed . Ledger.txId >> submitTx smallTx >>= awaitTxConfirmed . Ledger.txId
           in run 3 "handle several blockchain events"
                 (walletFundsChange w1 (Ada.lovelaceValueOf (-20))
                     .&&. assertNoFailedTransactions
                     .&&. assertDone theContract tag (const True) "all blockchain events should be processed")
                 (void $ activateContract w1 theContract tag >> Trace.waitUntilSlot 3)
 
-        , let l = endpoint @"1" >> endpoint @"2"
-              r = endpoint @"3" >> endpoint @"4"
+        , let l = endpoint @"1" pure >> endpoint @"2" pure
+              r = endpoint @"3" pure >> endpoint @"4" pure
               theContract :: Contract () Schema ContractError () = void $ selectEither l r
           in run 1 "select either"
                 (assertDone theContract tag (const True) "left branch should finish")
                 (activateContract w1 theContract tag >>= (\hdl -> callEndpoint @"1" hdl 1 >> callEndpoint @"2" hdl 2))
 
-        , let theContract :: Contract () Schema ContractError () = void $ loopM (\_ -> Left <$> endpoint @"1" @Int) 0
+        , let theContract :: Contract () Schema ContractError () = void $ loopM (\_ -> Left . getWaited <$> endpoint @"1" @Int pure) 0
           in run 1 "loopM"
                 (endpointAvailable @"1" theContract tag)
                 (void $ activateContract w1 theContract tag >>= \hdl -> callEndpoint @"1" hdl 1)
@@ -162,7 +162,7 @@ tests =
                 (void $ activateContract w2 (void theContract) tag)
 
         , let payment = Constraints.mustPayToPubKey (Crypto.pubKeyHash $ walletPubKey w2) (Ada.lovelaceValueOf 10)
-              theContract :: Contract () Schema ContractError () = submitTx payment >>= awaitTxConfirmed . Ledger.txId
+              theContract :: Contract () Schema ContractError (Waited ()) = submitTx payment >>= awaitTxConfirmed . Ledger.txId
           in run 2 "await tx confirmed"
             (assertDone theContract tag (const True) "should be done")
             (activateContract w1 theContract tag >> void (Trace.waitNSlots 1))
@@ -172,7 +172,7 @@ tests =
             (void $ activateContract w1 checkpointContract tag >>= \hdl -> callEndpoint @"1" hdl 1 >> callEndpoint @"2" hdl 1)
 
         , run 1 "error handling & checkpoints"
-            (assertDone errorContract tag (\i -> i == 11) "should finish")
+            (assertDone errorContract tag (\i -> getWaited i == 11) "should finish")
             (void $ activateContract w1 (void errorContract) tag >>= \hdl -> callEndpoint @"1" hdl 1 >> callEndpoint @"2" hdl 10 >> callEndpoint @"3" hdl 11)
 
         , run 1 "loop checkpoint"
@@ -184,7 +184,7 @@ tests =
                 hdl <- activateContract w1 loopCheckpointContract tag
                 forM_ [1..4] (\_ -> callEndpoint @"1" hdl 1)
 
-        , let theContract :: Contract () Schema ContractError () = logInfo @String "waiting for endpoint 1" >> endpoint @"1" >>= logInfo . (<>) "Received value: " . show
+        , let theContract :: Contract () Schema ContractError (Waited ()) = logInfo @String "waiting for endpoint 1" >> endpoint @"1" (logInfo . (<>) "Received value: " . show)
               matchLogs :: [EM.EmulatorTimeEvent ContractInstanceLog] -> Bool
               matchLogs lgs =
                   case _cilMessage . EM._eteEvent <$> lgs of
@@ -195,7 +195,7 @@ tests =
                 (assertInstanceLog tag matchLogs)
                 (void $ activateContract w1 theContract tag >>= \hdl -> callEndpoint @"1" hdl 27)
 
-        , let theContract :: Contract () Schema ContractError () = logInfo @String "waiting for endpoint 1" >> endpoint @"1" >>= logInfo . (<>) "Received value: " . show
+        , let theContract :: Contract () Schema ContractError (Waited ()) = logInfo @String "waiting for endpoint 1" >> endpoint @"1" (logInfo . (<>) "Received value: " . show)
               matchLogs :: [EM.EmulatorTimeEvent UserThreadMsg] -> Bool
               matchLogs lgs =
                   case EM._eteEvent <$> lgs of
@@ -222,11 +222,11 @@ w2 = EM.Wallet 2
 checkpointContract :: Contract () Schema ContractError ()
 checkpointContract = void $ do
     checkpoint $ do
-        endpoint @"1" @Int
-        endpoint @"2" @Int
+        endpoint @"1" @Int pure
+        endpoint @"2" @Int pure
     checkpoint $ do
-        endpoint @"1" @Int
-        endpoint @"3" @Int
+        endpoint @"1" @Int pure
+        endpoint @"3" @Int pure
 
 loopCheckpointContract :: Contract () Schema ContractError Int
 loopCheckpointContract = do
@@ -234,18 +234,17 @@ loopCheckpointContract = do
     -- value greater than 3.
     -- We can call "1" with different values to control whether
     -- the left or right branch is chosen.
-    flip checkpointLoop (0 :: Int) $ \counter -> do
-        vl <- endpoint @"1" @Int
+    flip checkpointLoop (0 :: Int) $ \counter -> fmap getWaited $ endpoint @"1" @Int $ \vl -> do
         let newVal = counter + vl
         if newVal > 3
             then pure (Left newVal)
             else pure (Right newVal)
 
-errorContract :: Contract () Schema ContractError Int
+errorContract :: Contract () Schema ContractError (Waited Int)
 errorContract = do
     catchError
-        (endpoint @"1" @Int >> throwError (OtherError "something went wrong"))
-        (\_ -> do { checkpoint $ endpoint @"2" @Int; endpoint @"3" @Int })
+        (endpoint @"1" @Int $ \_ -> throwError (OtherError "something went wrong"))
+        (\_ -> checkpoint $ endpoint @"2" @Int pure >> endpoint @"3" @Int pure)
 
 someAddress :: Address
 someAddress = Ledger.scriptAddress $

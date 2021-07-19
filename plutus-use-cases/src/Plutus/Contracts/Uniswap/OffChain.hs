@@ -503,35 +503,33 @@ ownerEndpoint = do
 --      [@pools@]: Finds all liquidity pools and their liquidity belonging to the Uniswap instance. This merely inspects the blockchain and does not issue any transactions.
 --      [@funds@]: Gets the caller's funds. This merely inspects the blockchain and does not issue any transactions.
 --      [@stop@]: Stops the contract.
-userEndpoints :: Uniswap -> Contract (Last (Either Text UserContractState)) UniswapUserSchema Void ()
+userEndpoints :: Uniswap -> Contract (Last (Either Text UserContractState)) UniswapUserSchema Void (Waited ())
 userEndpoints us =
     stop
         `select`
-    ((f (Proxy @"create") (const Created) create                 `select`
-      f (Proxy @"swap")   (const Swapped) swap                   `select`
-      f (Proxy @"close")  (const Closed)  close                  `select`
-      f (Proxy @"remove") (const Removed) remove                 `select`
-      f (Proxy @"add")    (const Added)   add                    `select`
-      f (Proxy @"pools")  Pools           (\us' () -> pools us') `select`
-      f (Proxy @"funds")  Funds           (\_us () -> funds))    >> userEndpoints us)
+    (void (f (Proxy @"create") (const Created) create                 `select`
+           f (Proxy @"swap")   (const Swapped) swap                   `select`
+           f (Proxy @"close")  (const Closed)  close                  `select`
+           f (Proxy @"remove") (const Removed) remove                 `select`
+           f (Proxy @"add")    (const Added)   add                    `select`
+           f (Proxy @"pools")  Pools           (\us' () -> pools us') `select`
+           f (Proxy @"funds")  Funds           (\_us () -> funds))
+     >> userEndpoints us)
   where
     f :: forall l a p.
          (HasEndpoint l p UniswapUserSchema, FromJSON p)
       => Proxy l
       -> (a -> UserContractState)
       -> (Uniswap -> p -> Contract (Last (Either Text UserContractState)) UniswapUserSchema Text a)
-      -> Contract (Last (Either Text UserContractState)) UniswapUserSchema Void ()
-    f _ g c = do
-        e <- runError $ do
-            p <- endpoint @l
-            c us p
+      -> Contract (Last (Either Text UserContractState)) UniswapUserSchema Void (Waited ())
+    f _ g c = handleEndpoint @l $ \p -> do
+        e <- either (pure . Left) (runError . c us) p
         tell $ Last $ Just $ case e of
             Left err -> Left err
             Right a  -> Right $ g a
 
-    stop :: Contract (Last (Either Text UserContractState)) UniswapUserSchema Void ()
-    stop = do
-        e <- runError $ endpoint @"stop"
+    stop :: Contract (Last (Either Text UserContractState)) UniswapUserSchema Void (Waited ())
+    stop = handleEndpoint @"stop" $ \e -> do
         tell $ Last $ Just $ case e of
             Left err -> Left err
             Right () -> Right Stopped

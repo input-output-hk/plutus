@@ -105,39 +105,39 @@ newtype GuessParams = GuessParams
     deriving anyclass (FromJSON, ToJSON, ToSchema, ToArgument)
 
 -- | The "lock" contract endpoint. See note [Contract endpoints]
-lock :: AsContractError e => Contract () GameSchema e ()
+lock :: AsContractError e => Contract () GameSchema e (Waited ())
 lock = do
     logInfo @Haskell.String "Waiting for lock endpoint..."
-    LockParams secret amt <- endpoint @"lock" @LockParams
-    logInfo @Haskell.String $ "Pay " <> Haskell.show amt <> " to the script"
-    let tx         = Constraints.mustPayToTheScript (hashString secret) amt
-    void (submitTxConstraints gameInstance tx)
+    endpoint @"lock" @LockParams $ \(LockParams secret amt) -> do
+        logInfo @Haskell.String $ "Pay " <> Haskell.show amt <> " to the script"
+        let tx         = Constraints.mustPayToTheScript (hashString secret) amt
+        void (submitTxConstraints gameInstance tx)
 
 -- | The "guess" contract endpoint. See note [Contract endpoints]
-guess :: AsContractError e => Contract () GameSchema e ()
+guess :: AsContractError e => Contract () GameSchema e (Waited ())
 guess = do
     -- Wait for a call on the guess endpoint
     logInfo @Haskell.String "Waiting for guess endpoint..."
-    GuessParams theGuess <- endpoint @"guess" @GuessParams
-    -- Wait for script to have a UTxO of a least 1 lovelace
-    logInfo @Haskell.String "Waiting for script to have a UTxO of at least 1 lovelace"
-    utxos <- fundsAtAddressGeq gameAddress (Ada.lovelaceValueOf 1)
+    endpoint @"guess" @GuessParams $ \(GuessParams theGuess) -> do
+        -- Wait for script to have a UTxO of a least 1 lovelace
+        logInfo @Haskell.String "Waiting for script to have a UTxO of at least 1 lovelace"
+        utxos <- getWaited Haskell.<$> fundsAtAddressGeq gameAddress (Ada.lovelaceValueOf 1)
 
-    let redeemer = clearString theGuess
-        tx       = collectFromScript utxos redeemer
+        let redeemer = clearString theGuess
+            tx       = collectFromScript utxos redeemer
 
-    -- Log a message saying if the secret word was correctly guessed
-    let hashedSecretWord = findSecretWordValue utxos
-        isCorrectSecretWord = fmap (`isGoodGuess` redeemer) hashedSecretWord == Just True
-    if isCorrectSecretWord
-       then logWarn @Haskell.String "Correct secret word! Submitting the transaction"
-       else logWarn @Haskell.String "Incorrect secret word, but still submiting the transaction"
+        -- Log a message saying if the secret word was correctly guessed
+        let hashedSecretWord = findSecretWordValue utxos
+            isCorrectSecretWord = fmap (`isGoodGuess` redeemer) hashedSecretWord == Just True
+        if isCorrectSecretWord
+        then logWarn @Haskell.String "Correct secret word! Submitting the transaction"
+        else logWarn @Haskell.String "Incorrect secret word, but still submiting the transaction"
 
-    -- This is only for test purposes to have a possible failing transaction.
-    -- In a real use-case, we would not submit the transaction if the guess is
-    -- wrong.
-    logInfo @Haskell.String "Submitting transaction to guess the secret word"
-    void (submitTxConstraintsSpending gameInstance utxos tx)
+        -- This is only for test purposes to have a possible failing transaction.
+        -- In a real use-case, we would not submit the transaction if the guess is
+        -- wrong.
+        logInfo @Haskell.String "Submitting transaction to guess the secret word"
+        void (submitTxConstraintsSpending gameInstance utxos tx)
 
 -- | Find the secret word in the Datum of the UTxOs
 findSecretWordValue :: UtxoMap -> Maybe HashedString
@@ -152,7 +152,7 @@ secretWordValue o = do
   PlutusTx.fromBuiltinData d
 
 game :: AsContractError e => Contract () GameSchema e ()
-game = lock `select` guess
+game = selectList [lock, guess]
 
 {- Note [Contract endpoints]
 

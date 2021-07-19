@@ -192,18 +192,16 @@ contract ::
     -> Contract () Schema e ()
 contract params = forever $ mapError (review _GovError) endpoints where
     theClient = client params
-    endpoints = initLaw `select` addVote
+    endpoints = selectList [initLaw, addVote]
 
-    addVote = do
-        (tokenName, vote) <- endpoint @"add-vote"
-        SM.runStep theClient (AddVote tokenName vote)
+    addVote = endpoint @"add-vote" $ \(tokenName, vote) ->
+        void $ SM.runStep theClient (AddVote tokenName vote)
 
-    initLaw = do
-        bsLaw <- endpoint @"new-law"
+    initLaw = endpoint @"new-law" $ \bsLaw -> do
         let mph = Scripts.forwardingMintingPolicyHash (typedValidator params)
         void $ SM.runInitialise theClient (GovState bsLaw mph Nothing) mempty
         let tokens = Haskell.zipWith (const (mkTokenName (baseTokenName params))) (initialHolders params) [1..]
-        SM.runStep theClient $ MintTokens tokens
+        void $ SM.runStep theClient $ MintTokens tokens
 
 -- | The contract for proposing changes to a law.
 proposalContract ::

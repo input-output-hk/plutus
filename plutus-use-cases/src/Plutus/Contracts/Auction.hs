@@ -261,26 +261,28 @@ data BuyerEvent =
         | OtherBid HighestBid -- ^ Another buyer submitted a higher bid
         | NoChange HighestBid -- ^ Nothing has changed
 
-waitForChange :: AuctionParams -> StateMachineClient AuctionState AuctionInput -> HighestBid -> Contract AuctionOutput BuyerSchema AuctionError BuyerEvent
+waitForChange :: AuctionParams -> StateMachineClient AuctionState AuctionInput -> HighestBid -> Contract AuctionOutput BuyerSchema AuctionError (Waited BuyerEvent)
 waitForChange AuctionParams{apEndTime} client lastHighestBid = do
     t <- currentTime
     let
-        auctionOver = awaitTime apEndTime >> pure (AuctionIsOver lastHighestBid)
-        submitOwnBid = SubmitOwnBid <$> endpoint @"bid"
+        auctionOver = (AuctionIsOver lastHighestBid Haskell.<$) <$> awaitTime apEndTime
+        submitOwnBid = endpoint @"bid" $ pure . SubmitOwnBid
         otherBid = do
             let address = Scripts.validatorAddress (SM.typedValidator (SM.scInstance client))
                 targetTime = TimeSlot.slotToBeginPOSIXTime def
                            $ Haskell.succ
                            $ TimeSlot.posixTimeToEnclosingSlot def t
-            AddressChangeResponse{acrTxns} <- addressChangeRequest
-                AddressChangeRequest
-                { acreqSlotRangeFrom = TimeSlot.posixTimeToEnclosingSlot def targetTime
-                , acreqSlotRangeTo = TimeSlot.posixTimeToEnclosingSlot def targetTime
-                , acreqAddress = address
-                }
-            case acrTxns of
-                [] -> pure (NoChange lastHighestBid)
-                _  -> currentState client >>= pure . maybe (AuctionIsOver lastHighestBid) OtherBid
+            bindWaited
+                (addressChangeRequest
+                    AddressChangeRequest
+                    { acreqSlotRangeFrom = TimeSlot.posixTimeToEnclosingSlot def targetTime
+                    , acreqSlotRangeTo = TimeSlot.posixTimeToEnclosingSlot def targetTime
+                    , acreqAddress = address
+                    })
+                $ \AddressChangeResponse{acrTxns} ->
+                    case acrTxns of
+                        [] -> pure (NoChange lastHighestBid)
+                        _  -> maybe (AuctionIsOver lastHighestBid) OtherBid <$> currentState client
 
     -- see note [Buyer client]
     auctionOver `select` submitOwnBid `select` otherBid
@@ -316,13 +318,13 @@ auctionBuyer currency params = do
         client = machineClient inst currency params
 
         -- the actual loop, see note [Buyer client]
-        loop         = loopM (\h -> waitForChange params client h >>= handleEvent client h)
+        loop         = loopM (\h -> waitForChange params client h >>= handleEvent client h . getWaited)
     tell $ threadTokenOut currency
     initial <- currentState client
     case initial of
         Just s -> loop s
 
         -- If the state can't be found we wait for it to appear.
-        Nothing -> SM.waitForUpdateUntilTime client (apEndTime params) >>= \case
+        Nothing -> getWaited <$> SM.waitForUpdateUntilTime client (apEndTime params) >>= \case
             WaitingResult (Ongoing s) -> loop s
             _                         -> logWarn CurrentStateNotFound

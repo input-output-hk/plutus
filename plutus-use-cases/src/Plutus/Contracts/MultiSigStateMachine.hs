@@ -31,7 +31,7 @@ module Plutus.Contracts.MultiSigStateMachine(
     ) where
 
 import           Control.Lens                 (makeClassyPrisms)
-import           Control.Monad                (forever)
+import           Control.Monad                (forever, void)
 import           Data.Aeson                   (FromJSON, ToJSON)
 import           GHC.Generics                 (Generic)
 import           Ledger                       (POSIXTime, PubKeyHash, pubKeyHash)
@@ -45,8 +45,7 @@ import           Ledger.Value                 (Value)
 import qualified Ledger.Value                 as Value
 
 import           Plutus.Contract
-import           Plutus.Contract.StateMachine (AsSMContractError, State (..), StateMachine (..), TransitionResult (..),
-                                               Void)
+import           Plutus.Contract.StateMachine (AsSMContractError, State (..), StateMachine (..), Void)
 import qualified Plutus.Contract.StateMachine as SM
 import qualified PlutusTx
 import           PlutusTx.Prelude             hiding (Applicative (..))
@@ -260,14 +259,12 @@ contract ::
     -> Contract () MultiSigSchema e ()
 contract params = forever endpoints where
     theClient = client params
-    endpoints = (TransitionSuccess <$> lock) `select` propose `select` cancel `select` addSignature `select` pay
-    propose = endpoint @"propose-payment" >>= SM.runStep theClient . ProposePayment
-    cancel  = endpoint @"cancel-payment" >> SM.runStep theClient Cancel
-    addSignature = endpoint @"add-signature" >> (pubKeyHash <$> ownPubKey) >>= SM.runStep theClient . AddSignature
-    lock = do
-        value <- endpoint @"lock"
-        SM.runInitialise theClient Holding value
-    pay = endpoint @"pay" >> SM.runStep theClient Pay
+    endpoints = selectList [lock, propose, cancel, addSignature, pay]
+    propose = endpoint @"propose-payment" $ void . SM.runStep theClient . ProposePayment
+    cancel  = endpoint @"cancel-payment" $ \() -> void $ SM.runStep theClient Cancel
+    addSignature = endpoint @"add-signature" $ \() -> (pubKeyHash <$> ownPubKey) >>= void . SM.runStep theClient . AddSignature
+    lock = endpoint @"lock" $ void . SM.runInitialise theClient Holding
+    pay = endpoint @"pay" $ \() -> void $ SM.runStep theClient Pay
 
 PlutusTx.unstableMakeIsData ''Payment
 PlutusTx.makeLift ''Payment

@@ -105,14 +105,14 @@ exportSignatureParser =
     command "export-signature" $
     info (pure ExportSignature) (fullDesc <> progDesc "Export the contract's signature.")
 
-runCliCommand :: forall w s s2.
+runCliCommand :: forall w s s2 ignored.
        ( EndpointToSchema (s .\\ s2)
        , ToJSON w
        , FromJSON w
        , Monoid w
        )
     => Proxy s2
-    -> Contract w s Text ()
+    -> Contract w s Text ignored
     -> Command
     -> Prompt BS8.ByteString
 runCliCommand _ schema Initialise = pure $ BSL.toStrict $ JSON.encodePretty $ ContractState.initialiseContract schema
@@ -123,12 +123,12 @@ runCliCommand _ _ ExportSignature = do
   let r = endpointsToSchemas @(s .\\ s2)
   pure $ BSL.toStrict $ JSON.encodePretty r
 
-runUpdate :: forall w s.
+runUpdate :: forall w s ignored.
     ( ToJSON w
     , FromJSON w
     , Monoid w
     )
-    => Contract w s Text ()
+    => Contract w s Text ignored
     -> BS.ByteString
     -> Prompt BS8.ByteString
 runUpdate contract arg = either (throwError @[BS.ByteString] . return) pure $
@@ -139,37 +139,37 @@ runUpdate contract arg = either (throwError @[BS.ByteString] . return) pure $
 
 -- | Make a command line app with a schema that includes all of the contract's
 --   endpoints
-commandLineApp :: forall w s.
+commandLineApp :: forall w s ignored.
        ( EndpointToSchema (s .\\ EmptySchema)
        , ToJSON w
        , FromJSON w
        , Monoid w
        )
-    => Contract w s Text ()
+    => Contract w s Text ignored
     -> IO ()
 commandLineApp = commandLineApp' @w @s @EmptySchema (Proxy @EmptySchema)
 
 -- | Make a command line app for a contract, excluding some of the contract's
 --   endpoints from the generated schema.
-commandLineApp' :: forall w s s2.
+commandLineApp' :: forall w s s2 ignored.
        ( EndpointToSchema (s .\\ s2)
        , ToJSON w
        , FromJSON w
        , Monoid w
        )
     => Proxy s2
-    -> Contract w s Text ()
+    -> Contract w s Text ignored
     -> IO ()
 commandLineApp' p schema = runPromptIO (contractCliApp p schema)
 
-contractCliApp :: forall w s s2.
+contractCliApp :: forall w s s2 ignored.
        ( EndpointToSchema (s .\\ s2)
        , ToJSON w
        , FromJSON w
        , Monoid w
        )
     => Proxy s2
-    -> Contract w s Text ()
+    -> Contract w s Text ignored
     -> [String]
     -> Prompt BS.ByteString
 contractCliApp p schema args = do

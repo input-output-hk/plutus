@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE NamedFieldPuns     #-}
 {-# LANGUAGE NoImplicitPrelude  #-}
+{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeApplications   #-}
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE TypeOperators      #-}
@@ -23,6 +24,7 @@ module Plutus.Contracts.Prism.Unlock(
     , UnlockError(..)
     ) where
 
+import           Control.Lens                        (makeClassyPrisms)
 import           Control.Monad                       (forever)
 import           Data.Aeson                          (FromJSON, ToJSON)
 import           GHC.Generics                        (Generic)
@@ -64,27 +66,25 @@ subscribeSTO :: forall w s.
     ( HasEndpoint "sto" STOSubscriber s
     )
     => Contract w s UnlockError ()
-subscribeSTO = forever $ handleError (const $ return ()) $ do
-    STOSubscriber{wCredential, wSTOIssuer, wSTOTokenName, wSTOAmount} <-
-        mapError WithdrawEndpointError
-        $ endpoint @"sto"
-    (credConstraints, credLookups) <- obtainCredentialTokenData wCredential
-    let stoData =
-            STOData
-                { stoIssuer = wSTOIssuer
-                , stoTokenName = wSTOTokenName
-                , stoCredentialToken = Credential.token wCredential
-                }
-        stoCoins = STO.coins stoData wSTOAmount
-        constraints =
-            Constraints.mustMintValue stoCoins
-            <> Constraints.mustPayToPubKey wSTOIssuer (Ada.lovelaceValueOf wSTOAmount)
-            <> credConstraints
-        lookups =
-            Constraints.mintingPolicy (STO.policy stoData)
-            <> credLookups
-    mapError WithdrawTxError
-        $ submitTxConstraintsWith lookups constraints >>= awaitTxConfirmed . txId
+subscribeSTO = forever $ handleError (const $ return ()) $ fmap getWaited $
+    endpoint @"sto" $ \STOSubscriber{wCredential, wSTOIssuer, wSTOTokenName, wSTOAmount} -> do
+        (credConstraints, credLookups) <- obtainCredentialTokenData wCredential
+        let stoData =
+                STOData
+                    { stoIssuer = wSTOIssuer
+                    , stoTokenName = wSTOTokenName
+                    , stoCredentialToken = Credential.token wCredential
+                    }
+            stoCoins = STO.coins stoData wSTOAmount
+            constraints =
+                Constraints.mustMintValue stoCoins
+                <> Constraints.mustPayToPubKey wSTOIssuer (Ada.lovelaceValueOf wSTOAmount)
+                <> credConstraints
+            lookups =
+                Constraints.mintingPolicy (STO.policy stoData)
+                <> credLookups
+        mapError WithdrawTxError
+            $ submitTxConstraintsWith lookups constraints >>= fmap getWaited . awaitTxConfirmed . txId
 
 type UnlockExchangeSchema = Endpoint "unlock from exchange" Credential
 
@@ -94,10 +94,7 @@ unlockExchange :: forall w s.
     ( HasEndpoint "unlock from exchange" Credential s
     )
     => Contract w s UnlockError ()
-unlockExchange = do
-    credential <-
-        mapError WithdrawEndpointError
-        $ endpoint @"unlock from exchange"
+unlockExchange = fmap getWaited $ endpoint @"unlock from exchange" $ \credential -> do
     ownPK <- mapError WithdrawPkError $ pubKeyHash <$> ownPubKey
     (credConstraints, credLookups) <- obtainCredentialTokenData credential
     (accConstraints, accLookups) <-
@@ -107,7 +104,7 @@ unlockExchange = do
         Left mkTxErr -> throwError (UnlockMkTxError mkTxErr)
         Right utx -> mapError WithdrawTxError $ do
             tx <- submitUnbalancedTx utx
-            awaitTxConfirmed (txId tx)
+            getWaited <$> awaitTxConfirmed (txId tx)
 
 -- | Get the constraints and script lookups that are needed to construct a
 --   transaction that presents the 'Credential'
@@ -145,3 +142,8 @@ data UnlockError =
     | UnlockMkTxError Constraints.MkTxError
     deriving stock (Generic, Haskell.Eq, Haskell.Show)
     deriving anyclass (ToJSON, FromJSON)
+
+makeClassyPrisms ''UnlockError
+
+instance AsContractError UnlockError where
+    _ContractError = _WithdrawEndpointError . _ContractError

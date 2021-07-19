@@ -33,9 +33,8 @@ data PayToWalletParams =
 
 type PayToWalletSchema = Endpoint "Pay to wallet" PayToWalletParams
 
-payToWallet :: Contract () PayToWalletSchema ContractError ()
-payToWallet = do
-  PayToWalletParams{amount, wallet} <- endpoint @"Pay to wallet"
+payToWallet :: Contract () PayToWalletSchema ContractError (Waited ())
+payToWallet = endpoint @"Pay to wallet" $ \PayToWalletParams{amount, wallet} -> do
   let pkh = pubKeyHash $ walletPubKey wallet
   txid <- submitTx (mustPayToPubKey pkh amount)
-  awaitTxConfirmed (txId txid)
+  getWaited <$> awaitTxConfirmed (txId txid)

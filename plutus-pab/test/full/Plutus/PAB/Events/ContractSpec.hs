@@ -22,7 +22,7 @@ import           Data.Proxy                              (Proxy (Proxy))
 import qualified Data.Text                               as T
 import           GHC.TypeLits                            (symbolVal)
 import           Plutus.Contract                         (EmptySchema)
-import           Plutus.Contract.Effects                 (ActiveEndpoint (..), PABReq (..), PABResp (..))
+import           Plutus.Contract.Effects                 (ActiveEndpoint (..), PABReq (..), PABResp (..), Waited (..))
 import           Plutus.Contract.Resumable               (Response (..))
 import qualified Plutus.Contract.Schema                  as Schema
 import           Plutus.Contract.State                   (ContractRequest (..))
@@ -60,7 +60,7 @@ jsonTests =
         , testCase "Send a response to the contract" $ do
             oldState <- assertRight initialResponse
             let req :: ContractRequest JSON.Value JSON.Value
-                req = ContractRequest{oldState = State.newState oldState, event = Response{rspRqID = 0, rspItID = 0, rspResponse = JSON.toJSON (AwaitSlotResp 1)}}
+                req = ContractRequest{oldState = State.newState oldState, event = Response{rspRqID = 0, rspItID = 0, rspResponse = JSON.toJSON (AwaitSlotResp (Waited 1))}}
                 input = BSL.toStrict (JSON.encodePretty req)
                 v = first (foldMap BS8.unpack) $ runPromptPure (runCliCommand (Proxy @EmptySchema) (first (T.pack . show) contract) Update) input
                 result = v >>= JSON.eitherDecode @ResponseType . BSL.fromStrict

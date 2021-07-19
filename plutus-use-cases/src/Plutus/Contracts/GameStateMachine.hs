@@ -33,6 +33,7 @@ module Plutus.Contracts.GameStateMachine(
     , token
     ) where
 
+import           Control.Lens                 (makeClassyPrisms)
 import           Control.Monad                (void)
 import           Data.Aeson                   (FromJSON, ToJSON)
 import           GHC.Generics                 (Generic)
@@ -102,9 +103,17 @@ data GameError =
     deriving stock (Haskell.Show, Generic)
     deriving anyclass (ToJSON, FromJSON)
 
+makeClassyPrisms ''GameError
+
+instance AsContractError GameError where
+    _ContractError = _GameContractError . _ContractError
+
+instance SM.AsSMContractError GameError where
+    _SMContractError = _GameSMError . SM._SMContractError
+
 -- | Top-level contract, exposing both endpoints.
 contract :: Contract () GameStateMachineSchema GameError ()
-contract = (lock `select` guess) >> contract
+contract = selectList [lock, guess] >> contract
 
 -- | The token that represents the right to make a guess
 newtype GameToken = GameToken { unGameToken :: Value }
@@ -191,25 +200,22 @@ client :: SM.StateMachineClient GameState GameInput
 client = SM.mkStateMachineClient $ SM.StateMachineInstance machine typedValidator
 
 -- | The @"guess"@ endpoint.
-guess :: Contract () GameStateMachineSchema GameError ()
-guess = do
-    GuessArgs{guessArgsOldSecret,guessArgsNewSecret, guessArgsValueTakenOut} <- mapError GameContractError $ endpoint @"guess"
+guess :: Contract () GameStateMachineSchema GameError (Waited ())
+guess = endpoint @"guess" $ \GuessArgs{guessArgsOldSecret,guessArgsNewSecret, guessArgsValueTakenOut} -> do
 
     let guessedSecret = ClearString (C.pack guessArgsOldSecret)
         newSecret     = HashedString (sha2_256 (C.pack guessArgsNewSecret))
 
     void
-        $ mapError GameSMError
         $ SM.runStep client
             (Guess guessedSecret newSecret guessArgsValueTakenOut)
 
-lock :: Contract () GameStateMachineSchema GameError ()
-lock = do
-    LockArgs{lockArgsSecret, lockArgsValue} <- mapError GameContractError $ endpoint @"lock"
+lock :: Contract () GameStateMachineSchema GameError (Waited ())
+lock = endpoint @"lock" $ \LockArgs{lockArgsSecret, lockArgsValue} -> do
     let secret = HashedString (sha2_256 (C.pack lockArgsSecret))
         sym = Scripts.forwardingMintingPolicyHash typedValidator
-    _ <- mapError GameSMError $ SM.runInitialise client (Initialised sym "guess" secret) lockArgsValue
-    void $ mapError GameSMError $ SM.runStep client MintToken
+    _ <- SM.runInitialise client (Initialised sym "guess" secret) lockArgsValue
+    void $ SM.runStep client MintToken
 
 PlutusTx.unstableMakeIsData ''GameState
 PlutusTx.makeLift ''GameState

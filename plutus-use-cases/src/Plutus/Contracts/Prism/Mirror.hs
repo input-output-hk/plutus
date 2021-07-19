@@ -65,32 +65,31 @@ createTokens ::
     ( HasEndpoint "issue" CredentialOwnerReference s
     )
     => CredentialAuthority
-    -> Contract w s MirrorError ()
+    -> Contract w s MirrorError (Waited ())
 createTokens authority = do
     logInfo @String "waiting for 'issue' call"
-    CredentialOwnerReference{coTokenName, coOwner} <- mapError IssueEndpointError $ endpoint @"issue"
-    logInfo @String "Endpoint 'issue' called"
-    let pk      = Credential.unCredentialAuthority authority
-        lookups = Constraints.mintingPolicy (Credential.policy authority)
-                  <> Constraints.ownPubKeyHash pk
-        theToken = Credential.token Credential{credAuthority=authority,credName=coTokenName}
-        constraints =
-            Constraints.mustMintValue theToken
-            <> Constraints.mustBeSignedBy pk
-            <> Constraints.mustPayToPubKey pk (Ada.lovelaceValueOf 1)   -- Add self-spend to force an input
-    _ <- mapError CreateTokenTxError $ do
-            tx <- submitTxConstraintsWith @Scripts.Any lookups constraints
-            awaitTxConfirmed (txId tx)
-    let stateMachine = StateMachine.mkMachineClient authority (pubKeyHash $ walletPubKey coOwner) coTokenName
-    void $ mapError StateMachineError $ runInitialise stateMachine Active theToken
+    endpoint @"issue" $ \CredentialOwnerReference{coTokenName, coOwner} -> do
+        logInfo @String "Endpoint 'issue' called"
+        let pk      = Credential.unCredentialAuthority authority
+            lookups = Constraints.mintingPolicy (Credential.policy authority)
+                    <> Constraints.ownPubKeyHash pk
+            theToken = Credential.token Credential{credAuthority=authority,credName=coTokenName}
+            constraints =
+                Constraints.mustMintValue theToken
+                <> Constraints.mustBeSignedBy pk
+                <> Constraints.mustPayToPubKey pk (Ada.lovelaceValueOf 1)   -- Add self-spend to force an input
+        _ <- mapError CreateTokenTxError $ do
+                tx <- submitTxConstraintsWith @Scripts.Any lookups constraints
+                awaitTxConfirmed (txId tx)
+        let stateMachine = StateMachine.mkMachineClient authority (pubKeyHash $ walletPubKey coOwner) coTokenName
+        void $ mapError StateMachineError $ runInitialise stateMachine Active theToken
 
 revokeToken ::
     ( HasEndpoint "revoke" CredentialOwnerReference s
     )
     => CredentialAuthority
-    -> Contract w s MirrorError ()
-revokeToken authority = do
-    CredentialOwnerReference{coTokenName, coOwner} <- mapError RevokeEndpointError $ endpoint @"revoke"
+    -> Contract w s MirrorError (Waited ())
+revokeToken authority = endpoint @"revoke" $ \CredentialOwnerReference{coTokenName, coOwner} -> do
     let stateMachine = StateMachine.mkMachineClient authority (pubKeyHash $ walletPubKey coOwner) coTokenName
         lookups = Constraints.mintingPolicy (Credential.policy authority) <>
                   Constraints.ownPubKeyHash  (Credential.unCredentialAuthority authority)
@@ -99,7 +98,7 @@ revokeToken authority = do
         Left{} -> return () -- Ignore invalid transitions
         Right StateMachineTransition{smtConstraints=constraints, smtLookups=lookups'} -> do
             tx <- submitTxConstraintsWith (lookups <> lookups') constraints
-            awaitTxConfirmed (txId tx)
+            getWaited <$> awaitTxConfirmed (txId tx)
 
 ---
 -- Errors and Logging
@@ -108,8 +107,7 @@ revokeToken authority = do
 data MirrorError =
     StateNotFound TokenName PubKeyHash
     | SetupError ContractError
-    | IssueEndpointError ContractError
-    | RevokeEndpointError ContractError
+    | MirrorEndpointError ContractError
     | CreateTokenTxError ContractError
     | StateMachineError SMContractError
     deriving stock (Eq, Show, Generic)
@@ -121,5 +119,5 @@ instance AsSMContractError MirrorError where
     _SMContractError = _StateMachineError
 
 instance AsContractError MirrorError where
-    _ContractError =  _SMContractError . _ContractError
+    _ContractError = _MirrorEndpointError . _ContractError
 

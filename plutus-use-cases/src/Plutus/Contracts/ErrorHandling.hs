@@ -82,7 +82,8 @@ contract
        , AsContractError e
        )
     => Contract w Schema e ()
-contract =
-    (endpoint @"throwError" >> throw)
-    `select` (endpoint @"catchError" >> throwAndCatch)
-    `select` (endpoint @"catchContractError" >> catchContractError)
+contract = selectList
+    [ endpoint @"throwError" $ const throw
+    , endpoint @"catchError" $ const throwAndCatch
+    , endpoint @"catchContractError" $ const catchContractError
+    ]

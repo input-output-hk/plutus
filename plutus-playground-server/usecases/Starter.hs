@@ -71,19 +71,17 @@ type Schema =
         .\/ Endpoint "redeem" Integer
 
 contract :: AsContractError e => Contract () Schema e ()
-contract = publish `select` redeem
+contract = selectList [publish, redeem]
 
 -- | The "publish" contract endpoint.
-publish :: AsContractError e => Contract () Schema e ()
-publish = do
-    (i, lockedFunds) <- endpoint @"publish"
+publish :: AsContractError e => Contract () Schema e (Waited ())
+publish = endpoint @"publish" $ \(i, lockedFunds) -> do
     let tx = Constraints.mustPayToTheScript (MyDatum i) lockedFunds
     void $ submitTxConstraints starterInstance tx
 
 -- | The "redeem" contract endpoint.
-redeem :: AsContractError e => Contract () Schema e ()
-redeem = do
-    myRedeemerValue <- endpoint @"redeem"
+redeem :: AsContractError e => Contract () Schema e (Waited ())
+redeem = endpoint @"redeem" $ \myRedeemerValue -> do
     unspentOutputs <- utxoAt contractAddress
     let redeemer = MyRedeemer myRedeemerValue
         tx       = collectFromScript unspentOutputs redeemer

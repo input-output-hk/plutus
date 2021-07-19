@@ -25,6 +25,7 @@ module Plutus.Contract.Types(
     -- * Select
     , select
     , selectEither
+    , selectList
     -- * Error handling
     , ContractError(..)
     , AsContractError(..)
@@ -82,7 +83,6 @@ import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromMaybe)
 import           Data.Row                          (Row)
 import           Data.Sequence                     (Seq)
-import           Data.Void                         (Void)
 import           GHC.Generics                      (Generic)
 
 import           Plutus.Contract.Checkpoint        (AsCheckpointError (..), Checkpoint (..), CheckpointError (..),
@@ -92,7 +92,7 @@ import           Plutus.Contract.Checkpoint        (AsCheckpointError (..), Chec
 import           Plutus.Contract.Resumable         hiding (responses, select)
 import qualified Plutus.Contract.Resumable         as Resumable
 
-import           Plutus.Contract.Effects           (PABReq, PABResp)
+import           Plutus.Contract.Effects           (PABReq, PABResp, Waited (..))
 import qualified PlutusTx.Applicative              as PlutusTx
 import qualified PlutusTx.Functor                  as PlutusTx
 import           Prelude                           as Haskell
@@ -204,12 +204,16 @@ instance Bifunctor (Contract w s) where
 
 -- | @select@ returns the contract that makes progress first, discarding the
 --   other one.
-select :: forall w s e a. Contract w s e a -> Contract w s e a -> Contract w s e a
+select :: forall w s e a. Contract w s e (Waited a) -> Contract w s e (Waited a) -> Contract w s e (Waited a)
 select (Contract l) (Contract r) = Contract (Resumable.select @PABResp @PABReq @(ContractEffs w e) l r)
 
 -- | A variant of @select@ for contracts with different return types.
-selectEither :: forall w s e a b. Contract w s e a -> Contract w s e b -> Contract w s e (Either a b)
-selectEither l r = (Left <$> l) `select` (Right <$> r)
+selectEither :: forall w s e a b. Contract w s e (Waited a) -> Contract w s e (Waited b) -> Contract w s e (Waited (Either a b))
+selectEither l r = (fmap Left <$> l) `select` (fmap Right <$> r)
+
+selectList :: [Contract w s e (Waited ())] -> Contract w s e ()
+selectList [] = pure ()
+selectList cs = getWaited <$> foldr1 select cs
 
 -- | Write the current state of the contract to a checkpoint.
 checkpoint :: forall w s e a. (AsCheckpointError e, Aeson.FromJSON a, Aeson.ToJSON a) => Contract w s e a -> Contract w s e a
@@ -227,12 +231,12 @@ mapError ::
 mapError f = handleError (throwError . f)
 
 -- | Turn a contract with error type 'e' and return type 'a' into one with
---   error type 'Void' (ie. throwing no errors) that returns 'Either e a'
+--   any error type (ie. throwing no errors) that returns 'Either e a'
 runError ::
-  forall w s e a.
+  forall w s e e0 a.
   Contract w s e a
-  -> Contract w s Void (Either e a)
-runError (Contract r) = Contract (E.runError $ raiseUnderN @'[E.Error Void] r)
+  -> Contract w s e0 (Either e a)
+runError (Contract r) = Contract (E.runError $ raiseUnderN @'[E.Error e0] r)
 
 -- | Handle errors, potentially throwing new errors.
 handleError ::

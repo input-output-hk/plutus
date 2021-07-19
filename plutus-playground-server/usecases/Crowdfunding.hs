@@ -146,7 +146,7 @@ campaignAddress = Scripts.validatorHash . contributionScript
 
 -- | The crowdfunding contract for the 'Campaign'.
 crowdfunding :: AsContractError e => Campaign -> Contract () CrowdfundingSchema e ()
-crowdfunding c = contribute c `select` scheduleCollection c
+crowdfunding c = selectList [contribute c, scheduleCollection c]
 
 -- | A sample campaign
 theCampaign :: Campaign
@@ -160,9 +160,8 @@ theCampaign = Campaign
 --   an endpoint that allows the user to enter their public key and the
 --   contribution. Then waits until the campaign is over, and collects the
 --   refund if the funding was not collected.
-contribute :: AsContractError e => Campaign -> Contract () CrowdfundingSchema e ()
-contribute cmp = do
-    Contribution{contribValue} <- endpoint @"contribute"
+contribute :: AsContractError e => Campaign -> Contract () CrowdfundingSchema e (Waited ())
+contribute cmp = endpoint @"contribute" $ \Contribution{contribValue} -> do
     contributor <- pubKeyHash <$> ownPubKey
     let inst = typedValidator cmp
         tx = Constraints.mustPayToTheScript contributor contribValue
@@ -186,21 +185,20 @@ contribute cmp = do
 -- | The campaign owner's branch of the contract for a given 'Campaign'. It
 --   watches the campaign address for contributions and collects them if
 --   the funding goal was reached in time.
-scheduleCollection :: AsContractError e => Campaign -> Contract () CrowdfundingSchema e ()
-scheduleCollection cmp = do
-    let inst = typedValidator cmp
-
+scheduleCollection :: AsContractError e => Campaign -> Contract () CrowdfundingSchema e (Waited ())
+scheduleCollection cmp =
     -- Expose an endpoint that lets the user fire the starting gun on the
     -- campaign. (This endpoint isn't technically necessary, we could just
     -- run the 'trg' action right away)
-    () <- endpoint @"schedule collection"
+    endpoint @"schedule collection" $ \() -> do
+        let inst = typedValidator cmp
 
-    _ <- awaitTime $ campaignDeadline cmp
-    unspentOutputs <- utxoAt (Scripts.validatorAddress inst)
+        _ <- awaitTime $ campaignDeadline cmp
+        unspentOutputs <- utxoAt (Scripts.validatorAddress inst)
 
-    let tx = Typed.collectFromScript unspentOutputs Collect
-            <> Constraints.mustValidateIn (collectionRange cmp)
-    void $ submitTxConstraintsSpending inst unspentOutputs tx
+        let tx = Typed.collectFromScript unspentOutputs Collect
+                <> Constraints.mustValidateIn (collectionRange cmp)
+        void $ submitTxConstraintsSpending inst unspentOutputs tx
 
 {- note [Transactions in the crowdfunding campaign]
 

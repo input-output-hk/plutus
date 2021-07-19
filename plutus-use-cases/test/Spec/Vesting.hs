@@ -85,7 +85,7 @@ vesting =
 
 retrieveFundsTrace :: EmulatorTrace ()
 retrieveFundsTrace = do
-    let con = vestingContract @VestingError vesting
+    let con = vestingContract vesting
     hdl1 <- Trace.activateContractWallet w1 con
     hdl2 <- Trace.activateContractWallet w2 con
     Trace.callEndpoint @"vest funds" hdl2 ()

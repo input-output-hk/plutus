@@ -167,15 +167,14 @@ makeClassyPrisms ''VestingError
 instance AsContractError VestingError where
     _ContractError = _VContractError
 
-vestingContract :: AsVestingError e => VestingParams -> Contract () VestingSchema e ()
-vestingContract vesting = mapError (review _VestingError) (vest `select` retrieve)
+vestingContract :: VestingParams -> Contract () VestingSchema VestingError ()
+vestingContract vesting = selectList [vest, retrieve]
   where
-    vest = endpoint @"vest funds" >> vestFundsC vesting
-    retrieve = do
-        payment <- endpoint @"retrieve funds"
+    vest = endpoint @"vest funds" $ \() -> vestFundsC vesting
+    retrieve = endpoint @"retrieve funds" $ \payment -> do
         liveness <- retrieveFundsC vesting payment
-        case liveness of
-            Alive -> retrieve
+        void $ case liveness of
+            Alive -> getWaited <$> retrieve
             Dead  -> pure ()
 
 payIntoContract :: Value -> TxConstraints () ()
@@ -201,7 +200,7 @@ retrieveFundsC
 retrieveFundsC vesting payment = mapError (review _VestingError) $ do
     let inst = typedValidator vesting
         addr = Scripts.validatorAddress inst
-    nextTime <- awaitTime 0
+    nextTime <- getWaited <$> awaitTime 0
     unspentOutputs <- utxoAt addr
     let
         currentlyLocked = foldMap (Validation.txOutValue . Tx.txOutTxOut . snd) (Map.toList unspentOutputs)

@@ -20,7 +20,7 @@ import           Ledger.Interval                   (Extended, Interval, LowerBou
 import           Ledger.Slot                       (Slot)
 import           Ledger.Tx                         (RedeemerPtr, ScriptTag, Tx, TxIn, TxInType, TxOut, TxOutRef)
 import           Ledger.TxId                       (TxId)
-import           Plutus.Contract.Effects           (ActiveEndpoint (..), PABReq (..), PABResp (..))
+import           Plutus.Contract.Effects           (ActiveEndpoint (..), PABReq (..), PABResp (..), Waited (..))
 import qualified PlutusTx                          as PlutusTx
 import qualified PlutusTx.AssocMap                 as AssocMap
 import           Test.QuickCheck                   (Gen, oneof)
@@ -215,8 +215,8 @@ instance Arbitrary ActiveEndpoint where
 -- 'Maybe' because we can't (yet) create a generator for every request
 -- type.
 genResponse :: PABReq -> Maybe (Gen PABResp)
-genResponse (AwaitSlotReq slot)        = Just . pure . AwaitSlotResp $ slot
-genResponse (AwaitTxConfirmedReq txId) = Just . pure . AwaitTxConfirmedResp $ txId
-genResponse (ExposeEndpointReq _)      = Just $ ExposeEndpointResp <$> arbitrary <*> (EndpointValue <$> arbitrary)
+genResponse (AwaitSlotReq slot)        = Just . pure . AwaitSlotResp . Waited $ slot
+genResponse (AwaitTxConfirmedReq txId) = Just . pure . AwaitTxConfirmedResp . Waited $ txId
+genResponse (ExposeEndpointReq _)      = Just $ ExposeEndpointResp <$> arbitrary <*> (Waited . EndpointValue <$> arbitrary)
 genResponse OwnPublicKeyReq            = Just $ OwnPublicKeyResp <$> arbitrary
 genResponse _                          = Nothing

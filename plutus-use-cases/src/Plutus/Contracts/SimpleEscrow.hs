@@ -18,7 +18,7 @@
 module Plutus.Contracts.SimpleEscrow
   where
 
-import           Control.Lens             (makeClassyPrisms, review)
+import           Control.Lens             (makeClassyPrisms)
 import           Control.Monad            (void)
 import           Control.Monad.Error.Lens (throwing)
 import           Data.Aeson               (FromJSON, ToJSON)
@@ -123,9 +123,8 @@ validate params action ScriptContext{scriptContextTxInfo=txInfo} =
 
 -- | Lock the 'paying' 'Value' in the output of this script, with the
 -- requirement that the transaction validates before the 'deadline'.
-lockEp :: Contract () EscrowSchema EscrowError ()
-lockEp = do
-  params <- endpoint @"lock"
+lockEp :: Contract () EscrowSchema EscrowError (Waited ())
+lockEp = endpoint @"lock" $ \params -> do
   let valRange = Interval.to (Haskell.pred $ deadline params)
       tx = Constraints.mustPayToTheScript params (paying params)
             <> Constraints.mustValidateIn valRange
@@ -133,8 +132,8 @@ lockEp = do
 
 -- | Attempts to redeem the 'Value' locked into this script by paying in from
 -- the callers address to the payee.
-redeemEp :: Contract () EscrowSchema EscrowError RedeemSuccess
-redeemEp = mapError (review _EscrowError) $ endpoint @"redeem" >>= redeem
+redeemEp :: Contract () EscrowSchema EscrowError (Waited RedeemSuccess)
+redeemEp = endpoint @"redeem" redeem
   where
     redeem params = do
       time <- currentTime
@@ -154,8 +153,8 @@ redeemEp = mapError (review _EscrowError) $ endpoint @"redeem" >>= redeem
       else RedeemSuccess . txId <$> do submitTxConstraintsSpending escrowInstance unspentOutputs tx
 
 -- | Refunds the locked amount back to the 'payee'.
-refundEp :: Contract () EscrowSchema EscrowError RefundSuccess
-refundEp = mapError (review _EscrowError) $ endpoint @"refund" >>= refund
+refundEp :: Contract () EscrowSchema EscrowError (Waited RefundSuccess)
+refundEp = endpoint @"refund" refund
   where
     refund params = do
       unspentOutputs <- utxoAt escrowAddress

@@ -211,8 +211,8 @@ instance AsEscrowError FutureError where
 
 futureContract :: Future -> Contract () FutureSchema FutureError ()
 futureContract ft = do
-    client <- joinFuture ft `select` initialiseFuture ft
-    void $ loopM (const $ selectEither (increaseMargin client) (settleFuture client `select` settleEarly client)) ()
+    client <- getWaited <$> (joinFuture ft `select` initialiseFuture ft)
+    void $ loopM (const . fmap getWaited $ selectEither (increaseMargin client) (settleFuture client `select` settleEarly client)) ()
 
 -- | The data needed to initialise the futures contract.
 data FutureSetup =
@@ -467,9 +467,8 @@ initialiseFuture
        , AsFutureError e
        )
     => Future
-    -> Contract w s e (SM.StateMachineClient FutureState FutureAction)
-initialiseFuture future = mapError (review _FutureError) $ do
-    (s, ownRole) <- endpoint @"initialise-future" @(FutureSetup, Role)
+    -> Contract w s e (Waited (SM.StateMachineClient FutureState FutureAction))
+initialiseFuture future = mapError (review _FutureError) $ endpoint @"initialise-future" @(FutureSetup, Role) $ \(s, ownRole) -> do
     -- Start by setting up the two tokens for the short and long positions.
     ftos <- setupTokens
 
@@ -518,9 +517,8 @@ settleFuture
        , AsFutureError e
        )
     => SM.StateMachineClient FutureState FutureAction
-    -> Contract w s e ()
-settleFuture client = mapError (review _FutureError) $ do
-    ov <- endpoint @"settle-future"
+    -> Contract w s e (Waited ())
+settleFuture client = mapError (review _FutureError) $ endpoint @"settle-future" $ \ov -> do
     void $ SM.runStep client (Settle ov)
 
 -- | The @"settle-early"@ endpoint. Given an oracle value with the current spot
@@ -534,9 +532,8 @@ settleEarly
        , AsContractError e
        )
     => SM.StateMachineClient FutureState FutureAction
-    -> Contract w s e ()
-settleEarly client = do
-    ov <- endpoint @"settle-early"
+    -> Contract w s e (Waited ())
+settleEarly client = endpoint @"settle-early" $ \ov -> do
     void $ SM.runStep client (SettleEarly ov)
 
 -- | The @"increase-margin"@ endpoint. Increses the margin of one of
@@ -547,9 +544,8 @@ increaseMargin
        , AsContractError e
        )
     => SM.StateMachineClient FutureState FutureAction
-    -> Contract w s e ()
-increaseMargin client = do
-    (value, role) <- endpoint @"increase-margin"
+    -> Contract w s e (Waited ())
+increaseMargin client = endpoint @"increase-margin" $ \(value, role) -> do
     void $ SM.runStep client (AdjustMargin role value)
 
 -- | The @"join-future"@ endpoint. Join a future contract by paying the initial
@@ -559,9 +555,8 @@ joinFuture
        , AsFutureError e
        )
     => Future
-    -> Contract w s e (SM.StateMachineClient FutureState FutureAction)
-joinFuture ft = mapError (review _FutureError) $ do
-    (owners, stp) <- endpoint @"join-future" @(FutureAccounts, FutureSetup)
+    -> Contract w s e (Waited (SM.StateMachineClient FutureState FutureAction))
+joinFuture ft = mapError (review _FutureError) $ endpoint @"join-future" @(FutureAccounts, FutureSetup) $ \(owners, stp) -> do
     inst <- checkpoint $ pure (typedValidator ft owners)
     let client = machineClient inst ft owners
         escr = escrowParams client ft owners stp

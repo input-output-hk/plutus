@@ -112,48 +112,47 @@ machineInstance = SM.StateMachineInstance machine typedValidator
 client :: SM.StateMachineClient PingPongState Input
 client = SM.mkStateMachineClient machineInstance
 
-initialise :: forall w. Contract w PingPongSchema PingPongError PingPongState
-initialise = endpoint @"initialise" >> SM.runInitialise client Pinged (Ada.lovelaceValueOf 1)
+initialise :: forall w. Contract w PingPongSchema PingPongError (Waited ())
+initialise = endpoint @"initialise" $ \() -> void $ SM.runInitialise client Pinged (Ada.lovelaceValueOf 1)
 
 run ::
     forall w.
     PingPongState
-    -> Contract w PingPongSchema PingPongError ()
-    -> Contract w PingPongSchema PingPongError ()
+    -> Contract w PingPongSchema PingPongError (Waited ())
+    -> Contract w PingPongSchema PingPongError (Waited ())
 run expectedState action = do
     let extractState = tyTxOutData . fst
         go Nothing = throwError StoppedUnexpectedly
         go (Just currentState)
             | extractState currentState == expectedState = action
-            | otherwise = SM.waitForUpdate client >>= go
+            | otherwise = runWaitForUpdate >>= go . getWaited
     maybeState <- SM.getOnChainState client
     let datum = fmap fst maybeState
     go datum
 
-runPing :: forall w. Contract w PingPongSchema PingPongError ()
+runPing :: forall w. Contract w PingPongSchema PingPongError (Waited ())
 runPing = run Ponged ping
 
-ping :: forall w. Contract w PingPongSchema PingPongError ()
-ping = endpoint @"ping" >> void (SM.runStep client Ping)
+ping :: forall w. Contract w PingPongSchema PingPongError (Waited ())
+ping = endpoint @"ping" $ \() -> void (SM.runStep client Ping)
 
-runPong :: forall w. Contract w PingPongSchema PingPongError ()
+runPong :: forall w. Contract w PingPongSchema PingPongError (Waited ())
 runPong = run Pinged pong
 
-pong :: forall w. Contract w PingPongSchema PingPongError ()
-pong = endpoint @"pong" >> void (SM.runStep client Pong)
+pong :: forall w. Contract w PingPongSchema PingPongError (Waited ())
+pong = endpoint @"pong" $ \() -> void (SM.runStep client Pong)
 
-runStop :: forall w. Contract w PingPongSchema PingPongError ()
-runStop = endpoint @"stop" >> void (SM.runStep client Stop)
+runStop :: forall w. Contract w PingPongSchema PingPongError (Waited ())
+runStop = endpoint @"stop" $ \() -> void (SM.runStep client Stop)
 
-runWaitForUpdate :: forall w. Contract w PingPongSchema PingPongError (Maybe (OnChainState PingPongState Input))
+runWaitForUpdate :: forall w. Contract w PingPongSchema PingPongError (Waited (Maybe (OnChainState PingPongState Input)))
 runWaitForUpdate = SM.waitForUpdate client
 
 combined :: Contract (Last PingPongState) PingPongSchema PingPongError ()
-combined = forever (void initialise `select` ping `select` pong `select` runStop `select` wait) where
-    wait = do
-        _ <- endpoint @"wait"
+combined = forever (initialise `select` ping `select` pong `select` runStop `select` wait) where
+    wait = endpoint @"wait" $ \() -> do
         logInfo @Haskell.String "runWaitForUpdate"
-        newState <- runWaitForUpdate
+        newState <- getWaited <$> runWaitForUpdate
         case newState of
             Nothing -> logWarn @Haskell.String "runWaitForUpdate: Nothing"
             Just (TypedScriptTxOut{tyTxOutData=s}, _) -> do

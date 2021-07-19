@@ -106,17 +106,14 @@ tokenAccountContract
        , AsTokenAccountError e
        )
     => Contract w s e ()
-tokenAccountContract = mapError (review _TokenAccountError) (redeem_ `select` pay_ `select` newAccount_) where
-    redeem_ = do
-        (accountOwner, destination) <- endpoint @"redeem" @(Account, PubKeyHash) @w @s
+tokenAccountContract = mapError (review _TokenAccountError) (selectList [redeem_, pay_, newAccount_]) where
+    redeem_ = endpoint @"redeem" @(Account, PubKeyHash) @w @s $ \(accountOwner, destination) -> do
         void $ redeem destination accountOwner
         tokenAccountContract
-    pay_ = do
-        (accountOwner, value) <- endpoint @"pay" @_ @w @s
+    pay_ = endpoint @"pay" @_ @w @s $ \(accountOwner, value) -> do
         void $ pay accountOwner value
         tokenAccountContract
-    newAccount_ = do
-        (tokenName, initialOwner) <- endpoint @"new-account" @_ @w @s
+    newAccount_ = endpoint @"new-account" @_ @w @s $ \(tokenName, initialOwner) -> do
         void $ newAccount tokenName initialOwner
         tokenAccountContract
 

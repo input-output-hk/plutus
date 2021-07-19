@@ -41,7 +41,7 @@ import           Data.Proxy                                       (Proxy (..))
 import qualified Data.Text                                        as Text
 
 import           Plutus.Contract.Effects                          (ActiveEndpoint (..), PABReq (..), PABResp (..),
-                                                                   TxConfirmed (..))
+                                                                   TxConfirmed (..), Waited (..))
 import qualified Plutus.Contract.Effects                          as Contract.Effects
 import           Plutus.Contract.Resumable                        (Request (..), Response (..))
 import           Plutus.Contract.State                            (ContractResponse (..), State (..))
@@ -100,7 +100,7 @@ processAwaitSlotRequestsSTM ::
     => RequestHandler effs PABReq (STM PABResp)
 processAwaitSlotRequestsSTM =
     maybeToHandler (extract Contract.Effects._AwaitSlotReq)
-    >>> (RequestHandler $ \targetSlot_ -> fmap AwaitSlotResp . InstanceState.awaitSlot targetSlot_ <$> ask)
+    >>> (RequestHandler $ \targetSlot_ -> fmap (AwaitSlotResp . Waited) . InstanceState.awaitSlot targetSlot_ <$> ask)
 
 processTxConfirmedRequestsSTM ::
     forall effs.
@@ -113,7 +113,7 @@ processTxConfirmedRequestsSTM =
     where
         handler req = do
             env <- ask
-            pure (AwaitTxConfirmedResp . unTxConfirmed <$> InstanceState.waitForTxConfirmed req env)
+            pure (AwaitTxConfirmedResp . Waited . unTxConfirmed <$> InstanceState.waitForTxConfirmed req env)
 
 processEndpointRequestsSTM ::
     forall effs.
@@ -122,7 +122,7 @@ processEndpointRequestsSTM ::
     => RequestHandler effs (Request PABReq) (Response (STM PABResp))
 processEndpointRequestsSTM =
     maybeToHandler (traverse (extract Contract.Effects._ExposeEndpointReq))
-    >>> (RequestHandler $ \q@Request{rqID, itID, rqRequest} -> fmap (Response rqID itID) (fmap (ExposeEndpointResp (aeDescription rqRequest)) . InstanceState.awaitEndpointResponse q <$> ask))
+    >>> (RequestHandler $ \q@Request{rqID, itID, rqRequest} -> fmap (Response rqID itID) (fmap (ExposeEndpointResp (aeDescription rqRequest) . Waited) . InstanceState.awaitEndpointResponse q <$> ask))
 
 -- | 'RequestHandler' that uses TVars to wait for events
 stmRequestHandler ::

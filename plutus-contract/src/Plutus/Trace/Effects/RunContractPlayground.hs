@@ -36,7 +36,7 @@ import           Control.Monad.Freer.TH                  (makeEffect)
 import qualified Data.Aeson                              as JSON
 import           Data.Map                                (Map)
 import           Plutus.Contract                         (Contract (..), ContractInstanceId, EndpointDescription (..))
-import           Plutus.Contract.Effects                 (PABResp (ExposeEndpointResp))
+import           Plutus.Contract.Effects                 (PABResp (ExposeEndpointResp), Waited (..))
 import           Plutus.Trace.Effects.ContractInstanceId (ContractInstanceIdEff, nextId)
 import           Plutus.Trace.Effects.RunContract        (startContractThread)
 import           Plutus.Trace.Emulator.ContractInstance  (EmulatorRuntimeError, getThread)
@@ -128,7 +128,7 @@ handleCallEndpoint ::
     -> Eff effs ()
 handleCallEndpoint wllt endpointName endpointValue = do
     let desc = EndpointDescription endpointName
-        epJson = JSON.toJSON $ ExposeEndpointResp desc $ EndpointValue endpointValue
+        epJson = JSON.toJSON $ ExposeEndpointResp desc $ Waited $ EndpointValue endpointValue
         thr = do
             threadId <- getInstance wllt >>= getThread
             ownId <- ask @ThreadId

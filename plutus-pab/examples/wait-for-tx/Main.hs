@@ -24,9 +24,8 @@ main = commandLineApp' (Proxy @WaitForTxSchema) $ first (T.pack . show) waitForT
 
 type WaitForTxSchema = Endpoint "tx-id" TxId
 
-waitForTx :: Contract () WaitForTxSchema ContractError ()
-waitForTx = do
-    txid <- endpoint @"tx-id"
+waitForTx :: Contract () WaitForTxSchema ContractError (Waited ())
+waitForTx = endpoint @"tx-id" $ \txid -> do
     logInfo @String $ "Waiting for transaction " <> show txid
     awaitTxConfirmed txid
     logInfo @String "CONFIRMED"

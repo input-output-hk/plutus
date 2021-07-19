@@ -2,19 +2,19 @@ Slot 0: TxnValidate 0636250aef275497b4f3807d661a299e34e53e5ad3bc1110e43d1f3420bc
 Slot 1: 00000000-0000-4000-8000-000000000000 {Contract instance for wallet 1}:
           Contract instance started
 Slot 1: 00000000-0000-4000-8000-000000000000 {Contract instance for wallet 1}:
-          Receive endpoint call on 'schedule collection' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "schedule collection")]),Object (fromList [("unEndpointValue",Array [])])]),("tag",String "ExposeEndpointResp")])
+          Receive endpoint call on 'schedule collection' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "schedule collection")]),Object (fromList [("getWaited",Object (fromList [("unEndpointValue",Array [])]))])]),("tag",String "ExposeEndpointResp")])
 Slot 1: 00000000-0000-4000-8000-000000000000 {Contract instance for wallet 1}:
           Contract log: String "Campaign started. Waiting for campaign deadline to collect funds."
 Slot 1: 00000000-0000-4000-8000-000000000001 {Contract instance for wallet 2}:
           Contract instance started
 Slot 1: 00000000-0000-4000-8000-000000000001 {Contract instance for wallet 2}:
-          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 100.0]]]])]))]))])]),("tag",String "ExposeEndpointResp")])
+          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("getWaited",Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 100.0]]]])]))]))]))])]),("tag",String "ExposeEndpointResp")])
 Slot 1: 00000000-0000-4000-8000-000000000001 {Contract instance for wallet 2}:
           Contract log: String "Contributing Value (Map [(,Map [(\"\",100)])])"
 Slot 1: 00000000-0000-4000-8000-000000000002 {Contract instance for wallet 3}:
           Contract instance started
 Slot 1: 00000000-0000-4000-8000-000000000002 {Contract instance for wallet 3}:
-          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 100.0]]]])]))]))])]),("tag",String "ExposeEndpointResp")])
+          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("getWaited",Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 100.0]]]])]))]))]))])]),("tag",String "ExposeEndpointResp")])
 Slot 1: 00000000-0000-4000-8000-000000000002 {Contract instance for wallet 3}:
           Contract log: String "Contributing Value (Map [(,Map [(\"\",100)])])"
 Slot 1: W2: Balancing an unbalanced transaction:
@@ -40,7 +40,7 @@ Slot 1: 00000000-0000-4000-8000-000000000003 {Contract instance for wallet 4}:
 Slot 1: W2: Submitting tx: 737e7fd3bce43054c2639b087102df423d2a7f3674d616f63e20cb73b93bdbb4
 Slot 1: W2: TxSubmit: 737e7fd3bce43054c2639b087102df423d2a7f3674d616f63e20cb73b93bdbb4
 Slot 1: 00000000-0000-4000-8000-000000000003 {Contract instance for wallet 4}:
-          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 25.0]]]])]))]))])]),("tag",String "ExposeEndpointResp")])
+          Receive endpoint call on 'contribute' for Object (fromList [("contents",Array [Object (fromList [("getEndpointDescription",String "contribute")]),Object (fromList [("getWaited",Object (fromList [("unEndpointValue",Object (fromList [("contribValue",Object (fromList [("getValue",Array [Array [Object (fromList [("unCurrencySymbol",String "")]),Array [Array [Object (fromList [("unTokenName",String "")]),Number 25.0]]]])]))]))]))])]),("tag",String "ExposeEndpointResp")])
 Slot 1: 00000000-0000-4000-8000-000000000003 {Contract instance for wallet 4}:
           Contract log: String "Contributing Value (Map [(,Map [(\"\",25)])])"
 Slot 1: W3: Balancing an unbalanced transaction:

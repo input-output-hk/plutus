@@ -5,6 +5,7 @@ import           Data.Bifunctor          (first)
 import           Data.Proxy              (Proxy (..))
 import           Data.Text.Extras        (tshow)
 import           Language.Marlowe.Client (MarloweFollowSchema, marloweFollowContract)
+import           Plutus.Contract         (getWaited)
 import           Plutus.PAB.ContractCLI  (commandLineApp')
 
 main :: IO ()
@@ -12,6 +13,7 @@ main =
     commandLineApp'
         (Proxy @MarloweFollowSchema) -- see note ['ToSchema' and Marlowe]
         $ first tshow
+        $ fmap getWaited
         $ marloweFollowContract
 
 {- Note ['ToSchema' and Marlowe]

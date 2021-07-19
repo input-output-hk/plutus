@@ -83,11 +83,11 @@ type SplitSchema =
 
 -- BLOCK5
 
-lock :: Contract () SplitSchema T.Text LockArgs
-lock = endpoint @"lock"
+lock :: Contract () SplitSchema T.Text (Waited ())
+lock = endpoint @"lock" (lockFunds . mkSplitData)
 
-unlock :: Contract () SplitSchema T.Text LockArgs
-unlock = endpoint @"unlock"
+unlock :: Contract () SplitSchema T.Text (Waited ())
+unlock = endpoint @"unlock" (unlockFunds . mkSplitData)
 
 -- BLOCK6
 
@@ -128,6 +128,6 @@ unlockFunds SplitData{recipient1, recipient2, amount} = do
 endpoints :: Contract () SplitSchema T.Text ()
 -- BLOCK10
 
-endpoints = (lock >>= lockFunds . mkSplitData) `select` (unlock >>= unlockFunds . mkSplitData)
+endpoints = selectList [lock, unlock]
 
 -- BLOCK11

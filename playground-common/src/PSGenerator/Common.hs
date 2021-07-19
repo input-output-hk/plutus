@@ -37,7 +37,7 @@ import           Ledger.Value                              (CurrencySymbol, Toke
 import           Playground.Types                          (ContractCall, FunctionSchema, KnownCurrency)
 import           Plutus.Contract.Checkpoint                (CheckpointError)
 import           Plutus.Contract.Effects                   (ActiveEndpoint, BalanceTxResponse, PABReq, PABResp,
-                                                            UtxoAtAddress, WriteBalancedTxResponse)
+                                                            UtxoAtAddress, Waited, WriteBalancedTxResponse)
 import           Plutus.Contract.Resumable                 (IterationID, Request, RequestID, Response)
 import           Plutus.Trace.Emulator.Types               (ContractInstanceLog, ContractInstanceMsg,
                                                             ContractInstanceTag, EmulatorRuntimeError, UserThreadMsg)
@@ -306,6 +306,7 @@ ledgerTypes =
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @ScriptType)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @PABReq)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @PABResp)
+    , (equal <*> (genericShow <*> mkSumType)) (Proxy @(Waited A))
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @AddressChangeRequest)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @AddressChangeResponse)
     , (equal <*> (genericShow <*> mkSumType)) (Proxy @(EndpointValue A))

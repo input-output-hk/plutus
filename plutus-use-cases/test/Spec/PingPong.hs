@@ -14,7 +14,7 @@ import qualified Plutus.Trace.Emulator        as Trace
 
 import           Test.Tasty
 
-theContract :: Contract () PingPongSchema PingPongError ()
+theContract :: Contract () PingPongSchema PingPongError (Waited ())
 theContract = do
     _ <- PingPong.initialise
     PingPong.runPong
@@ -29,7 +29,7 @@ twoParties =
     -- terminated when 'runWaitForUpdate' returns 'Nothing'.
     let p1 = PingPong.initialise >> PingPong.runWaitForUpdate
         p2 = PingPong.runStop
-    in p1 `select` fmap (const Nothing) p2
+    in getWaited <$> (p1 `select` fmap (fmap (const Nothing)) p2)
 
 w1, w2 :: Wallet
 w1 = Wallet 1

@@ -45,8 +45,8 @@ uniswapTrace = do
     us <- Emulator.observableState cidStart >>= \case
                 Monoid.Last (Just (Right v)) -> pure v
                 _                            -> throwError $ GenericError "initialisation failed"
-    cid1 <- Emulator.activateContractWallet (Wallet 2) (userEndpoints us)
-    cid2 <- Emulator.activateContractWallet (Wallet 3) (userEndpoints us)
+    cid1 <- Emulator.activateContractWallet (Wallet 2) (getWaited <$> userEndpoints us)
+    cid2 <- Emulator.activateContractWallet (Wallet 3) (getWaited <$> userEndpoints us)
     _ <- Emulator.waitNSlots 5
 
     let cp = OffChain.CreateParams ada (coins Map.! "A") 100000 500000
@@ -72,7 +72,7 @@ setupTokens = do
         let pkh = pubKeyHash $ walletPubKey w
         when (pkh /= ownPK) $ do
             tx <- submitTx $ mustPayToPubKey pkh v
-            awaitTxConfirmed $ txId tx
+            getWaited <$> awaitTxConfirmed (txId tx)
 
     tell $ Just $ Semigroup.Last cur
 

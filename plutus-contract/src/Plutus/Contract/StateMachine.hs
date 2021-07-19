@@ -231,29 +231,31 @@ waitForUpdateUntilSlot ::
     )
     => StateMachineClient state i
     -> Slot
-    -> Contract w schema e (WaitingResult state)
+    -> Contract w schema e (Waited (WaitingResult state))
 waitForUpdateUntilSlot StateMachineClient{scInstance, scChooser} timeoutSlot = do
     let addr = Scripts.validatorAddress $ typedValidator scInstance
-    let go sl = do
-            txns <- acrTxns <$> addressChangeRequest AddressChangeRequest
+    let go sl = bindWaited
+            (addressChangeRequest
+                AddressChangeRequest
                 { acreqSlotRangeFrom = sl
                 , acreqSlotRangeTo = sl
                 , acreqAddress = addr
-                }
-            if null txns && sl < timeoutSlot
-                then go (succ sl)
-                else pure txns
+                })
+            $ \AddressChangeResponse{acrTxns} ->
+                if null acrTxns && sl < timeoutSlot
+                then getWaited <$> go (succ sl)
+                else pure acrTxns
 
     initial <- currentSlot
-    txns <- go initial
-    slot <- currentSlot -- current slot, can be after timeout
-    let states = txns >>= getStates scInstance . outputsMapFromTxForAddress addr
-    case states of
-        [] | slot < timeoutSlot -> pure ContractEnded
-        [] | slot >= timeoutSlot -> pure $ Timeout timeoutSlot
-        xs -> case scChooser xs of
-                Left err         -> throwing _SMContractError err
-                Right (state, _) -> pure $ WaitingResult (tyTxOutData state)
+    bindWaited (go initial) $ \txns -> do
+        slot <- currentSlot -- current slot, can be after timeout
+        let states = txns >>= getStates scInstance . outputsMapFromTxForAddress addr
+        case states of
+            [] | slot < timeoutSlot -> pure ContractEnded
+            [] | slot >= timeoutSlot -> pure $ Timeout timeoutSlot
+            xs -> case scChooser xs of
+                    Left err         -> throwing _SMContractError err
+                    Right (state, _) -> pure $ WaitingResult (tyTxOutData state)
 
 -- | Same as 'waitForUpdateUntilSlot', but works with 'POSIXTime' instead.
 waitForUpdateUntilTime ::
@@ -263,7 +265,7 @@ waitForUpdateUntilTime ::
     )
     => StateMachineClient state i
     -> POSIXTime
-    -> Contract w schema e (WaitingResult state)
+    -> Contract w schema e (Waited (WaitingResult state))
 waitForUpdateUntilTime sm timeoutTime = do
     waitForUpdateUntilSlot sm $ TimeSlot.posixTimeToEnclosingSlot def timeoutTime
 
@@ -278,14 +280,14 @@ waitForUpdate ::
     , PlutusTx.IsData state
     )
     => StateMachineClient state i
-    -> Contract w schema e (Maybe (OnChainState state i))
+    -> Contract w schema e (Waited (Maybe (OnChainState state i)))
 waitForUpdate StateMachineClient{scInstance, scChooser} = do
     let addr = Scripts.validatorAddress $ typedValidator scInstance
-    txns <- nextTransactionsAt addr
-    let states = txns >>= getStates scInstance . outputsMapFromTxForAddress addr
-    case states of
-        [] -> pure Nothing
-        xs -> either (throwing _SMContractError) (pure . Just) (scChooser xs)
+    bindWaited (nextTransactionsAt addr) $ \txns -> do
+        let states = txns >>= getStates scInstance . outputsMapFromTxForAddress addr
+        case states of
+            [] -> pure Nothing
+            xs -> either (throwing _SMContractError) (pure . Just) (scChooser xs)
 
 -- | Tries to run one step of a state machine: If the /guard/ (the last argument) returns @'Nothing'@ when given the
 -- unbalanced transaction to be submitted, the old state and the new step, the step is run and @'Right'@ the new state is returned.

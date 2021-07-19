@@ -20,8 +20,8 @@ import           Data.Default             (Default (def))
 import qualified Ledger.TimeSlot          as TimeSlot
 import           Playground.Contract
 import           Plutus.Contract          (AsContractError (_ContractError), ContractError, awaitTime, logInfo,
-                                           mapError, select)
-import           Prelude                  (Maybe (..), const, show, ($), (.), (<>), (>>), (>>=))
+                                           mapError, selectList)
+import           Prelude                  (Maybe (..), const, show, ($), (.), (<>))
 
 -- Demonstrates how to deal with errors in Plutus contracts. We define a custom
 -- error type 'MyError' with three constructors and use
@@ -82,10 +82,11 @@ contract
        , AsContractError e
        )
     => Contract () Schema e ()
-contract =
-    (endpoint @"throwError" >>= throw)
-    `select` (endpoint @"catchError" >>= throwAndCatch)
-    `select` (endpoint @"catchContractError" >> catchContractError)
+contract = selectList
+    [ endpoint @"throwError" throw
+    , endpoint @"catchError" throwAndCatch
+    , endpoint @"catchContractError" $ const catchContractError
+    ]
 
 endpoints :: (AsMyError e, AsContractError e) => Contract () Schema e ()
 endpoints = contract

@@ -181,9 +181,8 @@ type CurrencySchema =
 
 -- | Use 'mintContract' to create the currency specified by a 'SimpleMPS'
 mintCurrency
-    :: Contract (Maybe (Last OneShotCurrency)) CurrencySchema CurrencyError OneShotCurrency
-mintCurrency = do
-    SimpleMPS{tokenName, amount} <- endpoint @"Create native token"
+    :: Contract (Maybe (Last OneShotCurrency)) CurrencySchema CurrencyError (Waited OneShotCurrency)
+mintCurrency = endpoint @"Create native token" $ \SimpleMPS{tokenName, amount} -> do
     ownPK <- pubKeyHash <$> ownPubKey
     cur <- mintContract ownPK [(tokenName, amount)]
     tell (Just (Last cur))
