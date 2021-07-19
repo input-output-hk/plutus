@@ -6,6 +6,7 @@
 
 body {
   @apply h-full text-black bg-lightgray;
+
   font-family: Barlow, sans-serif;
 }
 
@@ -13,18 +14,18 @@ body {
 
 .external a::after {
   content: url("/static/img/chevron-external-light.svg");
-  width:24px;
+  width: 24px;
   background-size: 24px;
   position: absolute;
-  bottom:6px;
+  bottom: 6px;
 }
 
 .vert-text-right {
-  position: absolute; top:10%; transform: translateY(-50%); left: 40%; transform: translateX(50%);
-}
-
-.vert-text-left {
-  position: absolute; top: 50%; transform: translateY(-50%);
+  position: absolute;
+  top: 10%;
+  transform: translateY(-50%);
+  left: 40%;
+  transform: translateX(50%);
 }
 
 .text-link::before {
@@ -39,95 +40,97 @@ body {
 }
 
 .menu-item a {
-  border-bottom:4px solid white;
+  border-bottom: 4px solid white;
   padding-bottom: 32px;
 }
 
 .menu-item a:hover {
-   border-bottom:4px solid #273245;
+  border-bottom: 4px solid #273245;
 }
 
 .section-circle-top-right {
-	position: absolute;
-	display: inline-block;
-	width: 364px;
-	height: 260px;
-	right: 0px;
-  top: 0px;
+  position: absolute;
+  display: inline-block;
+  width: 364px;
+  height: 260px;
+  right: 0;
+  top: 0;
   z-index: 0;
 }
 
 .section-circle-bottom-left {
-	position: absolute;
-	display: inline-block;
-	width: 364px;
-	height: 260px;
-	left: 0px;
-    bottom: 0px;
-    z-index: 0;
+  position: absolute;
+  display: inline-block;
+  width: 364px;
+  height: 260px;
+  left: 0;
+  bottom: 0;
+  z-index: 0;
 }
 
 .section-m-top-right {
-	position: absolute;
-	display: inline-block;
-	width: 1440px;
-	right: 0px;
-  top: 0px;
+  position: absolute;
+  display: inline-block;
+  width: 1440px;
+  right: 0;
+  top: 0;
   z-index: 0 !important;
   opacity: 0.8;
 }
 
 .pink-m-left {
-	position: absolute;
-	display: inline-block;
-	width: 300px;
-	left: 0px;
-  top: 0px;
+  position: absolute;
+  display: inline-block;
+  width: 300px;
+  left: 0;
+  top: 0;
   z-index: 0 !important;
   opacity: 0.8;
 }
 
 .pink-m-right {
-	position: absolute;
-	display: inline-block;
-	width: 310px;
-	right: 0px;
-  bottom: 0px;
+  position: absolute;
+  display: inline-block;
+  width: 310px;
+  right: 0;
+  bottom: 0;
   z-index: 0 !important;
   opacity: 0.8;
 }
 
 .scale img {
-	-webkit-transition: all .2s ease-in-out;
-	-moz-transition: all .2s ease-in-out;
-	transition: all .2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .scale img:hover {
-	/*transform: rotate(90deg) !important;*/
-	 backface-visibility: hidden;
-	transform: scaleX(1.05) scaleY(1.05) !important;
+  /* transform: rotate(90deg) !important; */
+  backface-visibility: hidden;
+  transform: scaleX(1.05) scaleY(1.05) !important;
 }
 
 .back-to-top {
-	position: fixed;
+  @apply bg-gradient-to-r from-purple to-lightpurple;
+
+  position: fixed;
   width: 60px;
   height: 60px;
   border-radius: 35px;
-	bottom: 20px;
-	right: 20px;
-	z-index: 999;
-  @apply bg-gradient-to-r from-purple to-lightpurple;
-  box-shadow:0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.04);
-  -webkit-transition: all .2s ease-in-out;
-	-moz-transition: all .2s ease-in-out;
-	transition: all .2s ease-in-out;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .back-to-top:hover {
-  	/*transform: rotate(90deg) !important;*/
-    backface-visibility: hidden;
-    transform: scaleX(1.05) scaleY(1.05) !important;
+  /* transform: rotate(90deg) !important; */
+
+  backface-visibility: hidden;
+  transform: scaleX(1.05) scaleY(1.05) !important;
 }
 
 .back-to-top-icon {
@@ -138,12 +141,13 @@ body {
 }
 
 .hide {
-  opacity:0 !important;
+  opacity: 0 !important;
 }
 
 .show {
-  opacity:1 !important;
+  opacity: 1 !important;
 }
+
 /* Russ CSS */
 
 .button-base {
@@ -158,15 +162,15 @@ body {
 .primary-button {
   @apply button-base;
   @apply primary-button-outline;
-  -webkit-transition: all .2s ease-in-out;
-	-moz-transition: all .2s ease-in-out;
-	transition: all .2s ease-in-out;
+
+  transition: all 0.2s ease-in-out;
 }
 
 .primary-button:hover {
-  	/*transform: rotate(90deg) !important;*/
-    backface-visibility: hidden;
-    transform: scaleX(1.1) scaleY(1.1) !important;
+  /* transform: rotate(90deg) !important; */
+
+  backface-visibility: hidden;
+  transform: scaleX(1.1) scaleY(1.1) !important;
 }
 
 .primary-button-icon::after {
@@ -198,6 +202,7 @@ body {
 */
 .bg-blured {
   @apply bg-white;
+
   box-shadow: 0 2px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
@@ -281,13 +286,14 @@ body {
 
 /* Russ media queries */
 
-/*Tablet portrait*/
+/* Tablet portrait */
 @media (max-width: 1024px) {
   .vert-text-right {
     position: initial;
     display: block;
     transform: initial;
   }
+
   .vert-text-left {
     position: initial;
     display: block;

@@ -19,7 +19,7 @@
 
     <span id="top"></span>
     <a id="myID" class="back-to-top hide scale relative" href="#top">
-    <img loading="lazy" class="back-to-top-icon" src="{% static './static/img/back-to-top.svg' %}" alt="Back to top">
+      <img loading="lazy" class="back-to-top-icon" src="{% static './static/img/back-to-top.svg' %}" alt="Back to top">
     </a>
 
     <header class="fixed top-0 left-0 right-0 z-20 shadow-sm bg-white">
@@ -29,25 +29,35 @@
         <a href="#top" class="scale"><img loading="lazy" class="md:w-36 w-32 block mr-16" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
         <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
         <ul class="hidden md:block">
-          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#run">Marlowe Run</a></li>
-          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#build">For Engineers</a></li>
-          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#faq">FAQs</a></li>
-          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#pioneers">Pioneers</a></li>
-          <li class="inline text-base font-bold mr-7 menu-item"><a class="" href="#">Docs</a></li>
+          <li class="inline text-base font-bold mr-7 menu-item">
+            <a class="" href="#run">Marlowe Run</a>
+          </li>
+          <li class="inline text-base font-bold mr-7 menu-item">
+            <a class="" href="#build">For Engineers</a>
+          </li>
+          <li class="inline text-base font-bold mr-7 menu-item">
+            <a class="" href="#faq">FAQs</a>
+          </li>
+          <li class="inline text-base font-bold mr-7 menu-item">
+            <a class="" href="#pioneers">Pioneers</a>
+          </li>
+          <li class="inline text-base font-bold mr-7 menu-item">
+            <a class="" href="#">Docs</a>
+          </li>
         </ul>
 
       </div>
 
     </header>
 
+    <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center md:pt-44 md:pb-20 pt-32 pb-14">
+      <!--Hero-->
 
+      <div class="relative mx-auto md:w-5/6 w-11/12">
+        <!--Row-->
 
-
-    <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center md:pt-44 md:pb-20 pt-32 pb-14"><!--Hero-->
-
-      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
-
-        <div class="inset-0"><!--Column-->
+        <div class="inset-0">
+          <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo md:h-logo-wider" src="{% static './static/img/marlowe-logo-dark.svg' %}" alt="">
           <h1 class="text-3xl md:text-4xl lg:text-5xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4">Peer to peer financial agreements are here</h1>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Try our demo products built on Marlowe, the language made for finance.</h2>
@@ -56,16 +66,19 @@
 
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 mt-8"><!--Row-->
-        <div class="mb-20 md:mb-0" style=""><!--Left column-->
+      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 mt-8">
+        <!--Row-->
+        <div class="mb-20 md:mb-0" style="">
+          <!--Left column-->
           <h3 class="text-27px font-semibold pb-4 md:hidden block mt-12">Run Marlowe contracts</h3>
           <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-run-image.png' %}" alt="Marlowe Run Demo">
           <h3 class="text-27px font-semibold pb-4 md:block hidden">Run Marlowe contracts</h3>
           <p class="text-lg font-semibold">Run our first collection of smart contract templates with the Marlowe Run app.</p>
         </div>
 
-        <div class="" style=""><!--Right column-->
-        <h3 class="text-27px font-semibold pb-4 md:hidden block">Build Marlowe contracts</h3>
+        <div class="" style="">
+          <!--Right column-->
+          <h3 class="text-27px font-semibold pb-4 md:hidden block">Build Marlowe contracts</h3>
           <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-build-image.png' %}" alt="Marlowe Build Demo">
           <h3 class="text-27px font-semibold pb-4 md:block hidden">Build Marlowe contracts</h3>
           <p class="text-lg font-semibold">Write, build and simulate financial smart contracts with the Marlowe Build sandbox.</p>
@@ -73,296 +86,319 @@
 
       </div>
 
-      <div class="grid grid-cols-1 md:mt-20 mt-5 md:w-5/6 mx-auto w-11/12"><!--Row-->
-      <a href="#run" class="scale">
-        <h3 class="text-27px font-semibold pb-2 mx-auto md:block hidden">Discover more</h3>
-        <img loading="lazy" class="w-12 mx-auto pb-0" src="{% static './static/img/chevron-down-dark.svg' %}" alt="Discover more">
-      </a>
+      <div class="grid grid-cols-1 md:mt-20 mt-5 md:w-5/6 mx-auto w-11/12">
+        <!--Row-->
+        <a href="#run" class="scale">
+          <h3 class="text-27px font-semibold pb-2 mx-auto md:block hidden">Discover more</h3>
+          <img loading="lazy" class="w-12 mx-auto pb-0" src="{% static './static/img/chevron-down-dark.svg' %}" alt="Discover more">
+        </a>
       </div>
 
-    <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
-    <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
-    <span id="run"></span>
-    </section><!--Hero-->
+      <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
+      <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
+      <span id="run"></span>
+    </section>
 
-
-
-
-
-
-    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-24 pt-20 pb-24"><!--S1 - Marlowe Run-->
-
-      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
-        <div class="inset-0"><!--Column-->
-
+    <!--Hero-->
+    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-24 pt-20 pb-24">
+      <!--S1 - Marlowe Run-->
+      <div class="relative mx-auto md:w-5/6 w-11/12">
+        <!--Row-->
+        <div class="inset-0">
+          <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo md:h-logo-wider" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
           <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Financial smart contracts made easy</h2>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Interact with running smart contracts on the web.</h2>
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
 
-        </div><!--Column-->
-      </div><!--Row-->
-
-      <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
-        <div class="inset-0"><!--Column-->
+      <div class="relative mx-auto md:w-5/6 w-11/12">
+        <!--Row-->
+        <div class="inset-0">
+          <!--Column-->
 
           <h3 class="text-lg font-semibold mt-5 pb-4 md:block hidden">Try the first of many smart contract templates, more coming soon.</h3>
           <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 hidden md:block" src="{% static './static/img/run-tabs.png' %}" alt="">
           <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 block md:hidden" src="{% static './static/img/tabs-mobile.jpg' %}" alt="">
 
-        </div><!--Column-->
-      </div><!--Row-->
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
 
-      <div class="relative mx-auto lg:w-3/4 md:w-5/6 w-11/12"><!--Row-->
-        <div class="inset-0"><!--Column-->
+      <div class="relative mx-auto lg:w-3/4 md:w-5/6 w-11/12">
+        <!--Row-->
+        <div class="inset-0">
+          <!--Column-->
 
           <h3 class="pt-16 text-xl font-semibold pb-4 md:block hidden">See how it works</h3>
 
-          <div class="relative xl:w-3/4 w-full mx-auto"><!--Video thumbnail-->
+          <div class="relative xl:w-3/4 w-full mx-auto">
+            <!--Video thumbnail-->
             <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
               <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
             </div>
             <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/run-video-thumbnail.png' %}" alt="">
 
+          </div>
+          <!--Video thumbnail-->
 
-          </div><!--Video thumbnail-->
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
 
+      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-24 md:mt-14 mt-16">
+        <!--Row-->
+        <div class="relative inset-0 lg:w-3/4 w-full mx-auto">
+          <!--Column-->
+          <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try demo</a>
+          <img loading="lazy" class="w-36 absolute lg:right-10 bottom-3 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
 
-        </div><!--Column-->
-      </div><!--Row-->
+      <img loading="lazy" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
+      <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
+      <span id="build"></span>
+    </section>
+    <!--S1 - Marlowe Run-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-24 md:mt-14 mt-16"><!--Row-->
-        <div class="relative inset-0 lg:w-3/4 w-full mx-auto"><!--Column-->
-           <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try demo</a>
-           <img loading="lazy" class="w-36 absolute lg:right-10 bottom-3 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-        </div><!--Column-->
-      </div><!--Row-->
+    <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-28 pt-20 pb-24 text-white">
+      <!--S1 - Marlowe Build-->
 
-    <img loading="lazy" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
-    <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
-    <span id="build"></span>
-    </section><!--S1 - Marlowe Run-->
-
-
-
-
-
-
-
-    <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-28 pt-20 pb-24 text-white"><!--S1 - Marlowe Build-->
-
-
-    <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white mb-8 z-10"><!--Row-->
-        <div class="inset-0"><!--Column-->
+      <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white mb-8 z-10">
+        <!--Row-->
+        <div class="inset-0">
+          <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
           <h3 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Sandbox for financial engineers</h3>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
-        </div><!--Column-->
-      </div><!--Row-->
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
+      <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10">
+        <!--Row-->
 
-
-
-     <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10"><!--Row-->
-
-          <div class="lg:w-full md:w-2/3 w-10/12 mb-8 md:mt-0 mt-8 md:mb-0 lg:-mx-0 mx-auto lg:block hidden" style=""><!--Left column-->
-            <div class="vert-text-left" style="">
-              <h3 class=" text-green text-xl font-semibold mt-5 pb-4">No code? No problem.</h3>
-              <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
-              <p class="md:text-xl text-lg">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
-                <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-8"><!--Row-->
-                  <div class="relative w-full"><!--Column-->
-                    <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
-                    <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-                  </div><!--Column-->
-                </div>
+        <div class="lg:w-full md:w-2/3 w-10/12 my-8 md:my-0 self-center justify-self-center" style="">
+          <!--Left column-->
+          <h3 class=" text-green text-xl font-semibold mt-5 pb-4">No code? No problem.</h3>
+          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
+          <p class="md:text-xl text-lg">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
+          <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-8">
+            <!--Row-->
+            <div class="relative w-full">
+              <!--Column-->
+              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+              <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
             </div>
-          </div><!--Left column-->
-
-          <div class="" style=""><!--Right column-->
-            <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt="">
+            <!--Column-->
           </div>
+        </div>
+        <!--Left column-->
 
-          <div class="mb-8 md:mt-0 md:mb-10 w-10/12 lg:-mx-0 mx-auto lg:hidden block" style=""><!--Left column-->
-            <div class="lg:w-1/3 md:w-2/3 w-11/12 vert-text-left" style="">
-              <h3 class=" text-green text-xl font-semibold mt-0 pb-4">No code? No problem.</h3>
-              <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
-              <p class="md:text-xl text-lg">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
-                <div class="relative md:w-5/6 w-11/12 mt-12"><!--Row-->
-                  <div class="relative w-full"><!--Column-->
-                    <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
-                    <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-                  </div><!--Column-->
-                </div>
-            </div>
-          </div><!--Left column-->
+        <div class="row-start-1 md:row-start-auto">
+          <!--Right column-->
+          <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt="">
+        </div>
+      </div>
+      <!--Row-->
 
-      </div><!--Row-->
+      <div class="relative mx-auto h-auto lg:w-3/4 md:w-5/6 w-11/12 text-center md:pb-10 pb-0 z-10">
+        <!--Row-->
 
-
-      <div class="relative mx-auto h-auto lg:w-3/4 md:w-5/6 w-11/12 text-center md:pb-10 pb-0 z-10"><!--Row-->
-
-        <div class="inset-0"><!--Column-->
+        <div class="inset-0">
+          <!--Column-->
           <h3 class="pt-16 text-xl font-semibold pb-4 md:block text-green">See how it works</h3>
-          <div class="relative xl:w-3/4 w-full mx-auto"><!--Video thumbnail-->
+          <div class="relative xl:w-3/4 w-full mx-auto">
+            <!--Video thumbnail-->
             <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
               <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
             </div>
             <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/marlowe-build-video-thumbnail.png' %}" alt="">
-          </div><!--Video thumbnail-->
-        </div><!--Column-->
+          </div>
+          <!--Video thumbnail-->
+        </div>
+        <!--Column-->
 
-      </div><!--Row-->
+      </div>
+      <!--Row-->
 
+      <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto  mt-8 z-10">
+        <!--Row-->
 
-      <div class="relative grid grid-cols-1 lg:grid-cols-2 grid-cols-1 xl:w-3/4 lg:w-11/12 mx-auto  mt-8 z-10"><!--Row-->
-
-        <div class="md:pt-0 pt-10 md:mb-0 mb-0 pb-0" style=""><!--Left column-->
+        <div class="md:pt-0 pt-10" style="">
+          <!--Left column-->
           <img loading="lazy" class="" src="{% static './static/img/marlowe-build-code-module.png' %}" alt="">
         </div>
 
-        <div class="lg:w-full w-10/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto" style=""><!--Right column-->
-          <div class="vert-text-right" style="">
-            <h3 class=" text-green text-xl font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
-            <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your own smart contract ideas</h4>
-            <p class="md:text-xl text-lg">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
-              <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-12"><!--Row-->
-                <div class="relative w-full"><!--Column-->
-                  <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
-                  <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-                </div><!--Column-->
-              </div><!--Row-->
+        <div class="lg:w-full w-10/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto self-center" style="">
+          <!--Right column-->
+          <h3 class=" text-green text-xl font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
+          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your own smart contract ideas</h4>
+          <p class="md:text-xl text-lg">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
+          <div class="relative md:w-5/6 w-11/12 md:mt-12 mt-12">
+            <!--Row-->
+            <div class="relative w-full">
+              <!--Column-->
+              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+              <img loading="lazy" class="w-36 absolute left-56 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+            </div>
+            <!--Column-->
           </div>
-        </div><!--Right column-->
+          <!--Row-->
+        </div>
+        <!--Right column-->
 
-      </div><!--Row-->
+      </div>
+      <!--Row-->
       <img loading="lazy" style="" class="section-m-top-right absolute invisible lg:visible w-full" src="{% static './static/img/marlowe-background-m.svg' %}" alt="xx">
-    <span id="faq"></span>
-    </section><!--S1 - Marlowe Build-->
+      <span id="faq"></span>
+    </section>
+    <!--S1 - Marlowe Build-->
 
-
-
-
-    <section class="relative block bg-white h-auto w-full md:pt-24 md:pb-24 pt-20 pb-24"> <!--FAQs-->
+    <section class="relative block bg-white h-auto w-full md:pt-24 md:pb-24 pt-20 pb-24">
+      <!--FAQs-->
       {# The current faqContent was taken from:
          https://docs.google.com/document/d/1Ydm7k6UhTFr-Oj5wY7V3JLC6vUA3-S_PRUzl6D7Ziec/edit#
          I did not include questions in red or the Q suggestions.
          Last update (on google doc) Apr 27 7:20 AM
          #}
 
-    <div class="relative mx-auto lg:w-5/6 w-11/12">
-         <span id="faq"></span>
-      <h3 class="md:text-2xl lg:text-3xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
-      {% macro faqComponent(index, question, answer) %}
-        <div class="faq border-t border-darkgray pt-5 mt-5">
-          <h4 class="text-lightpurple text-xl font-semibold flex cursor-pointer">
-            <span class="flex-grow">
-              {{index}}.
-              {{ question }}
-            </span>
-            <span class="flex-shrink-0 w-6 faq-caret"></span>
-          </h4>
+      <div class="relative mx-auto lg:w-5/6 w-11/12">
+        <span id="faq"></span>
+        <h3 class="md:text-2xl lg:text-3xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
+        {% macro faqComponent(index, question, answer) %}
+          <div class="faq border-t border-darkgray pt-5 mt-5">
+            <h4 class="text-lightpurple text-xl font-semibold flex cursor-pointer">
+              <span class="flex-grow">
+                {{index}}.
+                {{ question }}
+              </span>
+              <span class="flex-shrink-0 w-6 faq-caret"></span>
+            </h4>
 
-          <p class="text-lg faq-answer">{{ answer | safe}}</p>
-        </div>
-      {% endmacro %}
-      {% for item in faqContent %}
-        {{faqComponent(loop.index, item.question, item.answer)}}
-      {% endfor %}
-      <div id="faq"></div>
+            <p class="text-lg faq-answer">{{ answer | safe}}</p>
+          </div>
+        {% endmacro %}
+        {% for item in faqContent %}
+          {{faqComponent(loop.index, item.question, item.answer)}}
+        {% endfor %}
+        <div id="faq"></div>
       </div>
 
-    </section><!--FAQs-->
+    </section>
+    <!--FAQs-->
 
-
-        <section class="relative block bg-grayblue h-auto w-full md:pt-34 md:pb-30 pt-20 pb-24 text-center"><!--S1 - Marlowe Pioneers-->
-         <div class="relative mx-auto md:w-1/2 w-11/12"><!--Row-->
-          <div class="inset-0"><!--Column-->
-            <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Marlowe Pioneers</h2>
-            <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Be the first to test and feedback on this groundbreaking new DeFi technology.</h2>
-            <div class="relative mx-auto md:w-5/6 w-11/12 md:mt-18 md:mb-5 mt-12"><!--Row-->
-              <div class="relative inset-0 w-full mx-auto"><!--Column-->
-                <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Register now</a>
-                <img loading="lazy" class="w-36 absolute xl:right-0 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-              </div><!--Column-->
-            </div><!--Row-->
-          </div><!--Column-->
-        </div><!--Row-->
-        <img loading="lazy" style="" class="pink-m-left invisible lg:visible" src="{% static './static/img/pink-m-left.svg' %}" alt="xx">
-        <img loading="lazy" style="" class="pink-m-right invisible lg:visible" src="{% static './static/img/pink-m-right.svg' %}" alt="xx">
-        </section>
-
-
+    <section class="relative block bg-grayblue h-auto w-full md:pt-34 md:pb-30 pt-20 pb-24 text-center">
+      <!--S1 - Marlowe Pioneers-->
+      <div class="relative mx-auto md:w-1/2 w-11/12">
+        <!--Row-->
+        <div class="inset-0">
+          <!--Column-->
+          <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Marlowe Pioneers</h2>
+          <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Be the first to test and feedback on this groundbreaking new DeFi technology.</h2>
+          <div class="relative mx-auto md:w-5/6 w-11/12 md:mt-18 md:mb-5 mt-12">
+            <!--Row-->
+            <div class="relative inset-0 w-full mx-auto">
+              <!--Column-->
+              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Register now</a>
+              <img loading="lazy" class="w-36 absolute xl:right-0 bottom-3 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+            </div>
+            <!--Column-->
+          </div>
+          <!--Row-->
+        </div>
+        <!--Column-->
+      </div>
+      <!--Row-->
+      <img loading="lazy" style="" class="pink-m-left invisible lg:visible" src="{% static './static/img/pink-m-left.svg' %}" alt="xx">
+      <img loading="lazy" style="" class="pink-m-right invisible lg:visible" src="{% static './static/img/pink-m-right.svg' %}" alt="xx">
+    </section>
 
     <footer class="shadow-sm bg-white h-auto md:py-5 py-10">
 
       <div class="m-5 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
 
         <ul class="inline w-full">
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline"><a class="" href="#run">Privacy</a></li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline"><a class="" href="#build">Terms</a></li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item external block md:inline"><a class="" href="#build">iohk.io</a></li>
-          <li class="relative text-base font-bold md:mr-7 md:mb-0 menu-item external block md:inline"><a class="" href="#run">cardano.org</a></li>
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline">
+            <a class="" href="#run">Privacy</a>
+          </li>
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline">
+            <a class="" href="#build">Terms</a>
+          </li>
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item external block md:inline">
+            <a class="" href="#build">iohk.io</a>
+          </li>
+          <li class="relative text-base font-bold md:mr-7 md:mb-0 menu-item external block md:inline">
+            <a class="" href="#run">cardano.org</a>
+          </li>
         </ul>
 
       </div>
 
     </footer>
 
-<!--Hide and show the back to top CTA-->
-<script type="text/javascript">
+    <!--Hide and show the back to top CTA-->
+    <script type="text/javascript">
 
-  	myID = document.getElementById("myID");
+      myID = document.getElementById("myID");
 
-	var myScrollFunc = function () {
-	    var y = window.scrollY;
-	    if (y >= 400) {
-	        myID.className = "back-to-top show"
-	    } else {
-	        myID.className = "back-to-top hide"
-	    }
-	};
+      var myScrollFunc = function () {
+        var y = window.scrollY;
+        if (y >= 400) {
+          myID.className = "back-to-top show"
+        } else {
+          myID.className = "back-to-top hide"
+        }
+      };
 
-	window.addEventListener("scroll", myScrollFunc);
-  </script>
+      window.addEventListener("scroll", myScrollFunc);
+    </script>
 
-<!--Smooth scrolling-->
-<script type="text/javascript">
-	// Select all links with hashes
-$('a[href*="#"]')
-  // Remove links that don't actually link to anything
-  .not('[href="#"]')
-  .not('[href="#0"]')
-  .click(function(event) {
-    // On-page links
-    if (
-      location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '')
-      &&
-      location.hostname == this.hostname
-    ) {
-      // Figure out element to scroll to
-      var target = $(this.hash);
-      target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-      // Does a scroll target exist?
-      if (target.length) {
-        // Only prevent default if animation is actually gonna happen
-        event.preventDefault();
-        $('html, body').animate({
-          scrollTop: target.offset().top
-        }, 500, function() {
-          // Callback after animation
-          // Must change focus!
-          var $target = $(target);
-          $target.focus();
-          if ($target.is(":focus")) { // Checking if the target was focused
-            return false;
-          } else {
-            $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
-            $target.focus(); // Set focus again
-          };
+    <!--Smooth scrolling-->
+    <script type="text/javascript">
+      // Select all links with hashes
+      $('a[href*="#"]')
+      // Remove links that don't actually link to anything
+        .not('[href="#"]')
+        .not('[href="#0"]')
+        .click(function (event) {
+          // On-page links
+          if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+            // Figure out element to scroll to
+            var target = $(this.hash);
+            target = target.length
+              ? target
+              : $('[name=' + this.hash.slice(1) + ']');
+            // Does a scroll target exist?
+            if (target.length) {
+              // Only prevent default if animation is actually gonna happen
+              event.preventDefault();
+              $('html, body').animate({
+                scrollTop: target
+                  .offset()
+                  .top
+              }, 500, function () {
+                // Callback after animation
+                // Must change focus!
+                var $target = $(target);
+                $target.focus();
+                if ($target.is(":focus")) { // Checking if the target was focused
+                  return false;
+                } else {
+                  $target.attr('tabindex', '-1'); // Adding tabindex for elements not focusable
+                  $target.focus(); // Set focus again
+                };
+              });
+            }
+          }
         });
-      }
-    }
-  });
-</script>
+    </script>
 
   </body>
 
