@@ -1,7 +1,11 @@
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE LambdaCase           #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE LambdaCase            #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -14,12 +18,17 @@ import           PlutusPrelude
 import           PlutusIR
 import           PlutusIR.Mark
 
-import qualified PlutusCore                 as PLC
-import qualified PlutusCore.Name            as PLC
-import qualified PlutusCore.Rename.Internal as PLC
+import qualified PlutusCore                  as PLC
+import qualified PlutusCore.Name             as PLC
+import qualified PlutusCore.Rename.Internal  as PLC
 
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Cont   (ContT (..))
+import           Control.Monad.Trans.Cont    (ContT (..))
+
+import           Control.Monad.Except
+import           Data.Set                    as Set
+import qualified PlutusCore.Quote            as PLC
+import           PlutusCore.StdLib.Data.List
 
 {- Note [Renaming of mutually recursive bindings]
 The 'RenameM' monad is a newtype wrapper around @ReaderT renaming Quote@, so in order to bring
@@ -62,28 +71,137 @@ instance PLC.HasUniques (Term tyname name uni fun ann) => PLC.Rename (Term tynam
     -- See Note [Marking]
     rename = through markNonFreshTerm >=> PLC.runRenameT . renameTermM
 
--- See Note [Renaming of mutually recursive bindings].
+-- (let
+--   (nonrec)
+--   (datatypebind
+--     (datatype
+--       (tyvardecl M (fun (type) (type)))
+--       (tyvardecl M (type))
+--       match_M
+--       (vardecl N [M M]) (vardecl J (fun M [M M]))
+--     )
+--   )
+--   (abs a (type) (lam x a x))
+-- )
+
+newtype Restorer ren m = Restorer
+    { unRestorer :: forall a. PLC.RenameT ren m a -> PLC.RenameT ren m a
+    }
+
+captureContext :: Monad m => (Restorer ren m -> PLC.RenameT ren m b) -> PLC.RenameT ren m b
+captureContext k = do
+    env <- ask
+    k $ Restorer $ local $ const env
+
+-- visibility (Datatype x dataDecl params matchName constrs) rest =
+--   dataDecl `visibleIn` constrs
+--   dataDecl `visibleIn` rest
+
+-- params `visibleIn` constrs
+-- params `notVisibleIn` rest
+
+-- nonrec: List_0 `notVisibleIn` constrs => List_0 `staysIn` constrs
+-- rec:    List_0 `visibleIn` constrs    => List_0 `notStaysIn` constrs
+
+-- data Scope = Scope
+--    { inScope    :: Set Name
+--    , notInScope :: Set Name
+--    }
+
+-- defaultConstrs dataName params = [name1 :: iterTyApp dataName params, name2 :: iterTyApp dataName params]
+
+-- notVisibleInConstrs ::
+
+-- nonrec data List_2 a_1 where
+--     Nil  :: List_2 a_1
+--     Cons :: a_1 -> List_0 a_1 -> List_2 a_1
+
+-- rec data List_2 a_1 where
+--     Nil  :: List_2 a_1
+--     Cons :: a_1 -> List_2 a_1 -> List_2 a_1
+
+renameConstrTypeM
+    :: (PLC.HasRenaming ren PLC.TypeUnique, PLC.HasUniques (Type tyname uni ann), PLC.MonadQuote m)
+    => Restorer ren m -> Type tyname uni ann -> PLC.RenameT ren m (Type tyname uni ann)
+renameConstrTypeM (Restorer restoreAfterData) = renameTyFunM where
+    renameTyFunM (TyFun ann dom cod) = TyFun ann <$> PLC.renameTypeM dom <*> renameTyFunM cod
+    renameTyFunM ty                  = renameTyAppM ty
+
+    renameTyAppM (TyApp ann fun arg) = TyApp ann <$> renameTyAppM fun <*> PLC.renameTypeM arg
+    renameTyAppM (TyVar ann name)    = TyVar ann <$> restoreAfterData (PLC.renameNameM name)
+    renameTyAppM _                   =
+        error "Panic: a constructor returns something that is not an iterated application of a type variable"
+
+withFreshenedConstr
+    :: (PLC.HasUniques (Term tyname name uni fun ann), PLC.MonadQuote m)
+    => VarDecl tyname name uni fun ann
+    -> ((Restorer PLC.ScopedRenaming m -> PLC.ScopedRenameT m (VarDecl tyname name uni fun ann)) ->
+            PLC.ScopedRenameT m c)
+    -> PLC.ScopedRenameT m c
+withFreshenedConstr (VarDecl ann name ty) cont =
+    PLC.withFreshenedName name $ \nameFr ->
+        cont $ \restorerAfterData ->
+            VarDecl ann nameFr <$> renameConstrTypeM restorerAfterData ty
+
+-- withFreshenedVarDecl (VarDecl ann name ty) cont =
+--     withFreshenedName name $ \nameFr -> cont $ VarDecl ann nameFr <$> renameTypeM ty
+
+-- data Maybe a where
+--     Nothing :: Maybe a
+--     Just    :: a -> Maybe a
+
+-- data List a where
+--     Nil  :: List a
+--     Cons :: a -> List a -> List a
+
+onNonRec :: Recursivity -> (a -> a) -> a -> a
+onNonRec NonRec f x = f x
+onNonRec Rec    _ x = x
+
 -- | Rename a 'Datatype' in the CPS-transformed 'ScopedRenameM' monad.
 renameDatatypeCM
     :: (PLC.HasUniques (Term tyname name uni fun ann), PLC.MonadQuote m)
-    => Datatype tyname name uni fun ann
+    => Recursivity
+    -> Datatype tyname name uni fun ann
     -> ContT c (PLC.ScopedRenameT m) (PLC.ScopedRenameT m (Datatype tyname name uni fun ann))
-renameDatatypeCM (Datatype x dataDecl params matchName constrs) = do
+renameDatatypeCM recy (Datatype x dataDecl params matchName constrs) = do
     -- The first stage (the data type itself, its constructors and its matcher get renamed).
-    dataDeclFr  <- ContT $ PLC.withFreshenedTyVarDecl dataDecl
-    constrsRen  <- traverse (ContT . PLC.withFreshenedVarDecl) constrs
-    matchNameFr <- ContT $ PLC.withFreshenedName matchName
+    -- Note that all of these are visible downstream.
+    constrsRen         <- traverse (ContT . withFreshenedConstr) constrs
+    matchNameFr        <- ContT $ PLC.withFreshenedName matchName
+    restorerBeforeData <- ContT captureContext
+    dataDeclFr         <- ContT $ PLC.withFreshenedTyVarDecl dataDecl
+    restorerAfterData  <- ContT captureContext
     -- The second stage (the type parameters and types of constructors get renamed).
-    pure $
+    -- Note that parameters are only visible in the types of constructors and not downstream.
+    pure . onNonRec recy (unRestorer restorerBeforeData) $
         runContT (traverse (ContT . PLC.withFreshenedTyVarDecl) params) $ \paramsFr ->
-            Datatype x dataDeclFr paramsFr matchNameFr <$> sequence constrsRen
+            Datatype x dataDeclFr paramsFr matchNameFr <$>
+                traverse ($ restorerAfterData) constrsRen
 
 -- | Rename a 'Binding' in the CPS-transformed 'ScopedRenameM' monad.
-renameBindingCM
+renameBindingNonRecC
+    :: (PLC.HasUniques (Term tyname name uni fun ann), PLC.MonadQuote m)
+    => Binding tyname name uni fun ann
+    -> ContT c (PLC.ScopedRenameT m) (Binding tyname name uni fun ann)
+renameBindingNonRecC = \case
+    TermBind x s var term -> do
+        termFr <- lift $ renameTermM term
+        varFr <- lift =<< ContT (PLC.withFreshenedVarDecl var)
+        pure $ TermBind x s varFr termFr
+    TypeBind x var ty -> do
+        tyFr <- lift $ PLC.renameTypeM ty
+        varFr <- ContT $ PLC.withFreshenedTyVarDecl var
+        pure $ TypeBind x varFr tyFr
+    DatatypeBind x datatype ->
+        fmap (DatatypeBind x) $ lift =<< renameDatatypeCM NonRec datatype
+
+-- | Rename a 'Binding' in the CPS-transformed 'ScopedRenameM' monad.
+renameBindingRecCM
     :: (PLC.HasUniques (Term tyname name uni fun ann), PLC.MonadQuote m)
     => Binding tyname name uni fun ann
     -> ContT c (PLC.ScopedRenameT m) (PLC.ScopedRenameT m (Binding tyname name uni fun ann))
-renameBindingCM = \case
+renameBindingRecCM = \case
     TermBind x s var term -> do
         -- The first stage (the variable gets renamed).
         varRen <- ContT $ PLC.withFreshenedVarDecl var
@@ -96,7 +214,7 @@ renameBindingCM = \case
         pure $ TypeBind x varFr <$> PLC.renameTypeM ty
     DatatypeBind x datatype ->
         -- Both the stages of 'renameDatatypeCM'.
-        fmap (DatatypeBind x) <$> renameDatatypeCM datatype
+        fmap (DatatypeBind x) <$> renameDatatypeCM Rec datatype
 
 -- | Replace the uniques in the names stored in a bunch of bindings by new uniques,
 -- save the mapping from the old uniques to the new ones, rename the RHSs and
@@ -110,10 +228,10 @@ withFreshenedBindings
 withFreshenedBindings recy binds cont = case recy of
     -- Bring each binding in scope, rename its RHS straight away, collect all the results and
     -- supply them to the continuation.
-    NonRec -> runContT (traverse (renameBindingCM >=> lift) binds) cont
+    NonRec -> runContT (traverse renameBindingNonRecC binds) cont
     -- First bring all bindinds in scope and only then rename their RHSs and
     -- supply the results to the continuation.
-    Rec    -> runContT (traverse renameBindingCM binds) $ sequence >=> cont
+    Rec    -> runContT (traverse renameBindingRecCM binds) $ sequence >=> cont
 
 -- | Rename a 'Term' in the 'ScopedRenameM' monad.
 renameTermM

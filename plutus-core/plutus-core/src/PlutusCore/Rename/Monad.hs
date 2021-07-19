@@ -99,14 +99,14 @@ insertByNameM name = over renaming . mapRenaming . insertByName name
 
 -- | Look up the new unique a name got mapped to.
 lookupNameM
-    :: (HasUnique name unique, HasRenaming ren unique, Monad m)
-    => name -> RenameT ren m (Maybe unique)
+    :: (HasUnique name unique, HasRenaming ren unique, MonadReader ren m)
+    => name -> m (Maybe unique)
 lookupNameM name = asks $ lookupName name . unRenaming . view renaming
 
 -- | Rename a name that has a unique inside.
 renameNameM
-    :: (HasRenaming ren unique, HasUnique name unique, Monad m)
-    => name -> RenameT ren m name
+    :: (HasRenaming ren unique, HasUnique name unique, MonadReader ren m)
+    => name -> m name
 renameNameM name = do
     mayUniqNew <- lookupNameM name
     pure $ case mayUniqNew of
@@ -116,8 +116,8 @@ renameNameM name = do
 -- | Replace the unique in a name by a new unique, save the mapping
 -- from the old unique to the new one and supply the updated value to a continuation.
 withFreshenedName
-    :: (HasRenaming ren unique, HasUnique name unique, MonadQuote m)
-    => name -> (name -> RenameT ren m c) -> RenameT ren m c
+    :: (HasRenaming ren unique, HasUnique name unique, MonadQuote m, MonadReader ren m)
+    => name -> (name -> m c) -> m c
 withFreshenedName nameOld k = do
     uniqNew <- coerce <$> freshUnique
     local (insertByNameM nameOld uniqNew) $ k (nameOld & unique .~ uniqNew)
@@ -125,6 +125,6 @@ withFreshenedName nameOld k = do
 -- | Run a 'RenameT' computation in the environment extended by the mapping from an old name
 -- to a new one.
 withRenamedName
-    :: (HasRenaming ren unique, HasUnique name unique, Monad m)
-    => name -> name -> RenameT ren m c -> RenameT ren m c
+    :: (HasRenaming ren unique, HasUnique name unique, MonadReader ren m)
+    => name -> name -> m c -> m c
 withRenamedName old new = local $ insertByNameM old (new ^. unique)

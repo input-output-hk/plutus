@@ -1,6 +1,9 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications  #-}
-{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
 
 module Main
     ( main
@@ -22,10 +25,15 @@ import           PlutusCore.Generators
 import           PlutusCore.Generators.AST         as AST
 import           PlutusCore.Generators.Interesting
 import qualified PlutusCore.Generators.NEAT.Spec   as NEAT
+import           PlutusCore.Generators.Scoping
+import           PlutusCore.Mark
 import           PlutusCore.MkPlc
 import           PlutusCore.Pretty
+import           PlutusCore.Rename.Internal
 
 import           Control.Monad.Except
+import           Control.Monad.Reader
+import           Control.Monad.State
 import qualified Data.ByteString.Lazy              as BSL
 import qualified Data.Text                         as T
 import           Data.Text.Encoding                (encodeUtf8)
@@ -177,12 +185,6 @@ propParser = property $ do
     Hedgehog.tripping prog (reprint . unTextualProgram)
                 (\p -> fmap (TextualProgram . void) $ runQuote $ runExceptT $ parseProgram @(DefaultError AlexPosn) p)
 
-propRename :: Property
-propRename = property $ do
-    prog <- forAllPretty $ runAstGen genProgram
-    let progRen = runQuote $ rename prog
-    Hedgehog.assert $ progRen == prog && prog == progRen
-
 propMangle :: Property
 propMangle = property $ do
     (term, termMangled) <- forAll . Gen.just . runAstGen $ do
@@ -192,6 +194,58 @@ propMangle = property $ do
             termMang <- mayTermMang
             Just (term, termMang)
     Hedgehog.assert $ term /= termMangled && termMangled /= term
+
+newtype RenameT_BAD ren m a = RenameT_BAD
+    { unRenameT_BAD :: StateT ren m a
+    } deriving newtype
+        ( Functor, Applicative, Alternative, Monad
+        , MonadState ren
+        , MonadQuote
+        )
+
+runRenameT_BAD :: (Monad m, Monoid ren) => RenameT_BAD ren m a -> m a
+runRenameT_BAD = flip evalStateT mempty . unRenameT_BAD
+
+instance Monad m => MonadReader ren (RenameT_BAD ren m) where
+    ask = get
+    local f a = modify f *> a
+
+renameProgram_BAD
+    :: (MonadQuote m, HasUniques (Program tyname name uni fun ann))
+    => Program tyname name uni fun ann -> m (Program tyname name uni fun ann)
+renameProgram_BAD = through markNonFreshProgram >=> runRenameT_BAD . renameProgramM
+
+checkBadRenamer :: Property -> IO ()
+checkBadRenamer prop = check prop >>= \res -> res @?= False
+
+propRenameFor
+    :: program ~ Program TyName Name DefaultUni DefaultFun ()
+    => (program -> Quote program) -> Property
+propRenameFor ren = property $ do
+    prog <- forAllPretty $ runAstGen genProgram
+    let progRen = runQuote $ ren prog
+    Hedgehog.assert $ progRen == prog && prog == progRen
+
+propRename :: Property
+propRename = propRenameFor rename
+
+propRenameBadRenamer :: IO ()
+propRenameBadRenamer = checkBadRenamer $ propRenameFor renameProgram_BAD
+
+propScopingFor
+    :: program ~ Program TyName Name DefaultUni DefaultFun NameAnn
+    => (program -> Quote program) -> Property
+propScopingFor ren = property $ do
+    prog <- forAllPretty $ runAstGen genProgram
+    case checkRespectsScoping (runQuote . ren) prog of
+        Left err -> fail $ show err
+        Right () -> success
+
+propScoping :: Property
+propScoping = propScopingFor rename
+
+propScopingBadRenamer :: IO ()
+propScopingBadRenamer = checkBadRenamer $ propScopingFor renameProgram_BAD
 
 propDeBruijn :: Gen (TermOf (DefaultTerm ()) a) -> Property
 propDeBruijn gen = property . generalizeT $ do
@@ -212,8 +266,11 @@ allTests plcFiles rwFiles typeFiles typeErrorFiles =
     , testProperty "lexing constants" propLexConstant
     , testProperty "parser round-trip" propParser
     , testProperty "serialization round-trip (Flat)" propFlat
-    , testProperty "equality survives renaming" propRename
     , testProperty "equality does not survive mangling" propMangle
+    , testProperty "equality survives renaming" propRename
+    , testCase "equality does not survive wrong renaming" propRenameBadRenamer
+    , testProperty "renaming does not destroy scoping" propScoping
+    , testCase "wrong renaming destroys scoping" propScopingBadRenamer
     , testGroup "de Bruijn transformation round-trip" $
           fromInterestingTermGens $ \name -> testProperty name . propDeBruijn
     , testsGolden plcFiles
