@@ -7,6 +7,8 @@ module UntypedPlutusCore.Subst
     , termSubstNames
     , termSubstFreeNamesA
     , termSubstFreeNames
+    , etermSubstFreeNamesA
+    , etermSubstFreeNames
     , termMapNames
     , programMapNames
     , uniquesTerm
@@ -122,3 +124,29 @@ vTerm = setOf $ termSubtermsDeep . termVars
 -- | Get all the uniques in a term
 uniquesTerm :: HasUniques (Term name uni fun ann) => Term name uni fun ann -> Set Unique
 uniquesTerm = setOf termUniquesDeep
+
+-- | Applicatively substitute *free* names using the given function.
+etermSubstFreeNamesA
+    :: (Applicative f)
+    => (Unique -> f (Maybe (ETerm uni fun)))
+    -> ETerm uni fun
+    -> f (ETerm uni fun)
+etermSubstFreeNamesA f = go Set.empty where
+    go bvs var@(EVar name)           =
+        if name `Set.member` bvs
+            then pure var
+            else fromMaybe var <$> f name
+    go bvs (ELamAbs name body) = ELamAbs name <$> go (Set.insert name bvs) body
+    go bvs (EApply fun arg)    = EApply <$> go bvs fun <*> go bvs arg
+    go bvs (EDelay term)       = EDelay <$> go bvs term
+    go bvs (EForce term)       = EForce <$> go bvs term
+    go _   term@EConstant{}        = pure term
+    go _   term@EBuiltin{}         = pure term
+    go _   term@EError{}           = pure term
+
+-- | Substitute *free* names using the given function.
+etermSubstFreeNames
+    :: (Unique -> Maybe (ETerm uni fun))
+    -> ETerm uni fun
+    -> ETerm uni fun
+etermSubstFreeNames f t = runIdentity $ etermSubstFreeNamesA (coerce f) t

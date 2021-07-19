@@ -30,3 +30,13 @@ instance
         , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
         ) => Pretty (Program name uni fun ann) where
     pretty = prettyClassicDef
+
+instance
+        (GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        ) => Pretty (ETerm uni fun) where
+    pretty = prettyClassicDef
+
+instance
+        (GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        ) => Pretty (EProgram uni fun) where
+    pretty = prettyClassicDef

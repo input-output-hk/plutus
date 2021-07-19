@@ -47,3 +47,29 @@ instance PrettyReadableBy configName (Term name uni fun a) =>
     prettyBy = inContextM $ \(Program _ version term) ->
         sequenceDocM ToTheRight juxtFixity $ \prettyEl ->
             "program" <+> pretty version <+> prettyEl term
+
+instance
+        ( GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        ) => PrettyBy (PrettyConfigReadable configName) (ETerm uni fun) where
+    prettyBy = inContextM $ \case
+        EConstant val -> unitDocM $ pretty val
+        EBuiltin bi -> unitDocM $ pretty bi
+        EVar name -> pure $ pretty name
+        ELamAbs name body ->
+            compoundDocM binderFixity $ \prettyIn ->
+                let prettyBot x = prettyIn ToTheRight botFixity x
+                in "\\" <> pretty name <+> "->" <+> prettyBot body
+        EApply fun arg -> fun `juxtPrettyM` arg
+        EDelay term ->
+            sequenceDocM ToTheRight juxtFixity $ \prettyEl ->
+                "delay" <+> prettyEl term
+        EForce term ->
+            sequenceDocM ToTheRight juxtFixity $ \prettyEl ->
+                "force" <+> prettyEl term
+        EError -> unitDocM "error"
+
+instance PrettyReadableBy configName (ETerm uni fun) =>
+        PrettyBy (PrettyConfigReadable configName) (EProgram uni fun) where
+    prettyBy = inContextM $ \(EProgram version term) ->
+        sequenceDocM ToTheRight juxtFixity $ \prettyEl ->
+            "program" <+> pretty version <+> prettyEl term

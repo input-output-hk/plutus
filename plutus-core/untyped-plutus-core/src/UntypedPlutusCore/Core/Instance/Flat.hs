@@ -123,3 +123,43 @@ instance ( Flat ann
          ) => Flat (Program name uni fun ann) where
     encode (Program ann v t) = encode ann <> encode v <> encode t
     decode = Program <$> decode <*> decode <*> decode
+
+instance ( Closed uni
+         , uni `Everywhere` Flat
+         , Flat fun
+         ) => Flat (ETerm uni fun ) where
+    encode = \case
+        EVar      n    -> encodeTerm 0 <> encode n
+        EDelay    t    -> encodeTerm 1 <> encode t
+        ELamAbs   n t  -> encodeTerm 2 <> encode n <> encode t
+        EApply    t t' -> encodeTerm 3 <> encode t <> encode t'
+        EConstant c    -> encodeTerm 4 <> encode c
+        EForce    t    -> encodeTerm 5 <> encode t
+        EError         -> encodeTerm 6
+        EBuiltin  bn   -> encodeTerm 7 <> encode bn
+
+    decode = go =<< decodeTerm
+        where go 0 = EVar      <$> decode
+              go 1 = EDelay    <$> decode
+              go 2 = ELamAbs   <$> decode <*> decode
+              go 3 = EApply    <$> decode <*> decode
+              go 4 = EConstant <$> decode
+              go 5 = EForce    <$> decode
+              go 6 = pure EError
+              go 7 = EBuiltin  <$> decode
+              go _ = fail "Failed to decode ETerm"
+
+    size tm sz = termTagWidth + sz + case tm of
+        EVar      n    -> getSize n
+        EDelay    t    -> getSize t
+        ELamAbs   n t  -> getSize n + getSize t
+        EApply    t t' -> getSize t + getSize t'
+        EConstant c    -> getSize c
+        EForce    t    -> getSize t
+        EError         -> 0
+        EBuiltin  bn   -> getSize bn
+
+instance (Flat (ETerm uni fun )
+         ) => Flat (EProgram uni fun) where
+    encode (EProgram v t) = encode v <> encode t
+    decode = EProgram <$> decode <*> decode

@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DerivingStrategies    #-}
 {-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE UndecidableInstances  #-}
@@ -19,6 +21,10 @@ module UntypedPlutusCore.Core.Type
     , termAnn
     , erase
     , eraseProgram
+    , ETerm (..)
+    , EProgram (..)
+    , termToETerm
+    , etermToTerm
     ) where
 
 import           Data.Functor.Identity
@@ -165,3 +171,47 @@ erase (TPLC.Error ann _)            = Error ann
 -- | Erase a Typed Plutus Core Program to its untyped counterpart.
 eraseProgram :: TPLC.Program tyname name uni fun ann -> Program name uni fun ann
 eraseProgram (TPLC.Program a v t) = Program a v $ erase t
+
+{-|
+A specialized version of 'Term' for evaluation. The 'name' and 'a' parameters are specialized to 'Name' ('Unique') and '()' (omitted).
+-}
+data ETerm uni fun
+    = EConstant !(Some (ValueOf uni))
+    | EBuiltin !fun
+    | EVar !TPLC.Unique
+    | ELamAbs !TPLC.Unique !(ETerm uni fun)
+    | EApply !(ETerm uni fun) !(ETerm uni fun)
+    | EDelay !(ETerm uni fun)
+    | EForce !(ETerm uni fun)
+    | EError
+    deriving stock (Show, Functor, Generic)
+    deriving anyclass (NFData)
+
+termToETerm :: Term TPLC.Name uni fun () -> ETerm uni fun
+termToETerm = \case
+    Constant _ c -> EConstant c
+    Builtin _ f  -> EBuiltin f
+    Var _ n      -> EVar (TPLC.nameUnique n)
+    LamAbs _ n b -> ELamAbs (TPLC.nameUnique n) (termToETerm b)
+    Apply _ l r  -> EApply (termToETerm l) (termToETerm r)
+    Delay _ b    -> EDelay (termToETerm b)
+    Force _ b    -> EForce (termToETerm b)
+    Error _      -> EError
+
+etermToTerm :: ETerm uni fun -> Term TPLC.Name uni fun ()
+etermToTerm = \case
+    EConstant c -> Constant () c
+    EBuiltin f  -> Builtin () f
+    EVar n      -> Var () (TPLC.Name "" n)
+    ELamAbs n b -> LamAbs () (TPLC.Name "" n) (etermToTerm b)
+    EApply l r  -> Apply () (etermToTerm l) (etermToTerm r)
+    EDelay b    -> Delay () (etermToTerm b)
+    EForce b    -> Force () (etermToTerm b)
+    EError      -> Error ()
+
+{-|
+A specialized version of 'Program' for evaluation. The 'name' and 'a' parameters are specialized to 'Name' ('Unique') and '()' (omitted).
+-}
+data EProgram uni fun = EProgram (TPLC.Version ()) (ETerm uni fun)
+    deriving stock (Show, Functor, Generic)
+    deriving anyclass (NFData)

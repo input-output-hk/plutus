@@ -45,3 +45,24 @@ instance
 instance PrettyClassicBy configName (Term name uni fun a) =>
         PrettyBy (PrettyConfigClassic configName) (Program name uni fun a) where
     prettyBy config (Program _ version term) = parens' $ "program" <+> pretty version <//> prettyBy config term
+
+instance
+        (GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+
+        ) => PrettyBy (PrettyConfigClassic configName) (ETerm uni fun) where
+    prettyBy _ = go where
+        go (EConstant val)     = parens' $ "con" </> prettyTypeOf val </> pretty val  -- NB: actually calls prettyConst
+        go (EBuiltin bi)       = parens' $ "builtin" </> pretty bi
+        go (EVar name)         = pretty name
+        go (ELamAbs name body) = parens' $ "lam" </> vsep' [pretty name, go body]
+        go (EApply fun arg)    = brackets' $ vsep' [go fun, go arg]
+        go (EDelay term)       = parens' ("delay" </> go term)
+        go (EForce term)       = parens' ("force" </> go term)
+        go EError              = parens' "error"
+
+        prettyTypeOf :: GShow t => Some (ValueOf t) -> Doc ann
+        prettyTypeOf (Some (ValueOf uni _ )) = pretty $ SomeTypeIn uni
+
+instance PrettyClassicBy configName (ETerm uni fun) =>
+        PrettyBy (PrettyConfigClassic configName) (EProgram uni fun) where
+    prettyBy config (EProgram version term) = parens' $ "program" <+> pretty version <//> prettyBy config term

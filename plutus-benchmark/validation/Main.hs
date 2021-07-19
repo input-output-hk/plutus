@@ -79,6 +79,7 @@ contractDirs2 =
 
 
 type Term          = UPLC.Term    PLC.Name      PLC.DefaultUni PLC.DefaultFun ()
+type ETerm         = UPLC.ETerm   PLC.DefaultUni PLC.DefaultFun
 type Program       = UPLC.Program PLC.Name      PLC.DefaultUni PLC.DefaultFun ()
 type DbProgram     = UPLC.Program UPLC.DeBruijn PLC.DefaultUni PLC.DefaultFun ()
 
@@ -99,12 +100,12 @@ loadFlat file = do
         return $! force $ UPLC.toTerm p
         -- `force` to try to ensure that deserialiation is not included in benchmarking time.
 
-mkCekBM :: Term -> Benchmarkable
+mkCekBM :: ETerm -> Benchmarkable
 mkCekBM program = nf (UPLC.unsafeEvaluateCek PLC.defaultCekParameters) program
 
 mkScriptBM :: FilePath -> FilePath -> Benchmark
 mkScriptBM dir file =
-    env (loadFlat $ dir </> file) $ \script -> bench (dropExtension file) $ mkCekBM script
+    env (loadFlat $ dir </> file) $ \script -> bench (dropExtension file) $ mkCekBM $ UPLC.termToETerm script
 
 -- Make a benchmark group including benchmarks for all the files in a given directory.
 mkContractBMs :: FilePath -> IO Benchmark

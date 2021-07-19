@@ -72,8 +72,8 @@ runCekNoEmit
     :: ( uni `Everywhere` ExMemoryUsage, Ix fun, PrettyUni uni fun)
     => MachineParameters CekMachineCosts CekValue uni fun
     -> ExBudgetMode cost uni fun
-    -> Term Name uni fun ()
-    -> (Either (CekEvaluationException uni fun) (Term Name uni fun ()), cost)
+    -> ETerm uni fun
+    -> (Either (CekEvaluationException uni fun) (ETerm uni fun), cost)
 runCekNoEmit params mode term =
     case runCek params mode False term of
         (errOrRes, cost', _) -> (errOrRes, cost')
@@ -87,8 +87,8 @@ unsafeRunCekNoEmit
        )
     => MachineParameters CekMachineCosts CekValue uni fun
     -> ExBudgetMode cost uni fun
-    -> Term Name uni fun ()
-    -> (EvaluationResult (Term Name uni fun ()), cost)
+    -> ETerm uni fun
+    -> (EvaluationResult (ETerm uni fun), cost)
 unsafeRunCekNoEmit params mode =
     first unsafeExtractEvaluationResult . runCekNoEmit params mode
 
@@ -96,8 +96,8 @@ unsafeRunCekNoEmit params mode =
 evaluateCek
     :: ( uni `Everywhere` ExMemoryUsage, Ix fun, PrettyUni uni fun)
     => MachineParameters CekMachineCosts CekValue uni fun
-    -> Term Name uni fun ()
-    -> (Either (CekEvaluationException uni fun) (Term Name uni fun ()), [String])
+    -> ETerm uni fun
+    -> (Either (CekEvaluationException uni fun) (ETerm uni fun), [String])
 evaluateCek params term =
     case runCek params restrictingEnormous True term of
         (errOrRes, _, logs) -> (errOrRes, logs)
@@ -106,8 +106,8 @@ evaluateCek params term =
 evaluateCekNoEmit
     :: ( uni `Everywhere` ExMemoryUsage, Ix fun, PrettyUni uni fun)
     => MachineParameters CekMachineCosts CekValue uni fun
-    -> Term Name uni fun ()
-    -> Either (CekEvaluationException uni fun) (Term Name uni fun ())
+    -> ETerm uni fun
+    -> Either (CekEvaluationException uni fun) (ETerm uni fun)
 evaluateCekNoEmit params = fst . runCekNoEmit params restrictingEnormous
 
 -- | Evaluate a term using the CEK machine with logging enabled. May throw a 'CekMachineException'.
@@ -117,8 +117,8 @@ unsafeEvaluateCek
        , Ix fun, Pretty fun, Typeable fun
        )
     => MachineParameters CekMachineCosts CekValue uni fun
-    -> Term Name uni fun ()
-    -> (EvaluationResult (Term Name uni fun ()), [String])
+    -> ETerm uni fun
+    -> (EvaluationResult (ETerm uni fun), [String])
 unsafeEvaluateCek params = first unsafeExtractEvaluationResult . evaluateCek params
 
 -- | Evaluate a term using the CEK machine with logging disabled. May throw a 'CekMachineException'.
@@ -128,8 +128,8 @@ unsafeEvaluateCekNoEmit
        , Ix fun, Pretty fun, Typeable fun
        )
     => MachineParameters CekMachineCosts CekValue uni fun
-    -> Term Name uni fun ()
-    -> EvaluationResult (Term Name uni fun ())
+    -> ETerm uni fun
+    -> EvaluationResult (ETerm uni fun )
 unsafeEvaluateCekNoEmit params = unsafeExtractEvaluationResult . evaluateCekNoEmit params
 
 -- | Unlift a value using the CEK machine.
@@ -141,4 +141,7 @@ readKnownCek
     => MachineParameters CekMachineCosts CekValue uni fun
     -> Term Name uni fun ()
     -> Either (CekEvaluationException uni fun) a
-readKnownCek params = evaluateCekNoEmit params >=> readKnown
+readKnownCek params t = do
+    e <- evaluateCekNoEmit params (termToETerm t)
+    let t' = etermToTerm e
+    readKnown t'

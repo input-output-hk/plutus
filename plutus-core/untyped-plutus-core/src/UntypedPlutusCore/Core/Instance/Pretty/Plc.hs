@@ -20,3 +20,10 @@ deriving via PrettyAny (Term name uni fun ann)
 deriving via PrettyAny (Program name uni fun ann)
     instance DefaultPrettyPlcStrategy (Program name uni fun ann) =>
         PrettyBy PrettyConfigPlc (Program name uni fun ann)
+
+deriving via PrettyAny (ETerm uni fun)
+    instance DefaultPrettyPlcStrategy (ETerm uni fun) =>
+        PrettyBy PrettyConfigPlc (ETerm uni fun)
+deriving via PrettyAny (EProgram uni fun)
+    instance DefaultPrettyPlcStrategy (EProgram uni fun) =>
+        PrettyBy PrettyConfigPlc (EProgram uni fun)

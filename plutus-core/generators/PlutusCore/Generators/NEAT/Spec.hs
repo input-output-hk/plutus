@@ -115,9 +115,9 @@ handleError ty e = case U._ewcError e of
 handleUError ::
           U.ErrorWithCause (U.EvaluationError user internal) term
        -> Either (U.ErrorWithCause (U.EvaluationError user internal) term)
-                 (U.Term Name DefaultUni DefaultFun ())
+                 (U.ETerm DefaultUni DefaultFun)
 handleUError e = case U._ewcError e of
-  U.UserEvaluationError     _ -> return (U.Error ())
+  U.UserEvaluationError     _ -> return (U.EError)
   U.InternalEvaluationError _ -> throwError e
 
 -- |Property: check if the type is preserved by evaluation.
@@ -161,8 +161,8 @@ prop_agree_termEval tyG tmG = do
   let tmUCk = U.erase tmCk
 
   -- run untyped CEK on erased input
-  tmUCek <- withExceptT UCekP $ liftEither $
-    U.evaluateCekNoEmit defaultCekParameters (U.erase tm) `catchError` handleUError
+  tmUCek <- U.etermToTerm <$> (withExceptT UCekP $ liftEither $
+    U.evaluateCekNoEmit defaultCekParameters (U.termToETerm $ U.erase tm) `catchError` handleUError)
 
   -- check if typed CK and untyped CEK give the same output modulo erasure
   unless (tmUCk == tmUCek) $
@@ -511,4 +511,3 @@ bigTestTypeG_NO_LIST s GenOptions{..} t f = testCaseInfo s $ do
   as <- search' genMode genDepth (\a -> noListTypeG a &&& check t a)
   _  <- traverse (f t) as
   return $ show (length as)
-
