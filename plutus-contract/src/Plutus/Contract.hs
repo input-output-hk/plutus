@@ -15,6 +15,7 @@ module Plutus.Contract(
     , mapError
     , runError
     -- * Dealing with time
+    , Request.getSlotConfig
     , Request.awaitSlot
     , Request.currentSlot
     , Request.waitNSlots

@@ -1,10 +1,10 @@
-{-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE NamedFieldPuns     #-}
 {-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE TypeApplications   #-}
 {-# LANGUAGE TypeFamilies       #-}
+
 module Main(main) where
 
 import qualified Cardano.Api                    as C
@@ -30,6 +30,7 @@ import           GHC.Generics                   (Generic)
 import qualified Ledger                         as Plutus
 import           Ledger.Constraints.OffChain    (UnbalancedTx (..))
 import           Ledger.Index                   (ScriptValidationEvent (..))
+import           Ledger.TimeSlot                (SlotConfig (scSlotZeroTime))
 import           Options.Applicative
 import qualified Plutus.Contract.CardanoAPI     as CardanoAPI
 import qualified Plutus.Contracts.Crowdfunding  as Crowdfunding
@@ -115,23 +116,23 @@ main = execParser progParser >>= writeScripts
 
 writeScripts :: ScriptsConfig -> IO ()
 writeScripts config = do
-    putStrLn $ "Writing " <> writeWhat (scCommand config) <> " to: " <> (scPath config)
+    putStrLn $ "Writing " <> writeWhat (scCommand config) <> " to: " <> scPath config
     traverse_ (uncurry3 (writeScriptsTo config))
         [ ("auction_1", Auction.auctionTrace1, Auction.auctionEmulatorCfg)
         , ("auction_2", Auction.auctionTrace2, Auction.auctionEmulatorCfg)
-        , ("crowdfunding-success", Crowdfunding.successfulCampaign, def)
+        , ("crowdfunding-success", Crowdfunding.successfulCampaign $ scSlotZeroTime def, def)
         , ("currency", Currency.currencyTrace, def)
-        , ("escrow-redeem_1", Escrow.redeemTrace, def)
-        , ("escrow-redeem_2", Escrow.redeem2Trace, def)
-        , ("escrow-refund", Escrow.refundTrace, def)
-        , ("future-increase-margin", Future.increaseMarginTrace, def)
-        , ("future-settle-early", Future.settleEarlyTrace, def)
-        , ("future-pay-out", Future.payOutTrace, def)
+        , ("escrow-redeem_1", Escrow.redeemTrace $ scSlotZeroTime def, def)
+        , ("escrow-redeem_2", Escrow.redeem2Trace $ scSlotZeroTime def, def)
+        , ("escrow-refund", Escrow.refundTrace $ scSlotZeroTime def, def)
+        , ("future-increase-margin", Future.increaseMarginTrace $ scSlotZeroTime def, def)
+        , ("future-settle-early", Future.settleEarlyTrace $ scSlotZeroTime def, def)
+        , ("future-pay-out", Future.payOutTrace $ scSlotZeroTime def, def)
         , ("game-sm-success", GameStateMachine.successTrace, def)
         , ("game-sm-success_2", GameStateMachine.successTrace2, def)
         , ("multisig-success", MultiSig.succeedingTrace, def)
         , ("multisig-failure", MultiSig.failingTrace, def)
-        , ("multisig-sm", MultiSigStateMachine.lockProposeSignPay 3 2, def)
+        , ("multisig-sm", MultiSigStateMachine.lockProposeSignPay (scSlotZeroTime def) 3 2, def)
         , ("ping-pong", PingPong.pingPongTrace, def)
         , ("ping-pong_2", PingPong.twoPartiesTrace, def)
         , ("prism", Prism.prismTrace, def)
@@ -139,7 +140,7 @@ writeScripts config = do
         , ("stablecoin_1", Stablecoin.stablecoinTrace, def)
         , ("stablecoin_2", Stablecoin.maxReservesExceededTrace, def)
         , ("token-account", TokenAccount.tokenAccountTrace, def)
-        , ("vesting", Vesting.retrieveFundsTrace, def)
+        , ("vesting", Vesting.retrieveFundsTrace $ scSlotZeroTime def, def)
         , ("uniswap", Uniswap.uniswapTrace, def)
         ]
 
@@ -157,7 +158,7 @@ writeScriptsTo ScriptsConfig{scPath, scCommand} prefix trace emulatorCfg = do
             S.fst'
             $ run
             $ foldEmulatorStreamM (L.generalize theFold)
-            $ Trace.runEmulatorStream emulatorCfg def trace
+            $ Trace.runEmulatorStream emulatorCfg trace
 
     createDirectoryIfMissing True scPath
     case scCommand of

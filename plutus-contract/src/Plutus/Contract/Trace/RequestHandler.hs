@@ -18,6 +18,7 @@ module Plutus.Contract.Trace.RequestHandler(
     , generalise
     -- * handlers for common requests
     , handleOwnPubKey
+    , handleGetSlotConfig
     , handleSlotNotifications
     , handleCurrentSlot
     , handleTimeNotifications
@@ -54,6 +55,7 @@ import           Control.Monad.Freer.Extras.Log (LogMessage, LogMsg, LogObserve,
 import           Ledger                         (Address, OnChainTx (Valid), POSIXTime, PubKey, Slot, Tx, TxId)
 import           Ledger.AddressMap              (AddressMap (..))
 import           Ledger.Constraints.OffChain    (UnbalancedTx)
+import           Ledger.TimeSlot                (SlotConfig)
 import qualified Ledger.TimeSlot                as TimeSlot
 import           Plutus.Contract.Effects        (TxConfirmed (..), UtxoAtAddress (..))
 import qualified Plutus.Contract.Wallet         as Wallet
@@ -125,6 +127,17 @@ handleOwnPubKey ::
 handleOwnPubKey =
     RequestHandler $ \_ ->
         surroundDebug @Text "handleOwnPubKey" Wallet.Effects.ownPubKey
+
+handleGetSlotConfig ::
+    forall effs a.
+    ( Member NodeClientEffect effs
+    , Member (LogObserve (LogMessage Text)) effs
+    )
+    => RequestHandler effs a SlotConfig
+handleGetSlotConfig =
+    RequestHandler $ \_ ->
+        surroundDebug @Text "handleGetSlotConfig" $ do
+            Wallet.Effects.getClientSlotConfig
 
 handleSlotNotifications ::
     forall effs.

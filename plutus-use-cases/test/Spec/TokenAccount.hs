@@ -79,7 +79,7 @@ account =
         $ runError @Folds.EmulatorFoldErr
         $ foldEmulatorStreamM fld
         $ takeUntilSlot 10
-        $ Trace.runEmulatorStream def def trace
+        $ Trace.runEmulatorStream def trace
 
 theToken :: Value
 theToken = Accounts.accountToken account

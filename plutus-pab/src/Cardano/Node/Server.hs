@@ -26,7 +26,7 @@ import           Data.Proxy                          (Proxy (Proxy))
 import           Data.Time.Clock.POSIX               (posixSecondsToUTCTime)
 import           Data.Time.Units                     (Millisecond, Second)
 import qualified Ledger.Ada                          as Ada
-import           Ledger.TimeSlot                     (SlotConfig (SlotConfig, scSlotLength, scZeroSlotTime))
+import           Ledger.TimeSlot                     (SlotConfig (SlotConfig, scSlotLength, scSlotZeroTime))
 import qualified Network.Wai.Handler.Warp            as Warp
 import           Plutus.PAB.Arbitrary                ()
 import qualified Plutus.PAB.Monitoring.Monitoring    as LM
@@ -35,14 +35,15 @@ import           Servant.Client                      (BaseUrl (baseUrlPort))
 
 app ::
     Trace IO MockServerLogMsg
+ -> SlotConfig
  -> Client.TxSendHandle
  -> MVar AppState
  -> Application
-app trace clientHandler stateVar =
+app trace slotCfg clientHandler stateVar =
     serve (Proxy @API) $
     hoistServer
         (Proxy @API)
-        (liftIO . processChainEffects trace clientHandler stateVar)
+        (liftIO . processChainEffects trace slotCfg clientHandler stateVar)
         (healthcheck :<|>
          (genRandomTx :<|>
           consumeEventHistory stateVar))
@@ -82,21 +83,21 @@ main trace MockServerConfig { mscBaseUrl
                   }
 
     runSlotCoordinator ctx
-    maybe (logInfo NoRandomTxGeneration) (runRandomTxGeneration ctx) mscRandomTxInterval
+    maybe (logInfo NoRandomTxGeneration) (runRandomTxGeneration ctx mscSlotConfig) mscRandomTxInterval
 
     logInfo $ StartingMockServer $ baseUrlPort mscBaseUrl
-    liftIO $ Warp.runSettings warpSettings $ app trace clientHandler serverState
+    liftIO $ Warp.runSettings warpSettings $ app trace mscSlotConfig clientHandler serverState
 
         where
             warpSettings = Warp.defaultSettings & Warp.setPort (baseUrlPort mscBaseUrl) & Warp.setBeforeMainLoop (available availability)
 
-            runRandomTxGeneration Ctx { txSendHandle , serverState , mockTrace } randomTxInterval = do
+            runRandomTxGeneration Ctx { txSendHandle , serverState , mockTrace } slotCfg randomTxInterval = do
                     logInfo StartingRandomTx
-                    void $ liftIO $ forkIO $ transactionGenerator mockTrace randomTxInterval txSendHandle serverState
+                    void $ liftIO $ forkIO $ transactionGenerator mockTrace slotCfg randomTxInterval txSendHandle serverState
 
             runSlotCoordinator (Ctx (Just serverHandler) _ _ _)  = do
-                let SlotConfig{scZeroSlotTime, scSlotLength} = mscSlotConfig
-                logInfo $ StartingSlotCoordination (posixSecondsToUTCTime $ realToFrac scZeroSlotTime / 1000)
+                let SlotConfig{scSlotZeroTime, scSlotLength} = mscSlotConfig
+                logInfo $ StartingSlotCoordination (posixSecondsToUTCTime $ realToFrac scSlotZeroTime / 1000)
                                                    (fromInteger scSlotLength :: Millisecond)
                 void $ liftIO $ forkIO $ slotCoordinator mscSlotConfig serverHandler
             -- Don't start the coordinator if we don't start the mock server.

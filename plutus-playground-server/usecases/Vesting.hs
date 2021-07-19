@@ -217,10 +217,10 @@ endpoints = vestingContract vestingParams
         VestingParams {vestingTranche1, vestingTranche2, vestingOwner}
     vestingTranche1 =
         VestingTranche
-            {vestingTrancheDate = TimeSlot.slotToBeginPOSIXTime def 20, vestingTrancheAmount = Ada.lovelaceValueOf 50_000_000}
+            {vestingTrancheDate = TimeSlot.scSlotZeroTime def + 20000, vestingTrancheAmount = Ada.lovelaceValueOf 50_000_000}
     vestingTranche2 =
         VestingTranche
-            {vestingTrancheDate = TimeSlot.slotToBeginPOSIXTime def 40, vestingTrancheAmount = Ada.lovelaceValueOf 30_000_000}
+            {vestingTrancheDate = TimeSlot.scSlotZeroTime def + 40000, vestingTrancheAmount = Ada.lovelaceValueOf 30_000_000}
 
 mkSchemaDefinitions ''VestingSchema
 

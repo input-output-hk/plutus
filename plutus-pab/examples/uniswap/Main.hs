@@ -116,5 +116,5 @@ handleUniswapContract = Builtin.handleBuiltin getSchema getContract where
 
 handlers :: SimulatorEffectHandlers (Builtin UniswapContracts)
 handlers =
-    Simulator.mkSimulatorHandlers @(Builtin UniswapContracts) def [] -- [Init, UniswapStart, UniswapUser ???]
+    Simulator.mkSimulatorHandlers @(Builtin UniswapContracts) def def [] -- [Init, UniswapStart, UniswapUser ???]
     $ interpret handleUniswapContract

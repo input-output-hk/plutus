@@ -56,6 +56,7 @@ import           Ledger.Address                      (pubKeyAddress)
 import           Ledger.Crypto                       (PrivateKey (..), PubKeyHash (..), privateKey2, pubKeyHash,
                                                       toPublicKey)
 import           Ledger.Fee                          (FeeConfig)
+import           Ledger.TimeSlot                     (SlotConfig)
 import           Ledger.Tx                           (Tx)
 import           Plutus.PAB.Arbitrary                ()
 import qualified Plutus.PAB.Monitoring.Monitoring    as LM
@@ -173,9 +174,10 @@ processWalletEffects ::
     -> ClientEnv          -- ^ chain index client
     -> MVar Wallets   -- ^ wallets state
     -> FeeConfig
+    -> SlotConfig
     -> Eff (WalletEffects IO) a -- ^ wallet effect
     -> m a
-processWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg action = do
+processWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg slotCfg action = do
     oldState <- liftIO $ takeMVar mVarState
     result <- liftIO $ runWalletEffects trace
                                         txSendHandle
@@ -183,6 +185,7 @@ processWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv mVarState 
                                         chainIndexEnv
                                         oldState
                                         feeCfg
+                                        slotCfg
                                         action
     case result of
         Left e -> do
@@ -200,12 +203,13 @@ runWalletEffects ::
     -> ClientEnv -- ^ chain index client
     -> Wallets -- ^ current state
     -> FeeConfig
+    -> SlotConfig
     -> Eff (WalletEffects IO) a -- ^ wallet effect
     -> IO (Either ServerError (a, Wallets))
-runWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv wallets feeCfg action =
+runWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv wallets feeCfg slotCfg action =
     reinterpret (handleMultiWallet feeCfg) action
     & interpret (LM.handleLogMsgTrace trace)
-    & reinterpret2 NodeClient.handleNodeClientClient
+    & reinterpret2 (NodeClient.handleNodeClientClient slotCfg)
     & runReader chainSyncHandle
     & runReader txSendHandle
     & reinterpret ChainIndexClient.handleChainIndexClient

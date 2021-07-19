@@ -16,7 +16,7 @@ nodeServerConfig:
   mscSocketPath: ./node-server.sock
   mscKeptBlocks: 100000
   mscSlotConfig:
-    scZeroSlotTime: 1591566291000 # Wednesday, July 29, 2020 21:44:51 - shelley launch time in milliseconds
+    scSlotZeroTime: 1591566291000 # Wednesday, July 29, 2020 21:44:51 - shelley launch time in milliseconds
     scSlotLength: 1000 # In milliseconds
   mscFeeConfig:
     fcConstantFee:

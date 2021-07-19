@@ -67,11 +67,12 @@ addTx tx = do
 -- | Run all chain effects in the IO Monad
 runChainEffects ::
  Trace IO MockServerLogMsg
+ -> SlotConfig
  -> Client.TxSendHandle
  -> MVar AppState
  -> Eff (NodeServerEffects IO) a
  -> IO ([LogMessage MockServerLogMsg], a)
-runChainEffects trace clientHandler stateVar eff = do
+runChainEffects trace slotCfg clientHandler stateVar eff = do
     oldAppState <- liftIO $ takeMVar stateVar
     ((a, events), newState) <- liftIO
             $ processBlock eff
@@ -89,7 +90,10 @@ runChainEffects trace clientHandler stateVar eff = do
 
             runRandomTx = subsume . runGenRandomTx
 
-            runChain = interpret (mapLog ProcessingChainEvent) . reinterpret handleChain . interpret (mapLog ProcessingChainEvent) . reinterpret handleControlChain
+            runChain = interpret (mapLog ProcessingChainEvent)
+                     . reinterpret (handleChain slotCfg)
+                     . interpret (mapLog ProcessingChainEvent)
+                     . reinterpret handleControlChain
 
             mergeState = interpret (handleZoomedState chainState)
 
@@ -99,12 +103,13 @@ runChainEffects trace clientHandler stateVar eff = do
 
 processChainEffects ::
     Trace IO MockServerLogMsg
+    -> SlotConfig
     -> Client.TxSendHandle
     -> MVar AppState
     -> Eff (NodeServerEffects IO) a
     -> IO a
-processChainEffects trace clientHandler stateVar eff = do
-    (events, result) <- liftIO $ runChainEffects trace clientHandler stateVar eff
+processChainEffects trace slotCfg clientHandler stateVar eff = do
+    (events, result) <- liftIO $ runChainEffects trace slotCfg clientHandler stateVar eff
     LM.runLogEffects trace $ traverse_ (\(LogMessage _ chainEvent) -> logDebug chainEvent) events
     liftIO $
         modifyMVar_
@@ -116,14 +121,15 @@ processChainEffects trace clientHandler stateVar eff = do
 --   config
 transactionGenerator ::
   Trace IO MockServerLogMsg
- -> Second
- -> Client.TxSendHandle
- -> MVar AppState
- -> IO ()
-transactionGenerator trace interval clientHandler stateVar =
+  -> SlotConfig
+  -> Second
+  -> Client.TxSendHandle
+  -> MVar AppState
+  -> IO ()
+transactionGenerator trace slotCfg interval clientHandler stateVar =
     forever $ do
         liftIO $ threadDelay $ fromIntegral $ toMicroseconds interval
-        processChainEffects trace clientHandler stateVar $ do
+        processChainEffects trace slotCfg clientHandler stateVar $ do
             tx' <- genRandomTx
             unless (null $ view outputs tx') (void $ addTx tx')
 

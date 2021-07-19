@@ -23,14 +23,13 @@ module Crowdfunding where
 
 import           Control.Applicative         (Applicative (pure))
 import           Control.Monad               (void)
-import           Data.Default                (Default (def))
 import           Ledger                      (POSIXTime, POSIXTimeRange, PubKeyHash, ScriptContext (..), TxInfo (..),
                                               Validator, pubKeyHash, txId)
 import qualified Ledger
 import qualified Ledger.Contexts             as V
 import qualified Ledger.Interval             as Interval
 import qualified Ledger.Scripts              as Scripts
-import qualified Ledger.TimeSlot             as TimeSlot
+import           Ledger.TimeSlot             (SlotConfig (scSlotZeroTime))
 import qualified Ledger.Typed.Scripts        as Scripts hiding (validatorHash)
 import           Ledger.Value                (Value)
 import           Playground.Contract
@@ -149,10 +148,10 @@ crowdfunding :: AsContractError e => Campaign -> Contract () CrowdfundingSchema 
 crowdfunding c = contribute c `select` scheduleCollection c
 
 -- | A sample campaign
-theCampaign :: Campaign
-theCampaign = Campaign
-    { campaignDeadline = TimeSlot.slotToEndPOSIXTime def 40
-    , campaignCollectionDeadline = TimeSlot.slotToEndPOSIXTime def 60
+theCampaign :: POSIXTime -> Campaign
+theCampaign startTime = Campaign
+    { campaignDeadline = startTime + 40999
+    , campaignCollectionDeadline = startTime + 60999
     , campaignOwner = pubKeyHash $ Emulator.walletPubKey (Emulator.Wallet 1)
     }
 
@@ -238,7 +237,7 @@ to change.
 -}
 
 endpoints :: AsContractError e => Contract () CrowdfundingSchema e ()
-endpoints = crowdfunding theCampaign
+endpoints = getSlotConfig >>= crowdfunding . theCampaign . scSlotZeroTime
 
 mkSchemaDefinitions ''CrowdfundingSchema
 

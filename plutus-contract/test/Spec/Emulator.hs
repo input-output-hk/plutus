@@ -48,7 +48,7 @@ import qualified Ledger.Value                   as Value
 import           Plutus.Contract.Test           hiding (not)
 import           Plutus.Trace                   (EmulatorTrace, PrintEffect (..))
 import qualified Plutus.Trace                   as Trace
-import qualified PlutusTx                       as PlutusTx
+import qualified PlutusTx
 import           PlutusTx.AssocMap              as AssocMap
 import qualified PlutusTx.Builtins              as Builtins
 import qualified PlutusTx.Numeric               as P
@@ -113,7 +113,7 @@ captureTrace
 captureTrace trace
   = pack $ unlines output
   where
-    output = capturePrintEffect $ Trace.runEmulatorTraceEff def def def trace
+    output = capturePrintEffect $ Trace.runEmulatorTraceEff def def trace
 
 capturePrintEffect
          :: Eff.Eff '[PrintEffect] r
@@ -168,9 +168,9 @@ selectCoinProp = property $ do
     let result = Eff.run $ E.runError @WalletAPIError (selectCoin inputs target)
     case result of
         Left _ ->
-            Hedgehog.assert $ not $ (foldMap snd inputs) `Value.geq` target
+            Hedgehog.assert $ not $ foldMap snd inputs `Value.geq` target
         Right (ins, change) ->
-            Hedgehog.assert $ (foldMap snd ins) == (target P.+ change)
+            Hedgehog.assert $ foldMap snd ins == (target P.+ change)
 
 txnUpdateUtxo :: Property
 txnUpdateUtxo = property $ do
@@ -231,13 +231,13 @@ invalidScript = property $ do
     -- modify one of the outputs to be a script output
     index <- forAll $ Gen.int (Range.linear 0 ((length $ txOutputs txn1) -1))
     let scriptTxn = txn1 & outputs . element index %~ \o -> scriptTxOut (txOutValue o) failValidator unitDatum
-    Hedgehog.annotateShow (scriptTxn)
-    let outToSpend = (txOutRefs scriptTxn) !! index
+    Hedgehog.annotateShow scriptTxn
+    let outToSpend = txOutRefs scriptTxn !! index
     let totalVal = Ada.fromValue $ txOutValue (fst outToSpend)
 
     -- try and spend the script output
     invalidTxn <- forAll $ Gen.genValidTransactionSpending (Set.fromList [scriptTxIn (snd outToSpend) failValidator unitRedeemer unitDatum]) totalVal
-    Hedgehog.annotateShow (invalidTxn)
+    Hedgehog.annotateShow invalidTxn
 
     let options = defaultCheckOptions & emulatorConfig . Trace.initialChainState .~ Right m
 
@@ -317,7 +317,7 @@ pubKeyTransactions = do
     Trace.liftWallet wallet2 $ payToPublicKey_ W.always five pubKey3
     _ <- Trace.nextSlot
     Trace.liftWallet wallet3 $ payToPublicKey_ W.always five pubKey1
-    void $ Trace.nextSlot
+    void Trace.nextSlot
 
 pubKeyTransactions2 :: EmulatorTrace ()
 pubKeyTransactions2 = do
@@ -331,7 +331,7 @@ pubKeyTransactions2 = do
     Trace.liftWallet wallet3 $ payToPublicKey_ W.always payment2 pubKey1
     _ <- Trace.nextSlot
     Trace.liftWallet wallet1 $ payToPublicKey_ W.always (Ada.lovelaceValueOf 200) pubKey2
-    void $ Trace.nextSlot
+    void Trace.nextSlot
 
 genChainTxn :: Hedgehog.MonadGen m => m (Mockchain, Tx)
 genChainTxn = do

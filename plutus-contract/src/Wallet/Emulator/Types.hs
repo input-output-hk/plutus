@@ -68,6 +68,7 @@ import           Ledger
 import           Wallet.API                     (WalletAPIError (..))
 
 import           Ledger.Fee                     (FeeConfig)
+import           Ledger.TimeSlot                (SlotConfig)
 import           Wallet.Emulator.Chain          as Chain
 import           Wallet.Emulator.MultiAgent
 import           Wallet.Emulator.NodeClient
@@ -82,14 +83,15 @@ processEmulated :: forall effs.
     , Member (State EmulatorState) effs
     , Member (LogMsg EmulatorEvent') effs
     )
-    => FeeConfig
+    => SlotConfig
+    -> FeeConfig
     -> Eff (MultiAgentEffect ': MultiAgentControlEffect ': ChainEffect ': ChainControlEffect ': effs)
     ~> Eff effs
-processEmulated feeCfg act =
+processEmulated slotCfg feeCfg act =
     act
         & handleMultiAgent feeCfg
         & handleMultiAgentControl
-        & reinterpret2 @ChainEffect @(State ChainState) @(LogMsg ChainEvent) handleChain
+        & reinterpret2 @ChainEffect @(State ChainState) @(LogMsg ChainEvent) (handleChain slotCfg)
         & interpret (Eff.handleZoomedState chainState)
         & interpret (mapLog (review chainEvent))
         & reinterpret2 @ChainControlEffect @(State ChainState) @(LogMsg ChainEvent) handleControlChain

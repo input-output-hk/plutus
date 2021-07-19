@@ -16,7 +16,8 @@
 module Plutus.Contract.Request(
     -- * PAB requests
     -- ** Waiting
-    awaitSlot
+    getSlotConfig
+    , awaitSlot
     , currentSlot
     , waitNSlots
     , awaitTime
@@ -95,6 +96,7 @@ import           Wallet.Types                (AddressChangeRequest (..), Address
 import           Plutus.Contract.Resumable
 import           Plutus.Contract.Types
 
+import           Ledger.TimeSlot             (SlotConfig)
 import           Prelude                     as Haskell
 
 -- | Constraints on the contract schema, ensuring that the labels of the schema
@@ -127,6 +129,14 @@ awaitSlot ::
     => Slot
     -> Contract w s e Slot
 awaitSlot s = pabReq (AwaitSlotReq s) E._AwaitSlotResp
+
+-- | Get the 'SlotConfig' which defines the length of 1 slot and the starting time.
+getSlotConfig ::
+    forall w s e.
+    ( AsContractError e
+    )
+    => Contract w s e SlotConfig
+getSlotConfig = pabReq GetSlotConfigReq E._GetSlotConfigResp
 
 -- | Get the current slot number
 currentSlot ::

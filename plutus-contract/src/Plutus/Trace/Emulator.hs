@@ -57,6 +57,8 @@ module Plutus.Trace.Emulator(
     -- * Running traces
     , EmulatorConfig(..)
     , initialChainState
+    , slotConfig
+    , feeConfig
     , runEmulatorStream
     , TraceConfig(..)
     , runEmulatorTrace
@@ -91,12 +93,12 @@ import qualified Wallet.Emulator.Chain                   as ChainState
 import           Wallet.Emulator.MultiAgent              (EmulatorEvent, EmulatorEvent' (..), EmulatorState (..),
                                                           MultiAgentControlEffect, MultiAgentEffect, _eteEmulatorTime,
                                                           _eteEvent, schedulerEvent)
-import           Wallet.Emulator.Stream                  (EmulatorConfig (..), EmulatorErr (..), foldEmulatorStreamM,
-                                                          initialChainState, initialDist, runTraceStream)
+import           Wallet.Emulator.Stream                  (EmulatorConfig (..), EmulatorErr (..), feeConfig,
+                                                          foldEmulatorStreamM, initialChainState, initialDist,
+                                                          runTraceStream, slotConfig)
 import           Wallet.Emulator.Wallet                  (Entity, balances)
 import qualified Wallet.Emulator.Wallet                  as Wallet
 
-import           Ledger.Fee                              (FeeConfig)
 import           Plutus.Trace.Effects.ContractInstanceId (ContractInstanceIdEff, handleDeterministicIds)
 import           Plutus.Trace.Effects.EmulatedWalletAPI  (EmulatedWalletAPI, handleEmulatedWalletAPI)
 import qualified Plutus.Trace.Effects.EmulatedWalletAPI  as EmulatedWalletAPI
@@ -165,10 +167,9 @@ handleEmulatorTrace action = do
 -- | Run a 'Trace Emulator', streaming the log messages as they arrive
 runEmulatorStream :: forall effs a.
     EmulatorConfig
-    -> FeeConfig
     -> EmulatorTrace a
     -> Stream (Of (LogMessage EmulatorEvent)) (Eff effs) (Maybe EmulatorErr, EmulatorState)
-runEmulatorStream conf feeCfg = runTraceStream conf feeCfg . interpretEmulatorTrace conf
+runEmulatorStream conf = runTraceStream conf . interpretEmulatorTrace conf
 
 -- | Interpret a 'Trace Emulator' action in the multi agent and emulated
 --   blockchain effects.
@@ -230,15 +231,14 @@ defaultShowEvent = \case
 -- of the emulator, the events, and any error, if any.
 runEmulatorTrace
     :: EmulatorConfig
-    -> FeeConfig
     -> EmulatorTrace ()
     -> ([EmulatorEvent], Maybe EmulatorErr, EmulatorState)
-runEmulatorTrace cfg feeCfg trace =
+runEmulatorTrace cfg trace =
     (\(xs :> (y, z)) -> (xs, y, z))
     $ run
     $ runReader ((initialDist . _initialChainState) cfg)
     $ foldEmulatorStreamM (generalize list)
-    $ runEmulatorStream cfg feeCfg trace
+    $ runEmulatorStream cfg trace
 
 
 -- | Run the emulator trace returning an effect that can be evaluated by
@@ -246,11 +246,10 @@ runEmulatorTrace cfg feeCfg trace =
 runEmulatorTraceEff :: forall effs. Member PrintEffect effs
     => TraceConfig
     -> EmulatorConfig
-    -> FeeConfig
     -> EmulatorTrace ()
     -> Eff effs ()
-runEmulatorTraceEff tcfg cfg feeCfg trace =
-  let (xs, me, e) = runEmulatorTrace cfg feeCfg trace
+runEmulatorTraceEff tcfg cfg trace =
+  let (xs, me, e) = runEmulatorTrace cfg trace
       balances' = balances (_chainState e) (_walletStates e)
    in do
       case me of
@@ -276,7 +275,7 @@ runEmulatorTraceEff tcfg cfg feeCfg trace =
 runEmulatorTraceIO
     :: EmulatorTrace ()
     -> IO ()
-runEmulatorTraceIO = runEmulatorTraceIO' def def def
+runEmulatorTraceIO = runEmulatorTraceIO' def def
 
 --- | Runs the trace with a given configuration for the trace and the config.
 --
@@ -286,11 +285,10 @@ runEmulatorTraceIO = runEmulatorTraceIO' def def def
 runEmulatorTraceIO'
     :: TraceConfig
     -> EmulatorConfig
-    -> FeeConfig
     -> EmulatorTrace ()
     -> IO ()
-runEmulatorTraceIO' tcfg cfg feeCfg trace
-  = runPrintEffect (outputHandle tcfg) $ runEmulatorTraceEff tcfg cfg feeCfg trace
+runEmulatorTraceIO' tcfg cfg trace
+  = runPrintEffect (outputHandle tcfg) $ runEmulatorTraceEff tcfg cfg trace
 
 runPrintEffect :: Handle
          -> Eff '[PrintEffect, IO] r

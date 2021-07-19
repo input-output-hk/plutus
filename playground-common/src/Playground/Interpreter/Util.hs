@@ -124,12 +124,12 @@ stage contract programJson simulatorWalletsJson = do
         playgroundDecode "[Expression schema]" . BSL.pack $ simulationJson
     simulatorWallets :: [SimulatorWallet] <-
         playgroundDecode "[SimulatorWallet]" simulatorWalletsJson
-    let config = Plutus.Trace.Playground.EmulatorConfig (Left $ toInitialDistribution simulatorWallets)
+    let config = Plutus.Trace.Playground.EmulatorConfig (Left $ toInitialDistribution simulatorWallets) def def
         allWallets = simulatorWalletWallet <$> simulatorWallets
         final = run
             $ runError
             $ foldEmulatorStreamM @'[Error PlaygroundError] (evaluationResultFold allWallets)
-            $ runPlaygroundStream config def (void contract) (traverse_ expressionToTrace simulation)
+            $ runPlaygroundStream config (void contract) (traverse_ expressionToTrace simulation)
 
     case final of
         Left err     -> Left . OtherError . show $ err

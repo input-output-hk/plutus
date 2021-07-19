@@ -10,7 +10,7 @@ import           Control.Lens
 import           Control.Monad                 (void)
 import           Data.Default                  (Default (def))
 
-import           Ledger                        (Value, pubKeyHash)
+import           Ledger                        (POSIXTime, Value, pubKeyHash)
 import qualified Ledger.Ada                    as Ada
 import qualified Ledger.TimeSlot               as TimeSlot
 import qualified Ledger.Value                  as Value
@@ -27,7 +27,7 @@ tests = testGroup "simple-escrow"
           .&&. walletFundsChange w2 mempty
         )
         $ do
-          let params = mkEscrowParams (Ada.lovelaceValueOf 10) (Ada.lovelaceValueOf 1)
+          let params = mkEscrowParams startTime (Ada.lovelaceValueOf 10) (Ada.lovelaceValueOf 1)
 
           hdl <- Trace.activateContractWallet w1 lockEp
           Trace.callEndpoint @"lock" hdl params
@@ -36,7 +36,7 @@ tests = testGroup "simple-escrow"
           .&&. walletFundsChange w2 (token1 10 <> token2 (-5))
         )
         $ do
-          let params = mkEscrowParams (token1 10) (token2 5)
+          let params = mkEscrowParams startTime (token1 10) (token2 5)
 
           hdl1 <- Trace.activateContractWallet w1 lockEp
           Trace.callEndpoint @"lock" hdl1 params
@@ -49,7 +49,7 @@ tests = testGroup "simple-escrow"
           .&&. walletFundsChange w2 mempty
         )
         $ do
-          let params = mkEscrowParams (Ada.lovelaceValueOf 10) (Ada.lovelaceValueOf 1)
+          let params = mkEscrowParams startTime (Ada.lovelaceValueOf 10) (Ada.lovelaceValueOf 1)
 
           hdl <- Trace.activateContractWallet w1 (lockEp >> void refundEp)
           Trace.callEndpoint @"lock" hdl params
@@ -61,7 +61,7 @@ tests = testGroup "simple-escrow"
           .&&. walletFundsChange w2 mempty
         )
         $ do
-          let params = mkEscrowParams (Ada.lovelaceValueOf 100) (Ada.lovelaceValueOf 1)
+          let params = mkEscrowParams startTime (Ada.lovelaceValueOf 100) (Ada.lovelaceValueOf 1)
 
           hdl1 <- Trace.activateContractWallet w1 lockEp
           Trace.callEndpoint @"lock" hdl1 params
@@ -76,7 +76,7 @@ tests = testGroup "simple-escrow"
         $ do
           -- 501 token1 is _just_ too much; we don't have enough ( our options
           -- allocate only 500 ).
-          let params = mkEscrowParams (token1 10) (token2 501)
+          let params = mkEscrowParams startTime (token1 10) (token2 501)
 
           hdl1 <- Trace.activateContractWallet w1 lockEp
           Trace.callEndpoint @"lock" hdl1 params
@@ -85,6 +85,9 @@ tests = testGroup "simple-escrow"
           hdl2 <- Trace.activateContractWallet w2 (void redeemEp)
           void $ Trace.callEndpoint @"redeem" hdl2 params
     ]
+
+    where
+        startTime = TimeSlot.scSlotZeroTime def
 
 
 token1 :: Integer -> Value
@@ -99,13 +102,13 @@ options =
                                           & over (at w2 . _Just) ((<>) (token2 500))
     in defaultCheckOptions & emulatorConfig . Trace.initialChainState .~ Left initialDistribution
 
-mkEscrowParams :: Value -> Value -> EscrowParams
-mkEscrowParams p e =
+mkEscrowParams :: POSIXTime -> Value -> Value -> EscrowParams
+mkEscrowParams startTime p e =
   EscrowParams
     { payee     = pubKeyHash $ walletPubKey w1
     , paying    = p
     , expecting = e
-    , deadline  = TimeSlot.slotToEndPOSIXTime def 100
+    , deadline  = startTime + 100999
     }
 
 w1, w2 :: Wallet

@@ -1,6 +1,6 @@
 {-# LANGUAGE ExplicitForAll   #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeApplications #-}
+
 module Spec.Rollup where
 
 import qualified Control.Foldl                 as L
@@ -11,6 +11,7 @@ import           Data.Default                  (Default (..))
 import           Data.Text.Encoding            (encodeUtf8)
 
 import           Ledger                        (pubKeyHash)
+import qualified Ledger.TimeSlot               as TimeSlot
 import           Plutus.Contract.Trace
 
 import           Plutus.Contracts.Crowdfunding
@@ -30,7 +31,7 @@ tests = testGroup "showBlockchain"
      [ goldenVsString
           "renders a crowdfunding scenario sensibly"
           "test/Spec/renderCrowdfunding.txt"
-          (render successfulCampaign)
+          (render $ successfulCampaign startTime)
      , goldenVsString
           "renders a game guess scenario sensibly"
           "test/Spec/renderGuess.txt"
@@ -38,8 +39,10 @@ tests = testGroup "showBlockchain"
      , goldenVsString
           "renders a vesting scenario sensibly"
           "test/Spec/renderVesting.txt"
-          (render Spec.Vesting.retrieveFundsTrace)
+          (render $ Spec.Vesting.retrieveFundsTrace startTime)
      ]
+     where
+         startTime = TimeSlot.scSlotZeroTime def
 
 render :: forall a. EmulatorTrace a -> IO ByteString
 render trace = do
@@ -48,7 +51,7 @@ render trace = do
                $ run
                $ foldEmulatorStreamM (L.generalize (showBlockchainFold allWallets'))
                $ takeUntilSlot 21
-               $ runEmulatorStream def def trace
+               $ runEmulatorStream def trace
         allWallets' = fmap (\w -> (pubKeyHash (walletPubKey w), w)) (Wallet <$> [1..10])
     case result of
         Left err       -> assertFailure $ show err
