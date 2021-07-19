@@ -40,15 +40,15 @@
 
     </header>
 
-    
+
 
 
     <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center md:pt-44 md:pb-20 pt-32 pb-14"><!--Hero-->
-    
+
       <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
-      
+
         <div class="inset-0"><!--Column-->
-          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-logo-dark.svg' %}" alt="">
+          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo md:h-logo-wider" src="{% static './static/img/marlowe-logo-dark.svg' %}" alt="">
           <h1 class="text-3xl md:text-4xl lg:text-5xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4">Peer to peer financial agreements are here</h1>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Try our demo products built on Marlowe, the language made for finance.</h2>
           <a href="" class="text-link text-xl lg:text-2xl xl:text-27px white font-semibold mt-5 mb-26">Discover the Marlowe language</a>
@@ -79,7 +79,7 @@
         <img loading="lazy" class="w-12 mx-auto pb-0" src="{% static './static/img/chevron-down-dark.svg' %}" alt="Discover more">
       </a>
       </div>
-      
+
     <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
     <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
     <span id="run"></span>
@@ -88,14 +88,14 @@
 
 
 
-  
+
 
     <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-24 pt-20 pb-24"><!--S1 - Marlowe Run-->
 
       <div class="relative mx-auto md:w-5/6 w-11/12"><!--Row-->
         <div class="inset-0"><!--Column-->
 
-          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 logo-height" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
+          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo md:h-logo-wider" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
           <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Financial smart contracts made easy</h2>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Interact with running smart contracts on the web.</h2>
 
@@ -123,9 +123,9 @@
             </div>
             <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/run-video-thumbnail.png' %}" alt="">
 
-           
+
           </div><!--Video thumbnail-->
-          
+
 
         </div><!--Column-->
       </div><!--Row-->
@@ -240,7 +240,7 @@
 
 
 
-    
+
     <section class="relative block bg-white h-auto w-full md:pt-24 md:pb-24 pt-20 pb-24"> <!--FAQs-->
       {# The current faqContent was taken from:
          https://docs.google.com/document/d/1Ydm7k6UhTFr-Oj5wY7V3JLC6vUA3-S_PRUzl6D7Ziec/edit#
@@ -269,7 +269,7 @@
       {% endfor %}
       <div id="faq"></div>
       </div>
-       
+
     </section><!--FAQs-->
 
 
@@ -309,7 +309,7 @@
 
 <!--Hide and show the back to top CTA-->
 <script type="text/javascript">
-  	
+
   	myID = document.getElementById("myID");
 
 	var myScrollFunc = function () {
@@ -334,8 +334,8 @@ $('a[href*="#"]')
   .click(function(event) {
     // On-page links
     if (
-      location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') 
-      && 
+      location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '')
+      &&
       location.hostname == this.hostname
     ) {
       // Figure out element to scroll to

@@ -6,7 +6,7 @@
 
 body {
   @apply h-full text-black bg-lightgray;
-  font-family: Barlow, sans-serif; 
+  font-family: Barlow, sans-serif;
 }
 
 /* Russ CSS */
@@ -19,12 +19,8 @@ body {
   bottom:6px;
 }
 
-.logo-height {
-  height: 82px;
-}
-
 .vert-text-right {
-  position: absolute; top:10%; transform: translateY(-50%); left: 40%; transform: translateX(50%); 
+  position: absolute; top:10%; transform: translateY(-50%); left: 40%; transform: translateX(50%);
 }
 
 .vert-text-left {
@@ -286,26 +282,15 @@ body {
 /* Russ media queries */
 
 /*Tablet portrait*/
-@media (max-width: 1024px) { 
-
+@media (max-width: 1024px) {
   .vert-text-right {
     position: initial;
     display: block;
     transform: initial;
   }
-
   .vert-text-left {
     position: initial;
     display: block;
     transform: initial;
   }
-
-}
-
-@media (max-width: 768px) { 
-
-  .logo-height {
-    height: 100px;
-  }
-
 }

@@ -72,7 +72,11 @@ module.exports = {
         "5vw": "5vw",
         "10vw": "10vw",
       },
-            
+      height: {
+        logo: "82px",
+        "logo-wider": "100px"
+      },
+
       borderWidth: {
         3: "3px",
       },
