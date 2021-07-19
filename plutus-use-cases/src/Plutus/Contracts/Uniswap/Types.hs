@@ -27,7 +27,7 @@ import qualified Prelude             as Haskell
 import           Text.Printf         (PrintfArg)
 
 -- | Uniswap coin token
-data U = U
+data U = U deriving (Haskell.Show, Haskell.Eq, Generic)
 PlutusTx.makeIsDataIndexed ''U [('U, 0)]
 PlutusTx.makeLift ''U
 

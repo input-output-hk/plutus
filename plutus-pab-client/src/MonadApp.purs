@@ -18,24 +18,25 @@ import Effect.Console as Console
 import Halogen (HalogenM, liftEffect, raise)
 import Network.RemoteData as RemoteData
 import Playground.Lenses (_getEndpointDescription)
-import Plutus.PAB.Effects.Contract.ContractExe (ContractExe)
+import Plutus.PAB.Effects.Contract.Builtin (Builtin)
 import Plutus.PAB.Webserver (SPParams_, getApiContractByContractinstanceidSchema, getApiFullreport, postApiContractActivate, postApiContractByContractinstanceidEndpointByEndpointname)
 import Plutus.PAB.Webserver.Types (ContractSignatureResponse, FullReport, CombinedWSStreamToServer)
 import Servant.PureScript.Ajax (AjaxError)
 import Servant.PureScript.Settings (SPSettings_)
 import Wallet.Types (EndpointDescription, ContractInstanceId, NotificationError)
+import ContractExample (ExampleContracts)
 
 class
   Monad m <= MonadApp m where
-  getFullReport :: m (WebData (FullReport ContractExe))
-  getContractSignature :: ContractInstanceId -> m (WebData (ContractSignatureResponse ContractExe))
+  getFullReport :: m (WebData (FullReport (Builtin ExampleContracts)))
+  getContractSignature :: ContractInstanceId -> m (WebData (ContractSignatureResponse (Builtin ExampleContracts)))
   invokeEndpoint :: RawJson -> ContractInstanceId -> EndpointDescription -> m (WebData (Maybe NotificationError))
-  activateContract :: ContractExe -> m Unit
+  activateContract :: Builtin ExampleContracts -> m Unit
   sendWebSocketMessage :: CombinedWSStreamToServer -> m Unit
   log :: String -> m Unit
 
 newtype HalogenApp m a
-  = HalogenApp (HalogenM State HAction () Output m a)
+  = HalogenApp (HalogenM (State ExampleContracts) (HAction ExampleContracts) () Output m a)
 
 derive instance newtypeHalogenApp :: Newtype (HalogenApp m a) _
 
@@ -51,7 +52,7 @@ derive newtype instance monadHalogenApp :: Monad (HalogenApp m)
 
 derive newtype instance monadTransHalogenApp :: MonadTrans HalogenApp
 
-derive newtype instance monadStateHalogenApp :: MonadState State (HalogenApp m)
+derive newtype instance monadStateHalogenApp :: MonadState (State ExampleContracts) (HalogenApp m)
 
 derive newtype instance monadAskHalogenApp :: MonadAsk env m => MonadAsk env (HalogenApp m)
 
@@ -59,14 +60,14 @@ derive newtype instance monadEffectHalogenApp :: MonadEffect m => MonadEffect (H
 
 derive newtype instance monadAffHalogenApp :: MonadAff m => MonadAff (HalogenApp m)
 
-instance monadAnimateHalogenApp :: MonadAff m => MonadAnimate (HalogenApp m) State where
+instance monadAnimateHalogenApp :: MonadAff m => MonadAnimate (HalogenApp m) (State ExampleContracts) where
   animate toggle action = HalogenApp $ animate toggle (unwrap action)
 
 instance monadClipboardHalogenApp :: MonadEffect m => MonadClipboard (HalogenApp m) where
   copy = liftEffect <<< copy
 
 ------------------------------------------------------------
-runHalogenApp :: forall m a. HalogenApp m a -> HalogenM State HAction () Output m a
+runHalogenApp :: forall m a. HalogenApp m a -> HalogenM (State ExampleContracts) (HAction ExampleContracts) () Output m a
 runHalogenApp = unwrap
 
 instance monadAppHalogenApp :: (MonadAff m, MonadAsk (SPSettings_ SPParams_) m) => MonadApp (HalogenApp m) where

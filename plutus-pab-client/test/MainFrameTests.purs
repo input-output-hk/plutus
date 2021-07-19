@@ -28,11 +28,12 @@ import Servant.PureScript.Settings (SPSettings_, defaultSettings)
 import Test.QuickCheck ((<?>))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.QuickCheck (quickCheck)
+import ContractExample (ExampleContracts)
 
 type World
   = { console :: Array String }
 
-execMockApp :: forall m a. MonadThrow Error m => World -> Array (Either (Query a) HAction) -> m (Tuple World State)
+execMockApp :: forall m a. MonadThrow Error m => World -> Array (Either (Query a) (HAction ExampleContracts)) -> m (Tuple World (State ExampleContracts))
 execMockApp world queries = do
   let
     initialState = MainFrame.initialState
@@ -49,7 +50,7 @@ execMockApp world queries = do
 
 -- | A dummy implementation of `MonadApp`, for testing the main handleAction loop.
 newtype MockApp m a
-  = MockApp (RWST (SPSettings_ SPParams_) Unit (Tuple World State) m a)
+  = MockApp (RWST (SPSettings_ SPParams_) Unit (Tuple World (State ExampleContracts)) m a)
 
 derive instance newtypeMockApp :: Newtype (MockApp m a) _
 
@@ -67,7 +68,7 @@ derive newtype instance monadTransMockApp :: MonadTrans MockApp
 
 derive newtype instance monadAskMockApp :: Monad m => MonadAsk (SPSettings_ SPParams_) (MockApp m)
 
-instance monadStateMockApp :: Monad m => MonadState State (MockApp m) where
+instance monadStateMockApp :: Monad m => MonadState (State ExampleContracts) (MockApp m) where
   state f =
     MockApp
       $ RWST \r (Tuple world appState) -> case f appState of
@@ -86,7 +87,7 @@ instance monadAppMockApp :: Monad m => MonadApp (MockApp m) where
           [ msg ]
 
 -- | The mock app makes no attempt to animate anything, and just calls the embedded `action`.
-instance monadAnimateMockApp :: MonadAnimate (MockApp m) State where
+instance monadAnimateMockApp :: MonadAnimate (MockApp m) (State ExampleContracts) where
   animate toggle action = action
 
 instance monadClipboardMockApp :: Monad m => MonadClipboard (MockApp m) where

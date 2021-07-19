@@ -21,22 +21,23 @@ import Icons (Icon(..), icon)
 import Network.StreamData as Stream
 import Playground.Lenses (_endpointDescription, _getEndpointDescription, _schema)
 import Playground.Types (_FunctionSchema)
-import Plutus.PAB.Effects.Contract.ContractExe (ContractExe)
+import Plutus.PAB.Effects.Contract.Builtin (Builtin)
 import Plutus.Contract.Effects (PABReq)
 import Plutus.PAB.Events.ContractInstanceState (PartiallyDecodedResponse)
 import Schema.Types (FormEvent)
 import Schema.View (actionArgumentForm)
-import Types (ContractStates, EndpointForm, HAction(..), WebStreamData, _contractPath, _hooks)
+import Types (ContractStates, EndpointForm, HAction(..), WebStreamData, _hooks)
 import Validation (_argument)
 --import View.Pretty (pretty)
 --import View.Utils (webStreamDataPane)
 import Wallet.Types (ContractInstanceId)
 
 installedContractsPane ::
-  forall p.
+  forall p a.
+  Show a =>
   Boolean ->
-  Array ContractExe ->
-  HTML p HAction
+  Array (Builtin a) ->
+  HTML p (HAction a)
 installedContractsPane buttonsDisabled installedContracts =
   card_
     [ cardHeader_
@@ -51,10 +52,11 @@ installedContractsPane buttonsDisabled installedContracts =
     ]
 
 installedContractPane ::
-  forall p.
+  forall p a.
+  Show a =>
   Boolean ->
-  ContractExe ->
-  HTML p HAction
+  Builtin a ->
+  HTML p (HAction a)
 installedContractPane buttonsDisabled installedContract =
   row_
     [ col2_
@@ -65,13 +67,13 @@ installedContractPane buttonsDisabled installedContract =
             ]
             [ if buttonsDisabled then icon Spinner else text "Activate" ]
         ]
-    , col10_ [ text $ view _contractPath installedContract ]
+    , col10_ [ text $ show installedContract ]
     ]
 
 contractStatusesPane ::
-  forall p.
+  forall p a.
   ContractStates ->
-  HTML p HAction
+  HTML p (HAction a)
 contractStatusesPane contractStates =
   card_
     [ cardHeader_
@@ -92,9 +94,9 @@ contractStatusesPane contractStates =
   hasActiveRequests contractInstance = not $ null $ view (Stream._Success <<< _1 <<< _hooks) contractInstance
 
 contractStatusPane ::
-  forall p.
+  forall p a.
   WebStreamData (PartiallyDecodedResponse PABReq /\ Array EndpointForm) ->
-  HTML p HAction
+  HTML p (HAction a)
 contractStatusPane contractState = div [ class_ $ ClassName "contract-status" ] []
 
 -- $ webStreamDataPane
@@ -115,7 +117,7 @@ contractStatusPane contractState = div [ class_ $ ClassName "contract-status" ] 
 --            ]
 --    )
 --    contractState
-contractRequestView :: forall p. PartiallyDecodedResponse PABReq -> HTML p HAction
+contractRequestView :: forall p a. PartiallyDecodedResponse PABReq -> HTML p (HAction a)
 contractRequestView contractInstance =
   table [ classes [ Bootstrap.table, tableBordered ] ]
     [ thead_
@@ -153,7 +155,7 @@ contractRequestView contractInstance =
 --    , td_ [ text $ show rqID ]
 --    , td_ [ pretty rqRequest ]
 --    ]
-actionCard :: forall p. ContractInstanceId -> (FormEvent -> HAction) -> EndpointForm -> HTML p HAction
+actionCard :: forall p a. ContractInstanceId -> (FormEvent -> (HAction a)) -> EndpointForm -> HTML p (HAction a)
 actionCard contractInstanceId wrapper endpointForm =
   col4_
     [ card_

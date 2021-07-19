@@ -6,6 +6,7 @@
 {-# LANGUAGE NamedFieldPuns      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections       #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeOperators       #-}
 {-
@@ -103,7 +104,7 @@ joinStream STMStream{unSTMStream} = STMStream $ unSTMStream >>= go where
             Right (newStream, Nothing) -> go (newStream, Nothing)
 
 singleton :: STM a -> STMStream a
-singleton = STMStream . fmap (\a -> (a, Nothing))
+singleton = STMStream . fmap (, Nothing)
 
 instance Applicative STMStream where
     pure = singleton . pure
@@ -182,7 +183,7 @@ combinedWSStreamToClient wsState blockchainEnv instancesState = do
 initialWSState :: STM WSState
 initialWSState = WSState <$> STM.newTVar mempty <*> STM.newTVar mempty
 
-slotChange :: BlockchainEnv -> (STMStream Slot)
+slotChange :: BlockchainEnv -> STMStream Slot
 slotChange = unfold . Instances.currentSlot
 
 walletFundsChange :: Wallet -> BlockchainEnv -> STMStream Ledger.Value

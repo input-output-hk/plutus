@@ -22,7 +22,7 @@ import API.Url (toUrlPiece)
 import Control.Monad.Error.Class (class MonadError)
 import Effect.Aff.Class (class MonadAff)
 import Foreign.Generic (class Decode, class Encode)
-import Plutus.PAB.Effects.Contract.ContractExe (ContractExe)
+import Plutus.PAB.Effects.Contract.Builtin (Builtin)
 import Plutus.PAB.Webserver.Types (ContractActivationArgs, ContractInstanceClientState, ContractSignatureResponse)
 import Servant.PureScript.Ajax (AjaxError)
 import Wallet.Emulator.Wallet (Wallet)
@@ -46,15 +46,6 @@ class
   getWalletContractInstances :: forall m. MonadError AjaxError m => MonadAff m => a -> Wallet -> m (Array (ContractInstanceClientState a))
   getAllContractInstances :: forall m. MonadError AjaxError m => MonadAff m => a -> m (Array (ContractInstanceClientState a))
   getContractDefinitions :: forall m. MonadError AjaxError m => MonadAff m => a -> m (Array (ContractSignatureResponse a))
-
-instance contractExeContractActivationId :: ContractActivationId ContractExe where
-  activateContract = defaultActivateContract
-  deactivateContract = defaultDeactivateContract
-  getContractInstanceClientState = defaultGetContractInstanceClientState
-  invokeEndpoint = defaultInvokeEndpoint
-  getWalletContractInstances = defaultGetWalletContractInstances
-  getAllContractInstances = defaultGetAllContractInstances
-  getContractDefinitions = defaultGetContractDefinitions
 
 defaultActivateContract ::
   forall a m.
