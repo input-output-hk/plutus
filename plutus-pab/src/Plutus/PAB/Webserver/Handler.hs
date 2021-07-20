@@ -28,7 +28,6 @@ module Plutus.PAB.Webserver.Handler
 import qualified Cardano.Wallet.Client                   as Wallet.Client
 import           Cardano.Wallet.Types                    (WalletInfo (..))
 import           Control.Lens                            (preview)
-import           Control.Monad                           ((>=>))
 import           Control.Monad.Freer                     (sendM)
 import           Control.Monad.Freer.Error               (throwError)
 import           Control.Monad.IO.Class                  (MonadIO (..))
@@ -38,8 +37,6 @@ import qualified Data.Map                                as Map
 import           Data.Maybe                              (mapMaybe)
 import           Data.Proxy                              (Proxy (..))
 import qualified Data.Set                                as Set
-import           Data.Text                               (Text)
-import qualified Data.UUID                               as UUID
 import           Ledger                                  (Value, pubKeyHash)
 import           Ledger.Constraints.OffChain             (UnbalancedTx)
 import           Ledger.Tx                               (Tx)
@@ -64,7 +61,7 @@ handlerOld ::
     PABAction t env ()
     :<|> (PABAction t env (FullReport (Contract.ContractDef t))
         :<|> ((Contract.ContractDef t) -> PABAction t env ContractInstanceId)
-        :<|> (Text -> PABAction t env (ContractSignatureResponse (Contract.ContractDef t))
+        :<|> (ContractInstanceId -> PABAction t env (ContractSignatureResponse (Contract.ContractDef t))
             :<|> (String -> JSON.Value -> PABAction t env (Maybe NotificationError))
             )
         )
@@ -75,8 +72,8 @@ handlerOld =
             :<|> byContractInstanceId
         )
     where
-        byContractInstanceId :: Text -> (PABAction t env (ContractSignatureResponse (Contract.ContractDef t)) :<|> (String -> JSON.Value -> PABAction t env (Maybe NotificationError)))
-        byContractInstanceId rawInstanceId = contractSchema rawInstanceId :<|> undefined -- FIXME undefined
+        byContractInstanceId :: ContractInstanceId -> (PABAction t env (ContractSignatureResponse (Contract.ContractDef t)) :<|> (String -> JSON.Value -> PABAction t env (Maybe NotificationError)))
+        byContractInstanceId contractInstanceId = contractSchema contractInstanceId :<|> undefined -- FIXME undefined
 
 healthcheck :: forall t env. PABAction t env ()
 healthcheck = pure ()
@@ -97,25 +94,19 @@ getFullReport = do
     contractReport <- getContractReport @t
     pure FullReport {contractReport, chainReport = emptyChainReport}
 
-contractSchema :: forall t env. Contract.PABContract t => Text -> PABAction t env (ContractSignatureResponse (Contract.ContractDef t))
-contractSchema = parseContractId @t @env >=> \contractId -> do
+contractSchema :: forall t env. Contract.PABContract t => ContractInstanceId -> PABAction t env (ContractSignatureResponse (Contract.ContractDef t))
+contractSchema contractId = do
     def <- Contract.getDefinition @t contractId
     case def of
         Just ContractActivationArgs{caID} -> ContractSignatureResponse caID <$> Contract.exportSchema @t caID
         Nothing                           -> throwError (ContractInstanceNotFound contractId)
-
-parseContractId :: Text -> PABAction t env ContractInstanceId
-parseContractId t =
-    case UUID.fromText t of
-        Just uuid -> pure $ ContractInstanceId uuid
-        Nothing   -> throwError $ InvalidUUIDError t
 
 -- | Handler for the "new" API
 handlerNew ::
        forall t env.
        Contract.PABContract t =>
        (ContractActivationArgs (Contract.ContractDef t) -> PABAction t env ContractInstanceId)
-            :<|> (Text -> PABAction t env (ContractInstanceClientState (Contract.ContractDef t))
+            :<|> (ContractInstanceId -> PABAction t env (ContractInstanceClientState (Contract.ContractDef t))
                                         :<|> (String -> JSON.Value -> PABAction t env ())
                                         :<|> PABAction t env ()
                                         )
@@ -124,7 +115,7 @@ handlerNew ::
             :<|> PABAction t env [ContractSignatureResponse (Contract.ContractDef t)]
 handlerNew =
         (activateContract
-            :<|> (\x -> (parseContractId x >>= contractInstanceState) :<|> (\y z -> parseContractId x >>= \x' -> callEndpoint x' y z) :<|> (parseContractId x >>= shutdown))
+            :<|> (\x -> contractInstanceState x :<|> (\y z -> callEndpoint x y z) :<|> shutdown x)
             :<|> instancesForWallets
             :<|> allInstanceStates
             :<|> availableContracts)

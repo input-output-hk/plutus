@@ -44,6 +44,7 @@ import qualified Data.UUID.Extras                 as UUID
 import qualified Data.UUID.V4                     as UUID
 import           GHC.Generics                     (Generic)
 import qualified Language.Haskell.TH.Syntax       as TH
+import           Servant.API
 
 import           Ledger                           (Address, OnChainTx, Slot, SlotRange, eitherTx, interval, txId)
 import           Ledger.Constraints.OffChain      (MkTxError)
@@ -110,7 +111,7 @@ instance AsCheckpointError ContractError where
 -- | Unique ID for contract instance
 newtype ContractInstanceId = ContractInstanceId { unContractInstanceId :: UUID }
     deriving (Eq, Ord, Show, Generic)
-    deriving newtype (FromJSONKey, ToJSONKey)
+    deriving newtype (FromJSONKey, ToJSONKey, ToHttpApiData, FromHttpApiData)
     deriving anyclass (FromJSON, ToJSON)
     deriving Pretty via (PrettyShow UUID)
 

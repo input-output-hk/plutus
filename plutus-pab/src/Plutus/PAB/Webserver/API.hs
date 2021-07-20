@@ -14,7 +14,6 @@ module Plutus.PAB.Webserver.API
 
 import qualified Cardano.Wallet.API         as Wallet
 import qualified Data.Aeson                 as JSON
-import           Data.Text                  (Text)
 import           Plutus.PAB.Webserver.Types (ContractActivationArgs, ContractInstanceClientState,
                                              ContractSignatureResponse, FullReport)
 import           Servant.API                (Capture, Get, JSON, Post, Put, ReqBody, (:<|>), (:>))
@@ -27,7 +26,7 @@ type API t
      = "api" :> ("healthcheck" :> Get '[ JSON] ()
                  :<|> "full-report" :> Get '[ JSON] (FullReport t)
                  :<|> "contract" :> ("activate" :> ReqBody '[ JSON] t :> Post '[ JSON] ContractInstanceId
-                                     :<|> Capture "contract-instance-id" Text :> ("schema" :> Get '[ JSON] (ContractSignatureResponse t)
+                                     :<|> Capture "contract-instance-id" ContractInstanceId :> ("schema" :> Get '[ JSON] (ContractSignatureResponse t)
                                                                                   :<|> "endpoint" :> Capture "endpoint-name" String :> ReqBody '[ JSON] JSON.Value :> Post '[JSON] (Maybe NotificationError))))
 
 type WSAPI =
@@ -43,7 +42,7 @@ type NewAPI t walletId -- see note [WalletID type in wallet API]
     = "api" :> "new" :> "contract" :>
         ("activate" :> ReqBody '[ JSON] (ContractActivationArgs t) :> Post '[JSON] ContractInstanceId -- start a new instance
             :<|> "instance" :>
-                    (Capture "contract-instance-id" Text :>
+                    (Capture "contract-instance-id" ContractInstanceId :>
                         ( "status" :> Get '[JSON] (ContractInstanceClientState t) -- Current status of contract instance
                         :<|> "endpoint" :> Capture "endpoint-name" String :> ReqBody '[JSON] JSON.Value :> Post '[JSON] () -- Call an endpoint. Make
                         :<|> "stop" :> Put '[JSON] () -- Terminate the instance.
