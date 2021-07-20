@@ -265,6 +265,12 @@ body {
   -webkit-text-stroke-width: 1px;
 }
 
+@media (min-width: 768px) {
+  .md\:font-comfortaa-bolder {
+    @apply font-comfortaa-bolder;
+  }
+}
+
 .font-comfortaa-bolder {
   @apply font-comfortaa font-bold;
 
