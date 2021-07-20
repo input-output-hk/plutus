@@ -25,5 +25,8 @@
     "webpack-cli": "^4.6.0",
     "nunjucks": "^3.2.3",
     "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "jquery": "^3.6.0"
   }
 }

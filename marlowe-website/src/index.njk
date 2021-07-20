@@ -10,7 +10,6 @@
     <meta property="og:description" content="Democratizing Finance on Cardano">
     {# FIXME add a social image #}
     {# <meta property="og:image" content="http://something.jpg"> #}
-    <script src="jquery-3.6.0.js"></script>
     <meta property="og:url" content="https://marlowe-finance.io">
     <meta name="twitter:card" content="summary_large_image">
   </head>
@@ -18,7 +17,7 @@
   <body>
 
     <span id="top"></span>
-    <a id="myID" class="back-to-top hide scale relative" href="#top">
+    <a id="back-to-top" class="hide" href="#top">
       <img loading="lazy" class="back-to-top-icon" src="{% static './static/img/back-to-top.svg' %}" alt="Back to top">
     </a>
 
@@ -329,9 +328,7 @@
     </section>
 
     <footer class="shadow-sm bg-white h-auto md:py-5 py-10">
-
       <div class="m-5 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
-
         <ul class="inline w-full">
           <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline">
             <a class="" href="#run">Privacy</a>
@@ -346,68 +343,7 @@
             <a class="" href="#run">cardano.org</a>
           </li>
         </ul>
-
       </div>
-
     </footer>
-
-    <!--Hide and show the back to top CTA-->
-    <script type="text/javascript">
-
-      myID = document.getElementById("myID");
-
-      var myScrollFunc = function () {
-        var y = window.scrollY;
-        if (y >= 400) {
-          myID.className = "back-to-top show"
-        } else {
-          myID.className = "back-to-top hide"
-        }
-      };
-
-      window.addEventListener("scroll", myScrollFunc);
-    </script>
-
-    <!--Smooth scrolling-->
-    <script type="text/javascript">
-      // Select all links with hashes
-      $('a[href*="#"]')
-      // Remove links that don't actually link to anything
-        .not('[href="#"]')
-        .not('[href="#0"]')
-        .click(function (event) {
-          // On-page links
-          if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-            // Figure out element to scroll to
-            var target = $(this.hash);
-            target = target.length
-              ? target
-              : $('[name=' + this.hash.slice(1) + ']');
-            // Does a scroll target exist?
-            if (target.length) {
-              // Only prevent default if animation is actually gonna happen
-              event.preventDefault();
-              $('html, body').animate({
-                scrollTop: target
-                  .offset()
-                  .top
-              }, 500, function () {
-                // Callback after animation
-                // Must change focus!
-                var $target = $(target);
-                $target.focus();
-                if ($target.is(":focus")) { // Checking if the target was focused
-                  return false;
-                } else {
-                  $target.attr('tabindex', '-1'); // Adding tabindex for elements not focusable
-                  $target.focus(); // Set focus again
-                };
-              });
-            }
-          }
-        });
-    </script>
-
   </body>
-
 </html>

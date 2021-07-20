@@ -72,7 +72,7 @@ module.exports = {
       },
       height: {
         logo: "100px",
-        "logo-wider": "85px"
+        "logo-wider": "85px",
       },
 
       borderWidth: {
@@ -169,7 +169,7 @@ module.exports = {
     fontSmoothing: false,
     fontVariantNumeric: false,
     letterSpacing: false,
-    userSelect: false,
+    userSelect: true,
     verticalAlign: false,
     visibility: true,
     whitespace: true,

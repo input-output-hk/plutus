@@ -98,7 +98,7 @@ body {
   transform: scaleX(1.05) scaleY(1.05) !important;
 }
 
-.back-to-top {
+#back-to-top {
   @apply bg-gradient-to-r from-purple to-lightpurple;
   @apply shadow-lg;
 
@@ -112,7 +112,7 @@ body {
   transition: all 0.2s ease-in-out;
 }
 
-.back-to-top:hover {
+#back-to-top:hover {
   /* transform: rotate(90deg) !important; */
 
   backface-visibility: hidden;
