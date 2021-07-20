@@ -20,23 +20,11 @@ body {
   bottom: 6px;
 }
 
-.vert-text-right {
-  position: absolute;
-  top: 10%;
-  transform: translateY(-50%);
-  left: 40%;
-  transform: translateX(50%);
-}
-
 .text-link::before {
   content: url("/static/img/caret-right.svg");
   margin-right: 10px;
   width: 24px;
   background-size: 24px;
-}
-
-.circle-btn {
-  width: 60px;
 }
 
 .menu-item a {
@@ -112,6 +100,7 @@ body {
 
 .back-to-top {
   @apply bg-gradient-to-r from-purple to-lightpurple;
+  @apply shadow-lg;
 
   position: fixed;
   width: 60px;
@@ -120,9 +109,6 @@ body {
   bottom: 20px;
   right: 20px;
   z-index: 999;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  -webkit-transition: all 0.2s ease-in-out;
-  -moz-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
 
@@ -246,7 +232,7 @@ body {
 .faq-caret {
   background-image: url("/static/img/caret-down-purple.svg");
   background-repeat: no-repeat;
-  background-position: center 5px;
+  background-position: center 2px;
 }
 
 .expanded .faq-caret {
@@ -272,6 +258,7 @@ body {
 /* The maximum bold that comfortaa ships is still less bold than the one provided in the designs
    so we add the not official text-stroke-width for the browsers that support it to make it a
    little bit bolder. */
+
 .font-comfortaa-bold {
   @apply font-comfortaa font-bold;
 
@@ -281,7 +268,7 @@ body {
 .font-comfortaa-bolder {
   @apply font-comfortaa font-bold;
 
-  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-width: 2px !important;
 }
 
 /* Russ media queries */
