@@ -217,7 +217,7 @@ from s = Interval (lowerBound s) (UpperBound PosInf True)
 
 {-# INLINABLE to #-}
 -- | @to a@ is an 'Interval' that includes all values that are
---  smaller than @a@.
+--  smaller than or equal to @a@.
 to :: a -> Interval a
 to s = Interval (LowerBound NegInf True) (upperBound s)
 
