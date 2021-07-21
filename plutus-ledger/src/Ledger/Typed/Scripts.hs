@@ -4,7 +4,7 @@ module Ledger.Typed.Scripts(
     , MintingPolicy
     ) where
 
-import           Plutus.V1.Ledger.Scripts              hiding (mintingPolicyHash, validatorHash)
+import           Ledger.Scripts                        hiding (mintingPolicyHash, validatorHash)
 
 import           Ledger.Typed.Scripts.MonetaryPolicies as Export
 import           Ledger.Typed.Scripts.Validators       as Export

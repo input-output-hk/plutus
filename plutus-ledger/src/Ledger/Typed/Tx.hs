@@ -16,21 +16,20 @@
 {-# LANGUAGE ScopedTypeVariables       #-}
 {-# LANGUAGE TypeApplications          #-}
 {-# LANGUAGE TypeFamilies              #-}
-{-# LANGUAGE TypeOperators             #-}
 {-# LANGUAGE UndecidableInstances      #-}
-{-# LANGUAGE ViewPatterns              #-}
+
 {-# OPTIONS_GHC -Wno-orphans           #-}
+
 -- | Typed transaction inputs and outputs. This module defines typed versions
 --   of various ledger types. The ultimate goal is to make sure that the script
 --   types attached to inputs and outputs line up, to avoid type errors at
 --   validation time.
 module Ledger.Typed.Tx where
 
+import           Ledger.Scripts
+import           Ledger.Tx
 import           Ledger.Typed.Scripts
-import           Plutus.V1.Ledger.Address
 import           Plutus.V1.Ledger.Crypto
-import           Plutus.V1.Ledger.Scripts
-import           Plutus.V1.Ledger.Tx
 import           Plutus.V1.Ledger.TxId
 import qualified Plutus.V1.Ledger.Value    as Value
 

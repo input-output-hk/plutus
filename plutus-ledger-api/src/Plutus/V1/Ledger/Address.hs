@@ -10,9 +10,7 @@
 
 module Plutus.V1.Ledger.Address (
     Address (..),
-    pubKeyAddress,
     pubKeyHashAddress,
-    scriptAddress,
     scriptHashAddress,
     toPubKeyHash,
     toValidatorHash,
@@ -25,7 +23,7 @@ import           Data.Aeson                  (FromJSON, FromJSONKey (..), ToJSON
 import           Data.Hashable               (Hashable)
 import           Data.Text.Prettyprint.Doc
 import           GHC.Generics                (Generic)
-import qualified PlutusTx                    as PlutusTx
+import qualified PlutusTx
 import qualified PlutusTx.Bool               as PlutusTx
 import qualified PlutusTx.Eq                 as PlutusTx
 
@@ -34,8 +32,8 @@ import           Plutus.V1.Ledger.Crypto
 import           Plutus.V1.Ledger.Orphans    ()
 import           Plutus.V1.Ledger.Scripts
 
--- | Address with two kinds of credentials, normal and staking
-data Address = Address{ addressCredential :: Credential, addressStakingCredential :: (Maybe StakingCredential)}
+-- | Address with two kinds of credentials, normal and staking.
+data Address = Address{ addressCredential :: Credential, addressStakingCredential :: Maybe StakingCredential }
     deriving stock (Eq, Ord, Show, Generic)
     deriving anyclass (ToJSON, FromJSON, ToJSONKey, FromJSONKey, Serialise, Hashable, NFData)
 
@@ -44,16 +42,10 @@ instance Pretty Address where
         let staking = maybe "no staking credential" pretty stakingCred in
         "addressed to" <+> pretty cred <+> parens staking
 
-
 instance PlutusTx.Eq Address where
     Address cred stakingCred == Address cred' stakingCred' =
         cred PlutusTx.== cred'
         PlutusTx.&& stakingCred PlutusTx.== stakingCred'
-
-{-# INLINABLE pubKeyAddress #-}
--- | The address that should be targeted by a transaction output locked by the given public key.
-pubKeyAddress :: PubKey -> Address
-pubKeyAddress pk = Address (PubKeyCredential (pubKeyHash pk)) Nothing
 
 {-# INLINABLE pubKeyHashAddress #-}
 -- | The address that should be targeted by a transaction output locked by the public key with the given hash.
@@ -71,10 +63,6 @@ toPubKeyHash _                                = Nothing
 toValidatorHash :: Address -> Maybe ValidatorHash
 toValidatorHash (Address (ScriptCredential k) _) = Just k
 toValidatorHash _                                = Nothing
-
--- | The address that should be used by a transaction output locked by the given validator script.
-scriptAddress :: Validator -> Address
-scriptAddress validator = Address (ScriptCredential (validatorHash validator)) Nothing
 
 {-# INLINABLE scriptHashAddress #-}
 -- | The address that should be used by a transaction output locked by the given validator script hash.

@@ -32,8 +32,6 @@ module Plutus.V1.Ledger.Contexts
     , findContinuingOutputs
     , getContinuingOutputs
     -- ** Hashes (see note [Hashes in validator scripts])
-    , scriptCurrencySymbol
-    , pubKeyHash
     -- * Validator functions
     -- ** Signatures
     , txSignedBy
@@ -64,14 +62,13 @@ import qualified Plutus.V1.Ledger.Ada        as Ada
 import           Plutus.V1.Ledger.Address    (Address (..), toPubKeyHash)
 import           Plutus.V1.Ledger.Bytes      (LedgerBytes (..))
 import           Plutus.V1.Ledger.Credential (Credential (..), StakingCredential)
-import           Plutus.V1.Ledger.Crypto     (PubKey (..), PubKeyHash (..), Signature (..), pubKeyHash)
+import           Plutus.V1.Ledger.Crypto     (PubKey (..), PubKeyHash (..), Signature (..))
 import           Plutus.V1.Ledger.DCert      (DCert (..))
 import           Plutus.V1.Ledger.Scripts
 import           Plutus.V1.Ledger.Time       (POSIXTimeRange)
 import           Plutus.V1.Ledger.Tx         (TxOut (..), TxOutRef (..))
 import           Plutus.V1.Ledger.TxId
 import           Plutus.V1.Ledger.Value      (CurrencySymbol (..), Value)
-import qualified Plutus.V1.Ledger.Value      as Value
 
 {- Note [Script types in pending transactions]
 To validate a transaction, we have to evaluate the validation script of each of
@@ -180,11 +177,6 @@ them from the correct types in Haskell, and for comparing them (in
 `Language.Plutus.Runtime.TH`).
 
 -}
-
-{-# INLINABLE scriptCurrencySymbol #-}
--- | The 'CurrencySymbol' of a 'MintingPolicy'
-scriptCurrencySymbol :: MintingPolicy -> CurrencySymbol
-scriptCurrencySymbol scrpt = let (MintingPolicyHash hsh) = mintingPolicyHash scrpt in Value.currencySymbol hsh
 
 {-# INLINABLE txSignedBy #-}
 -- | Check if a transaction was signed by the given public key.

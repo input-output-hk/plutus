@@ -61,21 +61,21 @@ import           PlutusTx.Lattice
 import qualified PlutusTx.Numeric                 as N
 
 import           Data.Default                     (Default (def))
+import           Ledger.Address                   (Address (..), pubKeyHashAddress)
+import qualified Ledger.Address                   as Address
 import           Ledger.Constraints.TxConstraints hiding (requiredSignatories)
 import           Ledger.Orphans                   ()
+import           Ledger.Scripts                   (Datum (..), DatumHash, MintingPolicy, MintingPolicyHash,
+                                                   Redeemer (..), Validator, datumHash, mintingPolicyHash)
 import qualified Ledger.TimeSlot                  as TimeSlot
+import           Ledger.Tx                        (RedeemerPtr (..), ScriptTag (..), Tx, TxOut (..), TxOutRef,
+                                                   TxOutTx (..))
+import qualified Ledger.Tx                        as Tx
 import           Ledger.Typed.Scripts             (TypedValidator, ValidatorTypes (..))
 import qualified Ledger.Typed.Scripts             as Scripts
 import           Ledger.Typed.Tx                  (ConnectionError)
 import qualified Ledger.Typed.Tx                  as Typed
-import           Plutus.V1.Ledger.Address         (Address (..), pubKeyHashAddress)
-import qualified Plutus.V1.Ledger.Address         as Address
 import           Plutus.V1.Ledger.Crypto          (PubKeyHash)
-import           Plutus.V1.Ledger.Scripts         (Datum (..), DatumHash, MintingPolicy, MintingPolicyHash,
-                                                   Redeemer (..), Validator, datumHash, mintingPolicyHash)
-import           Plutus.V1.Ledger.Tx              (RedeemerPtr (..), ScriptTag (..), Tx, TxOut (..), TxOutRef,
-                                                   TxOutTx (..))
-import qualified Plutus.V1.Ledger.Tx              as Tx
 import           Plutus.V1.Ledger.Value           (Value)
 import qualified Plutus.V1.Ledger.Value           as Value
 

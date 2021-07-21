@@ -38,12 +38,12 @@ import           PlutusTx.Prelude
 
 import           Ledger.Constraints        (TxConstraints)
 import qualified Ledger.Constraints        as Constraints
+import           Ledger.Crypto             (PrivateKey, PubKey (..), Signature (..))
+import qualified Ledger.Crypto             as Crypto
+import           Ledger.Scripts            (Datum (..), DatumHash (..))
+import qualified Ledger.Scripts            as Scripts
 import           Plutus.V1.Ledger.Bytes
 import           Plutus.V1.Ledger.Contexts (ScriptContext)
-import           Plutus.V1.Ledger.Crypto   (PrivateKey, PubKey (..), Signature (..))
-import qualified Plutus.V1.Ledger.Crypto   as Crypto
-import           Plutus.V1.Ledger.Scripts  (Datum (..), DatumHash (..))
-import qualified Plutus.V1.Ledger.Scripts  as Scripts
 import           Plutus.V1.Ledger.Time     (POSIXTime)
 
 import qualified Prelude                   as Haskell
