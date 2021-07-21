@@ -38,7 +38,7 @@ The Haskell package `plutus-core` implements a range of functionality for manipu
 
 The lexer & parser are based on Alex & Happy and the pretty printer uses the `prettyprinter` package. Names (identifiers) are interned using uniques as per `PlutusCore.Name`. They are also parameterised with an attribute used differently in different stages.
 
-Parsing, pretty-printing and the AST representation closely follow the Plutus Core specification. AST nodes are parametereised with the same attribute as the embedded names.
+Parsing, pretty-printing and the AST representation closely follow the Plutus Core specification. AST nodes are parameterised with the same attribute as the embedded names.
 
 NB: At this stage, every occurrences of a particular name (identifier lexeme) receives the same unique. Hence, binders can be shadowed according to the scoping rules of Plutus Core.
 
@@ -48,7 +48,7 @@ The renamer performs scope resolution and replaces all usage occurrences of iden
 
 Moreover, renaming ensures that programs meet the **global uniqueness property**: every unique in a program is only bound exactly once. Hence, there is no shadowing or reusing of names in disjoint scopes anymore after this phase.
 
-If program transformations are performed on renamed programs (such as substitution on subterms with free variables), the global uniqueness property may no longer hold. It is recommended to simply perform all necessary transformations without expecting or reinstating the global uniqueness property in between individual transformation steps. When the final form of the program has been reached (or when a program needs to be type checked), an additional use of the renamer can reinstate the global unqiueness property again.
+If program transformations are performed on renamed programs (such as substitution on subterms with free variables), the global uniqueness property may no longer hold. It is recommended to simply perform all necessary transformations without expecting or reinstating the global uniqueness property in between individual transformation steps. When the final form of the program has been reached (or when a program needs to be type checked), an additional use of the renamer can reinstate the global uniqueness property again.
 
 NB: Whenever the global uniqueness property is not a given, care needs be taken to correctly handle binders. For example, when implementing substitution, we need to ensure that we do not propagate a substitution below a binder matching the substituted variable and we need to avoid variable capture (as per standard treatments of names in lambda calculi).
 
@@ -57,6 +57,8 @@ NB: Whenever the global uniqueness property is not a given, care needs be taken 
 The type checker synthesizes the kind of a given type and the type of a given term. This does not involve any form of inference as Plutus Core is already fully typed. It merely checks the consistency of all variable declarations and the well-formedness of types and terms, while deriving the kind or type of the given type or term.
 
 NB: The type checker requires terms to meet the global uniqueness property. If this is not a given, use a renamer pass to suitably pre-process the term in question.
+
+The `plc` executable can be used to type check programs. See installation instructions below. Run `plc typecheck -h` for available options.
 
 ### Evaluation
 
@@ -72,6 +74,7 @@ Run `nix build -f default.nix plutus.haskell.packages.plutus-core.components.exe
 
 Run `stack install plutus-core` in your terminal being in any subfolder of `plutus`. Once the build finishes, you'll be shown the following lines:
 
+<!-- @thealmarty can't successfully install plutus-core, can someone else verify/update this? -->
 ```
 Copied executables to ~/.local/bin:
 - plutus-core-generate-evaluation-test
@@ -93,7 +96,7 @@ unsafeEvaluateCk
     -> Term TyName Name uni () -> EvaluationResult (Term TyName Name uni ())
 ```
 
-It returns an `EvaluationResult` which is either a succesfully computed `Term` or a failure:
+It returns an `EvaluationResult` which is either a successfully computed `Term` or a failure:
 
 ```haskell
 data EvaluationResult a
@@ -107,8 +110,12 @@ There is an executable that runs programs on the CK machine: you can feed a prog
 An example of usage:
 
 ```
-echo "(program 0.1.0 [(lam x (con integer) x) (con integer 271)])" | plc evaluate --stdin -mCK
+echo "(program 0.1.0 [(lam x (con integer) x) (con integer 271)])" | plc evaluate --stdin
 ```
+
+#### The CEK machine
+
+Similarly for untyped plutus core, the CEK machine can be used to evaluate untyped plutus core programs. Run `uplc evaluate -h` for a full list of options.
 
 #### Tests
 

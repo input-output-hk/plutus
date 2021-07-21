@@ -42,7 +42,7 @@ stdOutput = flag' StdOutput
 
 formatHelp :: String
 formatHelp =
-  "plc, flat (de Bruijn indices), or flat-named (names)"
+  "textual, flat (de Bruijn indices), or flat-named (names)"
 
 formatReader :: String -> Maybe Format
 formatReader =
