@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="10px" height="10px" viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icons/light/chevron-down-blue</title>
+    <g id="Pages" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-Marlowe-Home-Page-D" transform="translate(-1351.000000, -6222.000000)" fill="#273245">
+            <g id="Legal" transform="translate(0.000000, 6197.000000)">
+                <g id="Footer" transform="translate(76.000000, 0.000000)">
+                    <g id="icons/light/chevron-down-blue" transform="translate(1275.123052, 25.492208)">
+                        <path d="M1.12110727,0 L7.84775087,0 C8.46692131,3.30349444e-16 8.96885813,0.50193682 8.96885813,1.12110727 C8.96885813,1.74027771 8.46692131,2.24221453 7.84775087,2.24221453 L1.12110727,2.24221453 C0.50193682,2.24221453 7.58265105e-17,1.74027771 0,1.12110727 C-7.58265105e-17,0.50193682 0.50193682,1.13739766e-16 1.12110727,0 Z" id="Rectangle" transform="translate(4.484429, 1.121107) rotate(-360.000000) translate(-4.484429, -1.121107) "></path>
+                        <path d="M4.48442907,3.3633218 L11.2110727,3.3633218 C11.8302431,3.3633218 12.3321799,3.86525862 12.3321799,4.48442907 C12.3321799,5.10359951 11.8302431,5.60553633 11.2110727,5.60553633 L4.48442907,5.60553633 C3.86525862,5.60553633 3.3633218,5.10359951 3.3633218,4.48442907 C3.3633218,3.86525862 3.86525862,3.3633218 4.48442907,3.3633218 Z" id="Rectangle-Copy" transform="translate(7.847751, 4.484429) rotate(-270.000000) translate(-7.847751, -4.484429) "></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

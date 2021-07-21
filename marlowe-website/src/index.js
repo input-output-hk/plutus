@@ -1,4 +1,5 @@
 import "./index.css";
+import $ from "jquery";
 
 function initializeFaqComponent() {
   const faqElements = document.getElementsByClassName("faq");
@@ -7,33 +8,69 @@ function initializeFaqComponent() {
   }
 }
 
-function initializeHeaderComponent() {
-  const header = document.getElementsByTagName("header")[0];
-  const headerHeight = header.getBoundingClientRect().height;
-  const mainTryButtons = document.getElementById("main-try-buttons");
+function initializeBackToTopComponent() {
+  const backToTopComponent = document.getElementById("back-to-top");
 
-  window.onscroll = function () {
-    // The header always have fixed position and as soon as the scroll moves we add
-    // a background to it
-    if (window.scrollY > 0) {
-      header.classList.add("bg-blured");
+  var myScrollFunc = function () {
+    var y = window.scrollY;
+    if (y >= 400) {
+      backToTopComponent.className = "show select-none";
     } else {
-      header.classList.remove("bg-blured");
-    }
-
-    // The header "try Run/Build" buttons appear when the same buttons in the main section
-    // are no longer visible
-    const mainButtonBoundingBox = mainTryButtons.getBoundingClientRect();
-    if (headerHeight > mainButtonBoundingBox.y + mainButtonBoundingBox.height) {
-      header.classList.add("with-buttons");
-    }
-    // and dissapear once the main buttons are fully visible again
-    if (headerHeight <= mainButtonBoundingBox.y) {
-      header.classList.remove("with-buttons");
+      backToTopComponent.className = "hide";
     }
   };
+
+  window.addEventListener("scroll", myScrollFunc);
 }
+
+// This function adds smooth scrolling for the internal links.
+// It is using some deprecated features from jQuery which adds 80kb to the build.
+// TODO: maybe refactor to use native JS.
+function initializeSmoothScrolling() {
+  // Select all links with hashes
+  $('a[href*="#"]')
+    // Remove links that don't actually link to anything
+    .not('[href="#"]')
+    .not('[href="#0"]')
+    .click(function (event) {
+      // On-page links
+      if (
+        location.pathname.replace(/^\//, "") == this.pathname.replace(/^\//, "") &&
+        location.hostname == this.hostname
+      ) {
+        // Figure out element to scroll to
+        var target = $(this.hash);
+        target = target.length ? target : $("[name=" + this.hash.slice(1) + "]");
+        // Does a scroll target exist?
+        if (target.length) {
+          // Only prevent default if animation is actually gonna happen
+          event.preventDefault();
+          $("html, body").animate(
+            {
+              scrollTop: target.offset().top,
+            },
+            500,
+            function () {
+              // Callback after animation
+              // Must change focus!
+              var $target = $(target);
+              $target.focus();
+              if ($target.is(":focus")) {
+                // Checking if the target was focused
+                return false;
+              } else {
+                $target.attr("tabindex", "-1"); // Adding tabindex for elements not focusable
+                $target.focus(); // Set focus again
+              }
+            }
+          );
+        }
+      }
+    });
+}
+
 window.onload = function () {
   initializeFaqComponent();
-  initializeHeaderComponent();
+  initializeBackToTopComponent();
+  initializeSmoothScrolling();
 };

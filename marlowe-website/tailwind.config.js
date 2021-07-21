@@ -14,12 +14,9 @@ module.exports = {
     colors: {
       transparent: "transparent",
       current: "currentColor",
-      // FIXME: Marlowe run uses "#283346" but the website uses this, unify
-      black: "#273245",
-      // FIXME: Marlowe run uses "#eeeeee" but the website uses this, unify
-      lightgray: "#f6f9fc",
+      black: "#283346",
+      lightgray: "#eeeeee",
       gray: "#dfdfdf",
-      // FIXME: Marlowe run uses "#00a551" but the website uses this, unify
       green: "#00e39c",
       lightgreen: "#00e872",
       darkgray: "#b7b7b7",
@@ -28,6 +25,7 @@ module.exports = {
       purple: "#4700c3",
       lightpurple: "#8701fc",
       grayblue: "#f5f9fc",
+      darkblue: "#161F2F",
       red: "#e04b4c",
       // NOTE: These colors correspond to the mac button colors
       "mac-red": "#ec6a5e",
@@ -73,26 +71,10 @@ module.exports = {
         "10vw": "10vw",
       },
       height: {
-        // This corresponds to the height of the hero image
-        main: "700px",
-        "banner-section-sm": "308px",
-        "banner-section": "470px",
-        "play-img-sm": "100px",
-        "play-img-md": "200px",
+        logo: "100px",
+        "logo-wider": "85px",
       },
-      maxWidth: {
-        // All content must be at most this size and centered if the screen is wider
-        screen: "1440px",
-      },
-      backgroundImage: (theme) => ({
-        main: "url('/static/img/hero-background.jpg')",
-        "play-banner": "url('/static/img/marlowe-play-banner-background-mobile.png')",
-        "market-banner": "url('/static/img/marlowe-market-banner-background-mobile.png')",
-      }),
-      backgroundPosition: {
-        "pos-play-banner-mobile": "-118px",
-        "pos-market-banner-mobile": "76px",
-      },
+
       borderWidth: {
         3: "3px",
       },
@@ -156,7 +138,7 @@ module.exports = {
     maxWidth: true,
     minHeight: true,
     minWidth: true,
-    objectFit: false,
+    objectFit: true,
     objectPosition: false,
     opacity: true,
     outline: true,
@@ -187,7 +169,7 @@ module.exports = {
     fontSmoothing: false,
     fontVariantNumeric: false,
     letterSpacing: false,
-    userSelect: false,
+    userSelect: true,
     verticalAlign: false,
     visibility: true,
     whitespace: true,

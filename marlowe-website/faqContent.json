@@ -16,11 +16,11 @@
     "answer": "Marlowe Run is a fast and easy way to use and run contracts on Cardano. You will find a selection of financial contract templates so you can pick the right smart contract for you. Once you choose a template, you simply add in roles and terms, and then run your contract. You will be using the prototype version of Marlowe Run. "
   },
   {
-    "question": "I don’t see the type of financial contract I want to use in Marlowe Run. What can I do? ",
+    "question": "Are there more smart contracts coming in Marlowe Run?",
     "answer": "You have the option to build your own contract using Marlowe Build. Also, we will be creating more contract templates for users to try out and these will be added to the contract catalogue soon."
   },
   {
-    "question": "Can I make changes to my contract once it’s been set up? ",
+    "question": "Can I make changes to my contract once it’s been set up?",
     "answer": "You can make changes to your contract at any time before it has started running. You can simply edit the fields for Roles and Terms. Once it has started running, all terms are set, just as they are with a traditional legal contract."
   },
   {
@@ -40,15 +40,11 @@
     "answer": "At this time, you can set up financial agreements using an array of templates available on Marlowe Market - a smart contract template library. If they want to, you can also build your own financial contracts on the Marlowe Playground. You can then upload these to Marlowe Market and run them on Marlowe Run."
   },
   {
-    "question": "What is the difference between Marlowe Run and Marlowe Playground?",
+    "question": "What is the difference between Marlowe Run and Marlowe Build?",
     "answer": "Marlowe Run is a new product designed for non-developer end users, serving  a broader audience. The Marlowe Playground is for a technical developer audience where contracts can be built on the Playground and subsequently used on Marlowe Run."
   },
   {
-    "question": "I’m having issues with a contract on the Marlowe Run prototype, how do I get help?",
+    "question": "How do I get help with Marlowe Run contracts?",
     "answer": "If you experience any issues, you can use the ‘Submit Feedback’ email form on the sign and we will help you. You can also help us to stress test Marlowe further by signing up to our Marlowe Pioneer Program to work with our team. We will be releasing details about this program soon."
-  },
-  {
-    "question": "Can I make changes to my contract once it’s been set up?",
-    "answer": "You can make changes to your contract at any time before it has started running. You can simply edit the fields for Roles and Terms. Once it has started running, all terms are set, just as they are with a traditional legal contract."
   }
 ]
