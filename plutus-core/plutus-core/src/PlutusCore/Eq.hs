@@ -24,6 +24,7 @@ import           PlutusCore.Name
 import           PlutusCore.Rename.Monad
 
 import           Control.Lens
+import           Control.Monad.Reader
 
 {- Note [Modulo alpha]
 The implemented algorithm of checking equality modulo alpha works as follows
@@ -155,8 +156,8 @@ runEqRename = isJust . runRenameT
 -- See Note [Modulo alpha].
 -- | Record that two names map to each other.
 withTwinBindings
-    :: (HasRenaming ren unique, HasUnique name unique, Monad m)
-    => name -> name -> RenameT (Bilateral ren) m c -> RenameT (Bilateral ren) m c
+    :: (HasRenaming ren unique, HasUnique name unique, MonadReader (Bilateral ren) m)
+    => name -> name -> m c -> m c
 withTwinBindings name1 name2 k =
     withRenamedName (LR name1) (LR name2) $
     withRenamedName (RL name2) (RL name1) k

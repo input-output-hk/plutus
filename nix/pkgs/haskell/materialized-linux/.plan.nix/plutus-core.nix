@@ -118,6 +118,7 @@
           "PlutusCore/Core/Instance/Pretty/Plc"
           "PlutusCore/Core/Instance/Pretty/Readable"
           "PlutusCore/Core/Instance/Recursive"
+          "PlutusCore/Core/Instance/Scoping"
           "PlutusCore/Core/Plated"
           "PlutusCore/Core/Type"
           "PlutusCore/DeBruijn/Internal"
@@ -132,7 +133,6 @@
           "PlutusCore/Generators/Internal/TypedBuiltinGen"
           "PlutusCore/Generators/Internal/Utils"
           "PlutusCore/Lexer/Type"
-          "PlutusCore/Mark"
           "PlutusCore/Parsable"
           "PlutusCore/Parser/Internal"
           "PlutusCore/ParserCommon"
@@ -183,6 +183,7 @@
           "Universe/Core"
           "PlutusCore"
           "PlutusCore/Check/Normal"
+          "PlutusCore/Check/Scoping"
           "PlutusCore/Check/Uniques"
           "PlutusCore/Check/Value"
           "PlutusCore/Constant"
@@ -221,6 +222,7 @@
           "PlutusCore/Generators/NEAT/Type"
           "PlutusCore/Generators/Test"
           "PlutusCore/Lexer"
+          "PlutusCore/Mark"
           "PlutusCore/MkPlc"
           "PlutusCore/Name"
           "PlutusCore/Normalize"
@@ -393,14 +395,15 @@
             ];
           buildable = true;
           modules = [
+            "Check/Spec"
+            "CostModelInterface/Spec"
             "Evaluation/Machines"
             "Evaluation/Spec"
+            "Names/Spec"
             "Normalization/Check"
             "Normalization/Type"
             "Pretty/Readable"
-            "Check/Spec"
             "TypeSynthesis/Spec"
-            "CostModelInterface/Spec"
             ];
           hsSourceDirs = [ "plutus-core/test" ];
           mainPath = [ "Spec.hs" ];
