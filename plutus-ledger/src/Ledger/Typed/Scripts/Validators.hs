@@ -1,16 +1,28 @@
 {-# LANGUAGE DataKinds          #-}
 {-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE KindSignatures     #-}
-{-# LANGUAGE NamedFieldPuns     #-}
-{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeFamilies       #-}
-{-# LANGUAGE ViewPatterns       #-}
+
 {-# OPTIONS_GHC -fno-specialise #-}
 {-# OPTIONS_GHC -fno-strictness #-}
 {-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
 {-# OPTIONS_GHC -fno-omit-interface-pragmas #-}
-module Ledger.Typed.Scripts.Validators (ValidatorTypes(..), ValidatorType, WrappedValidatorType, wrapValidator, TypedValidator, mkTypedValidator, mkTypedValidatorParam, validatorHash, validatorAddress, validatorScript, unsafeMkTypedValidator, forwardingMintingPolicy, forwardingMintingPolicyHash) where
+
+module Ledger.Typed.Scripts.Validators
+    ( ValidatorTypes(..)
+    , ValidatorType
+    , WrappedValidatorType
+    , wrapValidator
+    , TypedValidator
+    , mkTypedValidator
+    , mkTypedValidatorParam
+    , validatorHash
+    , validatorAddress
+    , validatorScript
+    , unsafeMkTypedValidator
+    , forwardingMintingPolicy
+    , forwardingMintingPolicyHash
+    ) where
 
 import           Data.Aeson                            (FromJSON, ToJSON)
 import           Data.Kind
@@ -21,9 +33,9 @@ import           PlutusCore.Default                    (DefaultUni)
 import           PlutusTx
 import           PlutusTx.Prelude                      (check)
 
+import qualified Ledger.Scripts                        as Scripts
 import           Plutus.V1.Ledger.Address              (Address (..), scriptHashAddress)
 import qualified Plutus.V1.Ledger.Contexts             as Validation
-import qualified Plutus.V1.Ledger.Scripts              as Scripts
 
 import qualified Ledger.Typed.Scripts.MonetaryPolicies as MPS
 import           Ledger.Typed.TypeUtils                (Any)

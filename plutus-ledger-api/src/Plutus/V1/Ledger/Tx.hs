@@ -32,7 +32,6 @@ module Plutus.V1.Ledger.Tx(
     lookupSignature,
     lookupDatum,
     lookupRedeemer,
-    addSignature,
     mint,
     fee,
     ScriptTag (..),
@@ -53,10 +52,7 @@ module Plutus.V1.Ledger.Tx(
     outValue,
     txOutPubKey,
     txOutDatum,
-    pubKeyTxOut,
     pubKeyHashTxOut,
-    scriptTxOut,
-    scriptTxOut',
     txOutTxDatum,
     -- * Transaction inputs
     TxInType(..),
@@ -87,7 +83,7 @@ import qualified Data.Set                  as Set
 import           Data.Text.Prettyprint.Doc
 import           GHC.Generics              (Generic)
 
-import qualified PlutusTx                  as PlutusTx
+import qualified PlutusTx
 import qualified PlutusTx.Bool             as PlutusTx
 import qualified PlutusTx.Eq               as PlutusTx
 import           PlutusTx.Lattice
@@ -435,19 +431,6 @@ data TxOutTx = TxOutTx { txOutTxTx :: Tx, txOutTxOut :: TxOut }
 txOutTxDatum :: TxOutTx -> Maybe Datum
 txOutTxDatum (TxOutTx tx out) = txOutDatum out >>= lookupDatum tx
 
--- | Create a transaction output locked by a validator script hash
---   with the given data script attached.
-scriptTxOut' :: Value -> Address -> Datum -> TxOut
-scriptTxOut' v a ds = TxOut a v (Just (datumHash ds))
-
--- | Create a transaction output locked by a validator script and with the given data script attached.
-scriptTxOut :: Value -> Validator -> Datum -> TxOut
-scriptTxOut v vs = scriptTxOut' v (scriptAddress vs)
-
--- | Create a transaction output locked by a public key.
-pubKeyTxOut :: Value -> PubKey -> TxOut
-pubKeyTxOut v pk = TxOut (pubKeyAddress pk) v Nothing
-
 -- | Create a transaction output locked by a public key.
 pubKeyHashTxOut :: Value -> PubKeyHash -> TxOut
 pubKeyHashTxOut v pkh = TxOut (pubKeyHashAddress pkh) v Nothing
@@ -470,13 +453,6 @@ updateUtxo tx unspent = (unspent `Map.withoutKeys` spentOutputs tx) `Map.union` 
 --   for a failed transaction using its collateral inputs.
 updateUtxoCollateral :: Tx -> Map TxOutRef TxOut -> Map TxOutRef TxOut
 updateUtxoCollateral tx unspent = unspent `Map.withoutKeys` (Set.map txInRef . txCollateral $ tx)
-
--- | Sign the transaction with a 'PrivateKey' and add the signature to the
---   transaction's list of signatures.
-addSignature :: PrivateKey -> Tx -> Tx
-addSignature privK tx = tx & signatures . at pubK ?~ sig where
-    sig = signTx (txId tx) privK
-    pubK = toPublicKey privK
 
 PlutusTx.makeIsDataIndexed ''TxOut [('TxOut,0)]
 PlutusTx.makeLift ''TxOut

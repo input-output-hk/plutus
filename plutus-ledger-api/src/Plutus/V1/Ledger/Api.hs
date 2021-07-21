@@ -79,18 +79,14 @@ module Plutus.V1.Ledger.Api (
     , mkValidatorScript
     , unValidatorScript
     , ValidatorHash (..)
-    , validatorHash
     , MintingPolicy (..)
     , mkMintingPolicyScript
     , unMintingPolicyScript
     , MintingPolicyHash (..)
-    , mintingPolicyHash
     , Redeemer (..)
     , RedeemerHash (..)
-    , redeemerHash
     , Datum (..)
     , DatumHash (..)
-    , datumHash
     -- * Data
     , PLC.Data (..)
     , BuiltinData (..)

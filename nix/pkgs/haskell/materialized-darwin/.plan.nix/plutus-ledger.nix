@@ -69,6 +69,7 @@
           (hsPkgs."cardano-api" or (errorHandler.buildDepError "cardano-api"))
           (hsPkgs."cardano-binary" or (errorHandler.buildDepError "cardano-binary"))
           (hsPkgs."cardano-crypto" or (errorHandler.buildDepError "cardano-crypto"))
+          (hsPkgs."cardano-crypto-class" or (errorHandler.buildDepError "cardano-crypto-class"))
           (hsPkgs."deepseq" or (errorHandler.buildDepError "deepseq"))
           (hsPkgs."freer-simple" or (errorHandler.buildDepError "freer-simple"))
           (hsPkgs."semigroups" or (errorHandler.buildDepError "semigroups"))
@@ -77,12 +78,15 @@
         modules = [
           "Data/Time/Units/Extra"
           "Ledger"
+          "Ledger/Address"
           "Ledger/AddressMap"
           "Ledger/Blockchain"
           "Ledger/Constraints"
           "Ledger/Constraints/OffChain"
           "Ledger/Constraints/OnChain"
           "Ledger/Constraints/TxConstraints"
+          "Ledger/Contexts"
+          "Ledger/Crypto"
           "Ledger/Fee"
           "Ledger/Generators"
           "Ledger/Oracle"
@@ -91,6 +95,7 @@
           "Ledger/Scripts"
           "Ledger/TimeSlot"
           "Ledger/Tokens"
+          "Ledger/Tx"
           "Ledger/Typed/Scripts"
           "Ledger/Typed/Scripts/Validators"
           "Ledger/Typed/Scripts/MonetaryPolicies"

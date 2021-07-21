@@ -39,8 +39,6 @@
           (hsPkgs."cborg" or (errorHandler.buildDepError "cborg"))
           (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
           (hsPkgs."cryptonite" or (errorHandler.buildDepError "cryptonite"))
-          (hsPkgs."cardano-crypto" or (errorHandler.buildDepError "cardano-crypto"))
-          (hsPkgs."cardano-crypto-class" or (errorHandler.buildDepError "cardano-crypto-class"))
           (hsPkgs."flat" or (errorHandler.buildDepError "flat"))
           (hsPkgs."hashable" or (errorHandler.buildDepError "hashable"))
           (hsPkgs."plutus-core" or (errorHandler.buildDepError "plutus-core"))

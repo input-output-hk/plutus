@@ -43,12 +43,15 @@ library
     exposed-modules:
         Data.Time.Units.Extra
         Ledger
+        Ledger.Address
         Ledger.AddressMap
         Ledger.Blockchain
         Ledger.Constraints
         Ledger.Constraints.OffChain
         Ledger.Constraints.OnChain
         Ledger.Constraints.TxConstraints
+        Ledger.Contexts
+        Ledger.Crypto
         Ledger.Fee
         Ledger.Generators
         Ledger.Oracle
@@ -57,6 +60,7 @@ library
         Ledger.Scripts
         Ledger.TimeSlot
         Ledger.Tokens
+        Ledger.Tx
         Ledger.Typed.Scripts
         Ledger.Typed.Scripts.Validators
         Ledger.Typed.Scripts.MonetaryPolicies
@@ -66,22 +70,23 @@ library
         Data.Aeson.Extras,
         Data.Either.Extras,
         Data.Text.Prettyprint.Doc.Extras,
-        Plutus.V1.Ledger.Address as Ledger.Address,
         Plutus.V1.Ledger.Ada as Ledger.Ada,
         Plutus.V1.Ledger.Bytes as Ledger.Bytes,
-        Plutus.V1.Ledger.Contexts as Ledger.Contexts,
         Plutus.V1.Ledger.Credential as Ledger.Credential,
         Plutus.V1.Ledger.DCert as Ledger.DCert,
-        Plutus.V1.Ledger.Crypto as Ledger.Crypto,
         Plutus.V1.Ledger.Interval as Ledger.Interval,
-        -- We manually re-export that module so we can include some extra
-        -- instances
-        -- Plutus.V1.Ledger.Scripts as Ledger.Scripts,
         Plutus.V1.Ledger.Slot as Ledger.Slot,
-        Plutus.V1.Ledger.Tx as Ledger.Tx,
         Plutus.V1.Ledger.TxId as Ledger.TxId,
         Plutus.V1.Ledger.Time as Ledger.Time,
         Plutus.V1.Ledger.Value as Ledger.Value
+        -- We manually re-export these modules so we can include some functions
+        -- that don't need to used outside of plutus:
+        -- Plutus.V1.Ledger.Address as Ledger.Address,
+        -- Plutus.V1.Ledger.Contexts as Ledger.Contexts,
+        -- Plutus.V1.Ledger.Crypto as Ledger.Crypto,
+        -- Plutus.V1.Ledger.Scripts as Ledger.Scripts,
+        -- Plutus.V1.Ledger.Tx as Ledger.Tx,
+
     build-depends:
         base >=4.9 && <5,
         aeson -any,
@@ -119,6 +124,7 @@ library
         cardano-api -any,
         cardano-binary -any,
         cardano-crypto -any,
+        cardano-crypto-class -any,
         deepseq -any,
         freer-simple -any,
         semigroups -any
