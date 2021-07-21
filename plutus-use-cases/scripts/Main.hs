@@ -9,9 +9,9 @@ module Main(main) where
 
 import qualified Cardano.Api                    as C
 import qualified Cardano.Api.Shelley            as C
-import qualified Cardano.Binary                 as Binary
 import qualified Control.Foldl                  as L
 import           Control.Monad.Freer            (run)
+import           Data.Aeson                     (ToJSON (..), object, (.=))
 import qualified Data.Aeson                     as Aeson
 import           Data.Aeson.Encode.Pretty       (encodePretty)
 import           Data.Bitraversable             (bitraverse)
@@ -20,7 +20,6 @@ import           Data.Default                   (Default (..))
 import           Data.Foldable                  (traverse_)
 import           Data.Map                       (Map)
 import qualified Data.Map                       as Map
-import           Data.Proxy                     (Proxy (..))
 import           Data.Set                       (Set)
 import qualified Data.Set                       as Set
 import           Data.Text.Prettyprint.Doc      (Pretty (..))
@@ -186,14 +185,12 @@ writeScript fp prefix idx ScriptValidationEvent{sveScript, sveResult} = do
 writeTransaction :: C.ProtocolParameters -> C.NetworkId -> FilePath -> String -> Int -> UnbalancedTx -> IO ()
 writeTransaction params networkId fp prefix idx tx = do
     let filename1 = fp </> prefix <> "-" <> show idx <> ".json"
-    putStrLn $ "Writing partial transaction JSON: " <> filename1
-    BSL.writeFile filename1 (encodePretty tx)
     case export params networkId tx of
-        Left err -> putStrLn $ "Export tx failed for " <> filename1 <> ". Reason: " <> show (pretty err)
+        Left err ->
+            putStrLn $ "Export tx failed for " <> filename1 <> ". Reason: " <> show (pretty err)
         Right exportTx -> do
-            let filename2 = fp </> prefix <> "-" <> show idx <> ".cbor"
-            putStrLn $ "Writing partial transaction CBOR: " <> filename2
-            BSL.writeFile filename2 $ BSL.fromStrict (Binary.serialize' exportTx)
+            putStrLn $ "Writing partial transaction JSON: " <> filename1
+            BSL.writeFile filename1 $ encodePretty exportTx
 
 -- | `uncurry3` converts a curried function to a function on triples.
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
@@ -206,29 +203,22 @@ theFold = (,) <$> Folds.scriptEvents <*> Folds.walletTxBalanceEvents
 data ExportTx =
         ExportTx
             { partialTx   :: C.Tx C.AlonzoEra -- ^ The transaction itself
-            , lookups     :: [(C.TxIn, C.TxOut C.AlonzoEra)] -- ^ The tx outputs for all inputs spent by the partial tx
+            , lookups     :: [ExportTxInput] -- ^ The tx outputs for all inputs spent by the partial tx
             , signatories :: [C.Hash C.PaymentKey] -- ^ Key(s) that we expect to be used for balancing & signing. (Advisory)
             }
     deriving stock (Generic, Typeable)
 
-instance Binary.ToCBOR ExportTx where
-    toCBOR ExportTx{partialTx, lookups, signatories} =
-        Binary.toCBOR
-            -- This is the best I could do, the types in Cardano.API all seem to have different serialisation
-            -- formats (ToCBOR, SerialiseAsCBOR, ToJSON)
-            ( C.serialiseToCBOR partialTx
-            , Aeson.encode lookups -- TODO: Missing CBOR instance(s) for TxOut AlonzoEra :(
-            , Binary.serialize' signatories
-            )
+data ExportTxInput = ExportTxInput{txIn :: C.TxIn, txOut :: C.TxOut C.AlonzoEra}
+    deriving stock (Generic, Typeable)
+    deriving anyclass (ToJSON)
 
-    encodedSizeExpr size _ =
-        Binary.encodedSizeExpr
-            size
-            (Proxy @(Binary.LengthOf BSL.ByteString, Binary.LengthOf BSL.ByteString, Binary.LengthOf BSL.ByteString))
-
-instance C.HasTypeProxy ExportTx where
-    data AsType ExportTx = AsExportTx
-    proxyToAsType _ = AsExportTx
+instance ToJSON ExportTx where
+    toJSON ExportTx{partialTx, lookups, signatories} =
+        object
+            [ "transaction" .= toJSON (C.serialiseToTextEnvelope Nothing partialTx)
+            , "inputs"      .= toJSON lookups
+            , "signatories" .= toJSON (C.serialiseToRawBytesHexText <$> signatories)
+            ]
 
 export :: C.ProtocolParameters -> C.NetworkId -> UnbalancedTx -> Either CardanoAPI.ToCardanoError ExportTx
 export params networkId UnbalancedTx{unBalancedTxTx, unBalancedTxUtxoIndex, unBalancedTxRequiredSignatories} =
@@ -240,8 +230,8 @@ export params networkId UnbalancedTx{unBalancedTxTx, unBalancedTxUtxoIndex, unBa
 mkTx :: C.ProtocolParameters -> C.NetworkId -> Plutus.Tx -> Either CardanoAPI.ToCardanoError (C.Tx C.AlonzoEra)
 mkTx params networkId = fmap (C.makeSignedTransaction []) . CardanoAPI.toCardanoTxBody (Just params) networkId
 
-mkLookups :: C.NetworkId -> Map Plutus.TxOutRef Plutus.TxOut -> Either CardanoAPI.ToCardanoError [(C.TxIn, C.TxOut C.AlonzoEra)]
-mkLookups networkId = traverse (bitraverse CardanoAPI.toCardanoTxIn (CardanoAPI.toCardanoTxOut networkId)) . Map.toList
+mkLookups :: C.NetworkId -> Map Plutus.TxOutRef Plutus.TxOut -> Either CardanoAPI.ToCardanoError [ExportTxInput]
+mkLookups networkId = fmap (fmap $ uncurry ExportTxInput) . traverse (bitraverse CardanoAPI.toCardanoTxIn (CardanoAPI.toCardanoTxOut networkId)) . Map.toList
 
 mkSignatories :: Set Plutus.PubKeyHash -> Either CardanoAPI.ToCardanoError [C.Hash C.PaymentKey]
 mkSignatories = traverse CardanoAPI.toCardanoPaymentKeyHash . Set.toList
