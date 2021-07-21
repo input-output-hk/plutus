@@ -54,6 +54,7 @@ library
         PlutusTx.Maybe
         PlutusTx.Monoid
         PlutusTx.Numeric
+        PlutusTx.NumberTheory
         PlutusTx.Ratio
         PlutusTx.Semigroup
         PlutusTx.Sqrt
@@ -87,7 +88,8 @@ library
         plutus-core -any,
         lens -any,
         ghc-prim -any,
-        aeson -any
+        aeson -any,
+        hgmp -any,
 
 test-suite plutus-tx-test
     import: lang

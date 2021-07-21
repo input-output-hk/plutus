@@ -67,6 +67,7 @@
           (hsPkgs."hashable" or (errorHandler.buildDepError "hashable"))
           (hsPkgs."hedgehog" or (errorHandler.buildDepError "hedgehog"))
           (hsPkgs."integer-gmp" or (errorHandler.buildDepError "integer-gmp"))
+          (hsPkgs."hgmp" or (errorHandler.buildDepError "hgmp"))
           (hsPkgs."lazy-search" or (errorHandler.buildDepError "lazy-search"))
           (hsPkgs."lens" or (errorHandler.buildDepError "lens"))
           (hsPkgs."megaparsec" or (errorHandler.buildDepError "megaparsec"))
@@ -133,6 +134,7 @@
           "PlutusCore/Generators/Internal/Utils"
           "PlutusCore/Lexer/Type"
           "PlutusCore/Mark"
+          "PlutusCore/NumberTheory"
           "PlutusCore/Parsable"
           "PlutusCore/Parser/Internal"
           "PlutusCore/ParserCommon"

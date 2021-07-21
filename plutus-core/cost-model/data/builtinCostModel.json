@@ -196,6 +196,54 @@
             "type": "split_const_multi"
         }
     },
+    "pow_mod_integer": {
+        "memory": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        },
+        "cpu": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        }
+    },
+    "invert_integer": {
+        "memory": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        },
+        "cpu": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        }
+    },
+    "probably_prime_integer": {
+        "memory": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        },
+        "cpu": {
+            "arguments": {
+                "slope": 1,
+                "intercept": 0
+            },
+            "type": "added_sizes"
+        }
+    },
     "concatenate": {
         "memory": {
             "arguments": {

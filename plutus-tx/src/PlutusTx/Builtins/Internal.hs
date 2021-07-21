@@ -11,11 +11,12 @@
 module PlutusTx.Builtins.Internal where
 
 import qualified Crypto
-import           Data.ByteString      as BS
-import qualified Data.ByteString.Hash as Hash
+import           Data.ByteString       as BS
+import qualified Data.ByteString.Hash  as Hash
 import           Data.Coerce
-import           Data.Maybe           (fromMaybe)
-import qualified PlutusCore.Data      as PLC
+import           Data.Maybe            (fromMaybe)
+import qualified PlutusCore.Data       as PLC
+import           PlutusTx.NumberTheory (invert, powMod, probablyPrime)
 import           PlutusTx.Utils
 
 {- Note [Builtin name definitions]
@@ -106,6 +107,18 @@ divideInteger = coerce (div @Integer)
 {-# NOINLINE modInteger #-}
 modInteger :: BuiltinInteger -> BuiltinInteger -> BuiltinInteger
 modInteger = coerce (mod @Integer)
+
+{-# NOINLINE powModInteger #-}
+powModInteger :: BuiltinInteger -> BuiltinInteger -> BuiltinInteger  -> BuiltinInteger
+powModInteger = coerce (powMod @Integer)
+
+{-# NOINLINE invertInteger #-}
+invertInteger :: BuiltinInteger -> BuiltinInteger -> BuiltinInteger
+invertInteger = coerce (invert @Integer)
+
+{-# NOINLINE probablyPrimeInteger #-}
+probablyPrimeInteger :: BuiltinInteger -> BuiltinInteger -> BuiltinInteger
+probablyPrimeInteger = coerce (probablyPrime @Integer)
 
 {-# NOINLINE quotientInteger #-}
 quotientInteger :: BuiltinInteger -> BuiltinInteger -> BuiltinInteger

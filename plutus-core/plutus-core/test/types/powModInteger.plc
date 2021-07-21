@@ -1,0 +1,9 @@
+(program 0.1.0
+  (lam a (con integer)
+    (lam e (con integer)
+      (lam m (con integer)
+        [(builtin powModInteger) a e m]
+      )
+    )
+  )
+)

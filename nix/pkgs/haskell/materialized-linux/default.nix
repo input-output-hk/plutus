@@ -347,6 +347,7 @@
         "vault".revision = (((hackage."vault")."0.3.1.5").revisions).default;
         "vault".flags.useghc = true;
         "zlib-bindings".revision = (((hackage."zlib-bindings")."0.1.1.5").revisions).default;
+        "hgmp".revision = (((hackage."hgmp")."0.1.2").revisions).default;
         "case-insensitive".revision = (((hackage."case-insensitive")."1.2.1.0").revisions).default;
         "constraints-extras".revision = (((hackage."constraints-extras")."0.3.1.0").revisions).default;
         "constraints-extras".flags.build-readme = true;

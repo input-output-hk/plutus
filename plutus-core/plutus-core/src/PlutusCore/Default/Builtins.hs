@@ -21,6 +21,7 @@ import           PlutusCore.Default.Universe
 import           PlutusCore.Evaluation.Machine.BuiltinCostModel
 import           PlutusCore.Evaluation.Machine.ExMemory
 import           PlutusCore.Evaluation.Result
+import           PlutusCore.NumberTheory                        (invert, powMod, probablyPrime)
 import           PlutusCore.Pretty
 
 import           Control.DeepSeq
@@ -46,6 +47,9 @@ data DefaultFun
     | QuotientInteger
     | RemainderInteger
     | ModInteger
+    | PowModInteger
+    | InvertInteger
+    | ProbablyPrimeInteger
     | LessThanInteger
     | LessThanEqualsInteger
     | GreaterThanInteger
@@ -113,9 +117,16 @@ instance ExMemoryUsage DefaultFun where
 -- | Turn a function into another function that returns 'EvaluationFailure' when its second argument
 -- is 0 or calls the original function otherwise and wraps the result in 'EvaluationSuccess'.
 -- Useful for correctly handling `div`, `mod`, etc.
-nonZeroArg :: (Integer -> Integer -> Integer) -> Integer -> Integer -> EvaluationResult Integer
-nonZeroArg _ _ 0 = EvaluationFailure
-nonZeroArg f x y = EvaluationSuccess $ f x y
+nonZeroSecondArg :: (Integer -> Integer -> Integer) -> Integer -> Integer -> EvaluationResult Integer
+nonZeroSecondArg _ _ 0 = EvaluationFailure
+nonZeroSecondArg f x y = EvaluationSuccess $ f x y
+
+-- | Turn a function into another function that returns 'EvaluationFailure' when its third argument
+-- is 0 or calls the original function otherwise and wraps the result in 'EvaluationSuccess'.
+-- Useful for correctly handling `powMod`, etc.
+nonZeroThirdArg :: (Integer -> Integer -> Integer -> Integer) -> Integer -> Integer -> Integer -> EvaluationResult Integer
+nonZeroThirdArg _ _ _ 0 = EvaluationFailure
+nonZeroThirdArg f x y z = EvaluationSuccess $ f x y z
 
 instance uni ~ DefaultUni => ToBuiltinMeaning uni DefaultFun where
     type CostingPart uni DefaultFun = BuiltinCostModel
@@ -136,20 +147,32 @@ instance uni ~ DefaultUni => ToBuiltinMeaning uni DefaultFun where
             (runCostingFunTwoArguments . paramMultiplyInteger)
     toBuiltinMeaning DivideInteger =
         makeBuiltinMeaning
-            (nonZeroArg div)
+            (nonZeroSecondArg div)
             (runCostingFunTwoArguments . paramDivideInteger)
     toBuiltinMeaning QuotientInteger =
         makeBuiltinMeaning
-            (nonZeroArg quot)
+            (nonZeroSecondArg quot)
             (runCostingFunTwoArguments . paramQuotientInteger)
     toBuiltinMeaning RemainderInteger =
         makeBuiltinMeaning
-            (nonZeroArg rem)
+            (nonZeroSecondArg rem)
             (runCostingFunTwoArguments . paramRemainderInteger)
     toBuiltinMeaning ModInteger =
         makeBuiltinMeaning
-            (nonZeroArg mod)
+            (nonZeroSecondArg mod)
             (runCostingFunTwoArguments . paramModInteger)
+    toBuiltinMeaning PowModInteger =
+        makeBuiltinMeaning
+            (nonZeroThirdArg powMod)
+            (runCostingFunThreeArguments . paramPowModInteger)
+    toBuiltinMeaning InvertInteger =
+        makeBuiltinMeaning
+            (nonZeroSecondArg invert)
+            (runCostingFunTwoArguments . paramInvertInteger)
+    toBuiltinMeaning ProbablyPrimeInteger =
+        makeBuiltinMeaning
+            (nonZeroSecondArg probablyPrime)
+            (runCostingFunTwoArguments . paramProbablyPrimeInteger)
     toBuiltinMeaning LessThanInteger =
         makeBuiltinMeaning
             ((<) @Integer)
@@ -448,6 +471,9 @@ instance Flat DefaultFun where
               MkNilPairData            -> 51
               MkCons                   -> 52
               ChooseList               -> 53
+              PowModInteger            -> 54
+              InvertInteger            -> 55
+              ProbablyPrimeInteger     -> 56
 
     decode = go =<< decodeBuiltin
         where go 0  = pure AddInteger
@@ -504,6 +530,9 @@ instance Flat DefaultFun where
               go 51 = pure MkNilPairData
               go 52 = pure MkCons
               go 53 = pure ChooseList
+              go 54 = pure PowModInteger
+              go 55 = pure InvertInteger
+              go 56 = pure ProbablyPrimeInteger
               go _  = fail "Failed to decode BuiltinName"
 
     size _ n = n + builtinTagWidth

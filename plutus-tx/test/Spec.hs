@@ -9,6 +9,7 @@ import           Hedgehog            (MonadGen, Property, PropertyT, annotateSho
 import qualified Hedgehog.Gen        as Gen
 import qualified Hedgehog.Range      as Range
 import           PlutusCore.Data     (Data (..))
+import           PlutusTx.Builtins   (invertInteger, powModInteger, probablyPrimeInteger)
 import           PlutusTx.Numeric    (negate)
 import           PlutusTx.Ratio      (Rational, denominator, numerator, recip, (%))
 import           PlutusTx.Sqrt       (Sqrt (..), isqrt, rsqrt)
@@ -20,11 +21,15 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "plutus-tx" [
-    serdeTests
-    , sqrtTests
-    , ratioTests
-    ]
+tests = testGroup "plutus-tx"
+  [
+    powModIntegerTests
+  , invertIntegerTests
+  , probablyPrimeTests
+  , serdeTests
+  , sqrtTests
+  , ratioTests
+  ]
 
 sqrtTests :: TestTree
 sqrtTests = testGroup "isqrt/rsqrt tests"
@@ -166,3 +171,72 @@ reciprocalOrdering3 = property $ do
   x <- genNegativeRational
   y <- genPositiveRational
   assert (recip x < recip y)
+
+powModIntegerTests :: TestTree
+powModIntegerTests = testGroup "Integer modular exponentation tests"
+  [ testProperty "2^3 % 5 = 3" powModIntegerPositiveCheck
+  , testProperty "0^0 % 1 = 0" powModIntegerZeroBaseZeroExponentCheck
+  , testProperty "-2^3 % 5 = 2" powModIntegerNegativeBaseCheck
+  ]
+
+powModIntegerPositiveCheck :: Property
+powModIntegerPositiveCheck = property $ do
+  let a :: Integer = 2
+  let e :: Integer = 3
+  let m :: Integer = 5
+  let r :: Integer = 3
+
+  assert (r == powModInteger a e m)
+
+powModIntegerZeroBaseZeroExponentCheck :: Property
+powModIntegerZeroBaseZeroExponentCheck = property $ do
+  let a :: Integer = 0
+  let e :: Integer = 0
+  let m :: Integer = 1
+  let r :: Integer = 0
+
+  assert (r == powModInteger a e m)
+
+powModIntegerNegativeBaseCheck :: Property
+powModIntegerNegativeBaseCheck = property $ do
+  let a :: Integer = -2
+  let e :: Integer = 3
+  let m :: Integer = 5
+  let r :: Integer = 2
+
+  assert (r == powModInteger a e m)
+
+invertIntegerTests :: TestTree
+invertIntegerTests = testGroup "Integer modular multiplicative inverse tests"
+  [ testProperty "inverse 3 modulo 11 = 4" invertIntegerCheck
+  ]
+
+invertIntegerCheck :: Property
+invertIntegerCheck = property $ do
+  let a :: Integer = 3
+  let m :: Integer = 11
+  let r :: Integer = 4
+
+  assert (r == invertInteger a m)
+
+probablyPrimeTests :: TestTree
+probablyPrimeTests = testGroup "Integer primality test tests"
+  [ testProperty "num: 3 reps: 15 = 2" definitelyPrimeIntegerCheck
+  , testProperty "num: 8 reps: 15 = 0" definitelyNotPrimeIntegerCheck
+  ]
+
+definitelyPrimeIntegerCheck :: Property
+definitelyPrimeIntegerCheck = property $ do
+  let n :: Integer = 3
+  let l :: Integer = 15
+  let r :: Integer = 2
+
+  assert (r == probablyPrimeInteger n l)
+
+definitelyNotPrimeIntegerCheck :: Property
+definitelyNotPrimeIntegerCheck = property $ do
+  let n :: Integer = 8
+  let l :: Integer = 15
+  let r :: Integer = 0
+
+  assert (r == probablyPrimeInteger n l)

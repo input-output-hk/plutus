@@ -192,6 +192,7 @@ library
         PlutusCore.Generators.Internal.Utils
         PlutusCore.Lexer.Type
         PlutusCore.Mark
+        PlutusCore.NumberTheory
         PlutusCore.Parsable
         PlutusCore.Parser.Internal
         PlutusCore.ParserCommon
@@ -274,6 +275,7 @@ library
         hashable,
         hedgehog >=1.0,
         integer-gmp -any,
+        hgmp -any,
         lazy-search -any,
         lens -any,
         megaparsec -any,

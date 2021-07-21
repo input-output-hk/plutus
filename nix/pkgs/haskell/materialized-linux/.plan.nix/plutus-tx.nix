@@ -47,6 +47,7 @@
           (hsPkgs."lens" or (errorHandler.buildDepError "lens"))
           (hsPkgs."ghc-prim" or (errorHandler.buildDepError "ghc-prim"))
           (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
+          (hsPkgs."hgmp" or (errorHandler.buildDepError "hgmp"))
           ];
         buildable = true;
         modules = [
@@ -73,6 +74,7 @@
           "PlutusTx/Maybe"
           "PlutusTx/Monoid"
           "PlutusTx/Numeric"
+          "PlutusTx/NumberTheory"
           "PlutusTx/Ratio"
           "PlutusTx/Semigroup"
           "PlutusTx/Sqrt"
