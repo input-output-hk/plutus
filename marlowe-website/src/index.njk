@@ -54,7 +54,7 @@
     <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center lg:pt-44 md:pt-40 md:pb-20 pt-32 pb-14">
       <!--Hero-->
 
-      <!--<div class="relative mx-auto md:w-5/6 w-11/12 max-w-screen-widest lg:mx-auto bg-red">-->
+      <!--<div class="relative mx-auto md:w-5/6 w-11/12 max-w-screen-widest lg:mx-auto">-->
       <div class="mx-3 md:mx-5vw flex justify-center">
         <!--Row-->
 
@@ -68,22 +68,29 @@
 
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 md:mt-12 mt-8 bg-red">
-        <!--Row-->
-        <div class="mb-20 md:mb-0" style="">
-          <!--Left column-->
-          <h3 class="text-27px font-semibold pb-4 md:hidden block mt-12">Run Marlowe contracts</h3>
-          <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-run-image.png' %}" alt="Marlowe Run Demo">
-          <h3 class="text-27px font-semibold pb-4 md:block hidden">Run Marlowe contracts</h3>
-          <p class="text-lg font-semibold">Run our first collection of smart contract templates with the Marlowe Run app.</p>
-        </div>
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
 
-        <div class="" style="">
-          <!--Right column-->
-          <h3 class="text-27px font-semibold pb-4 md:hidden block">Build Marlowe contracts</h3>
-          <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-build-image.png' %}" alt="Marlowe Build Demo">
-          <h3 class="text-27px font-semibold pb-4 md:block hidden">Build Marlowe contracts</h3>
-          <p class="text-lg font-semibold">Write, build and simulate financial smart contracts with the Marlowe Build sandbox.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 md:mt-12 mt-8 w-full max-w-screen-widest">
+          {# Defines the width #}
+          <!--Row-->
+
+          <div class="mb-20 md:mb-0" style="">
+            <!--Left column-->
+            <h3 class="text-27px font-semibold pb-4 md:hidden block mt-12">Run Marlowe contracts</h3>
+            <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-run-image.png' %}" alt="Marlowe Run Demo">
+            <h3 class="text-27px font-semibold pb-4 md:block hidden">Run Marlowe contracts</h3>
+            <p class="text-lg font-semibold">Run our first collection of smart contract templates with the Marlowe Run app.</p>
+          </div>
+
+          <div class="" style="">
+            <!--Right column-->
+            <h3 class="text-27px font-semibold pb-4 md:hidden block">Build Marlowe contracts</h3>
+            <img loading="lazy" class="lg:w-2/3 w-full mx-auto" src="{% static './static/img/marlowe-build-image.png' %}" alt="Marlowe Build Demo">
+            <h3 class="text-27px font-semibold pb-4 md:block hidden">Build Marlowe contracts</h3>
+            <p class="text-lg font-semibold">Write, build and simulate financial smart contracts with the Marlowe Build sandbox.</p>
+          </div>
+
         </div>
 
       </div>
@@ -103,175 +110,220 @@
     </section>
 
     <!--Hero-->
-    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-20 pt-16 pb-20">
+    <section class="relative bg-grayblue md:pt-24 md:pb-20 pt-16 pb-20 text-center">
       <!--S1 - Marlowe Run-->
-      <div class="relative mx-auto md:w-5/6 w-11/12">
-        <!--Row-->
-        <div class="">
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="w-full max-w-screen-widest">
+          {#Defines the width#}
+          <!--Row-->
+          <div class="">
+            <!--Column-->
+            <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo lg:h-logo-wider" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
+            <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Financial smart contracts made easy</h2>
+            <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Interact with running smart contracts on the web.</h2>
+          </div>
           <!--Column-->
-          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 h-logo lg:h-logo-wider" src="{% static './static/img/marlowe-run-demo-logo-light.svg' %}" alt="">
-          <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Financial smart contracts made easy</h2>
-          <h2 class="text-xl lg:text-2xl xl:text-27px pb-8">Interact with running smart contracts on the web.</h2>
         </div>
-        <!--Column-->
-      </div>
-      <!--Row-->
-
-      <div class="relative mx-auto md:w-5/6 w-11/12">
         <!--Row-->
-        <div class="">
-          <!--Column-->
 
-          <h3 class="text-lg font-semibold mt-5 pb-4 md:block hidden">Try the first of many smart contract templates, more coming soon.</h3>
-          <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 hidden md:block" src="{% static './static/img/run-tabs.png' %}" alt="">
-          <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 block md:hidden" src="{% static './static/img/tabs-mobile.jpg' %}" alt="">
-
-        </div>
-        <!--Column-->
       </div>
-      <!--Row-->
 
-      <div class="relative mx-auto lg:w-3/4 md:w-5/6 w-11/12">
-        <!--Row-->
-        <div class="">
-          <!--Column-->
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
 
-          <h3 class="pt-16 text-xl font-semibold pb-4 md:block hidden">See how it works</h3>
+        <div class="relative w-full max-w-screen-widest">
+          {#Defines the width#}
+          <!--Row-->
+          <div class="">
+            <!--Column-->
 
-          <div class="relative xl:w-3/4 w-full mx-auto">
-            <!--Video thumbnail-->
-            <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
-              <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
-            </div>
-            <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/run-video-thumbnail.png' %}" alt="">
+            <h3 class="text-lg font-semibold mt-5 pb-4 md:block hidden">Try the first of many smart contract templates, more coming soon.</h3>
+            <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 hidden md:block" src="{% static './static/img/run-tabs.png' %}" alt="">
+            <img loading="lazy" class="w-2/3 mx-auto lg:pb-0 md:pb-8 pb-8 block md:hidden" src="{% static './static/img/tabs-mobile.jpg' %}" alt="">
 
           </div>
-          <!--Video thumbnail-->
-
-        </div>
-        <!--Column-->
-      </div>
-      <!--Row-->
-
-      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-16 mt-12 lg:mb-10">
-        <!--Row-->
-        <div class="lg:w-3/4 w-full mx-auto">
           <!--Column-->
-          <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg relative">
-            Try demo
-            <img loading="lazy" class="w-32 absolute -right-36 bottom-6 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-          </a>
         </div>
-        <!--Column-->
+        <!--Row-->
+
       </div>
-      <!--Row-->
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative w-full max-w-screen-widest">
+          <!--Row-->
+          <div class="">
+            <!--Column-->
+
+            <h3 class="pt-16 text-xl font-semibold pb-4 md:block hidden">See how it works</h3>
+
+            <div class="relative xl:w-3/4 w-full mx-auto">
+              <!--Video thumbnail-->
+              <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
+                <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
+              </div>
+              <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/run-video-thumbnail.png' %}" alt="">
+
+            </div>
+            <!--Video thumbnail-->
+
+          </div>
+          <!--Column-->
+        </div>
+        <!--Row-->
+      </div>
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative w-full max-w-screen-widest">
+          <!--Row-->
+          <div class="lg:w-3/4 w-full mx-auto">
+            <!--Column-->
+            <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg relative">
+              Try demo
+              <img loading="lazy" class="w-32 absolute -right-36 bottom-6 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+            </a>
+          </div>
+          <!--Column-->
+        </div>
+        <!--Row-->
+
+      </div>
 
       <img loading="lazy" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
       <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
       <span id="build"></span>
+
     </section>
     <!--S1 - Marlowe Run-->
 
     <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-20 pt-16 pb-24 text-white">
       <!--S1 - Marlowe Build-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white lg:mb-12 mb-8 z-10">
-        <!--Row-->
-        <div class="">
-          <!--Column-->
-          <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 lg:h-logo-wider h-logo" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
-          <h3 class="md:text-3xl lg:text-4xl flex flex-col lg:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Playground for financial engineers</h3>
-          <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
-        </div>
-        <!--Column-->
-      </div>
-      <!--Row-->
-      <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10">
-        <!--Row-->
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
 
-        <div class="lg:w-10/12 w-11/12 self-center justify-self-center">
-          <!--Left column-->
-          <h3 class=" text-green lg:text-xl text-lg font-semibold lg:mt-0 md:mt-5 pb-4">No code? No problem.</h3>
-          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
-          <p class="md:text-xl text-lg md:mb-0 mb-12">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
-          <div class="relative md:w-5/6 w-11/12 md:mt-14 mt-8">
-            <!--Row-->
-            <div class="relative w-full">
-              <!--Column-->
-              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
-              <img loading="lazy" class="w-32 absolute left-52 bottom-2 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-            </div>
-            <!--Column-->
-          </div>
-        </div>
-        <!--Left column-->
-
-        <div class="lg:row-start-auto row-start-1 w-11/12 mx-auto mt-4 mb-8 md:py-16 py-10 px-5 bg-white shadow-lg h-auto rounded-lg">
-          <img loading="lazy" class="lg:w-11/12 md:w-3/4 w-11/12 lg:h-80 md:h-80 h-60 object-cover mx-auto" src="{% static './static/img/blockly.gif' %}" alt="">
-        </div>
-
-        <!--<div class="lg:row-start-auto row-start-1"> <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt=""> </div>-->
-      </div>
-      <!--Row-->
-
-      <div class="relative mx-auto h-auto lg:w-3/4 md:w-5/6 w-11/12 text-center md:pb-10 pb-0 z-10">
-        <!--Row-->
-
-        <div class="">
-          <!--Column-->
-          <h3 class="pt-16 lg:text-xl text-lg font-semibold pb-4 md:block text-green">See how it works</h3>
-          <div class="relative xl:w-3/4 w-full mx-auto">
-            <!--Video thumbnail-->
-            <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
-              <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
-            </div>
-            <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/marlowe-build-video-thumbnail.png' %}" alt="">
-          </div>
-          <!--Video thumbnail-->
-        </div>
-        <!--Column-->
-
-      </div>
-
-      <!--Row-->
-
-      <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto  mt-8 z-10">
-        <!--Row-->
-
-        <div class="w-11/12 mx-auto my-10 shadow-lg h-auto rounded-lg" style="background-color:#232d3d;">
-
-          <div class="bg-darkblue w-full h-20 py-5 md:px-8 px-6 rounded-t-lg relative">
-            <img loading="lazy" class="w-24 float-left" src="{% static './static/img/marlowe-build-dark.svg' %}" alt="">
-            <h3 class="text-green text-right text-lg font-bold pt-2">Marlowe</h3>
-          </div>
-
-          <img loading="lazy" class="md:w-96 w-72 pl-5 py-5 object-cover" src="{% static './static/img/marlowe-code.gif' %}" alt="">
-
-        </div>
-        <!--Tailwind class "Rounded" does nothing-->
-
-        <!--<div class="" style=""> <img loading="lazy" class="" src="{% static './static/img/marlowe-build-code-module.png' %}" alt=""> </div>-->
-
-        <div class="lg:w-10/12 w-11/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto lg:justify-self-center self-center" style="">
-          <!--Right column-->
-          <h3 class=" text-green lg:text-xl text-lg font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
-          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your very own smart contract ideas</h4>
-          <p class="md:text-xl text-lg lg:mb-14 mb-12">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
-          <div class="relative md:w-5/6 w-11/12">
-            <!--Row-->
-            <div class="relative w-full">
-              <!--Column-->
-              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lgl">Try it</a>
-              <img loading="lazy" class="w-32 absolute left-52 bottom-2 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-            </div>
-            <!--Column-->
-          </div>
+        <div class="text-center text-white lg:mb-12 mb-8 z-10 w-full max-w-screen-widest">
           <!--Row-->
+          <div class="">
+            <!--Column-->
+            <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 lg:h-logo-wider h-logo" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
+            <h3 class="md:text-3xl lg:text-4xl flex flex-col lg:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Playground for financial engineers</h3>
+            <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
+          </div>
+          <!--Column-->
         </div>
-        <!--Right column-->
+        <!--Row-->
 
       </div>
-      <!--Row-->
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative grid grid-cols-1 lg:grid-cols-2 w-full max-w-screen-widest z-10">
+          <!--Row-->
+
+          <div class="lg:w-10/12 w-11/12 self-center justify-self-center">
+            <!--Left column-->
+            <h3 class=" text-green lg:text-xl text-lg font-semibold lg:mt-0 md:mt-5 pb-4">No code? No problem.</h3>
+            <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
+            <p class="md:text-xl text-lg md:mb-0 mb-12">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
+            <div class="relative md:w-5/6 w-11/12 md:mt-14 mt-8">
+              <!--Row-->
+              <div class="relative w-full">
+                <!--Column-->
+                <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg">Try it</a>
+                <img loading="lazy" class="w-32 absolute left-52 bottom-2 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+              </div>
+              <!--Column-->
+            </div>
+          </div>
+          <!--Left column-->
+
+          <div class="lg:row-start-auto row-start-1 w-11/12 mx-auto mt-4 mb-8 md:py-16 py-10 px-5 bg-white shadow-lg h-auto rounded-lg">
+            <img loading="lazy" class="lg:w-11/12 md:w-3/4 w-11/12 lg:h-80 md:h-80 h-60 object-cover mx-auto" src="{% static './static/img/blockly.gif' %}" alt="">
+          </div>
+
+          <!--<div class="lg:row-start-auto row-start-1"> <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt=""> </div>-->
+        </div>
+        <!--Row-->
+
+      </div>
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative w-full max-w-screen-widest text-center md:pb-10 pb-0 z-10">
+          <!--Row-->
+
+          <div class="">
+            <!--Column-->
+            <h3 class="pt-16 lg:text-xl text-lg font-semibold pb-4 md:block text-green">See how it works</h3>
+            <div class="relative xl:w-3/4 w-full mx-auto">
+              <!--Video thumbnail-->
+              <div class="absolute md:bottom-5 md:right-5 bottom-3 right-3">
+                <a href="#" class="scale"><img loading="lazy" class="w-full" src="{% static './static/img/marlowe-play-btn.svg' %}" alt=""></a>
+              </div>
+              <img loading="lazy" class="w-full mx-auto" src="{% static './static/img/marlowe-build-video-thumbnail.png' %}" alt="">
+            </div>
+            <!--Video thumbnail-->
+          </div>
+          <!--Column-->
+
+        </div>
+
+        <!--Row-->
+
+      </div>
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative grid grid-cols-1 lg:grid-cols-2 w-full max-w-screen-widest  mt-8 z-10">
+          <!--Row-->
+
+          <div class="w-11/12 mx-auto my-10 shadow-lg h-auto rounded-lg" style="background-color:#232d3d;">
+
+            <div class="bg-darkblue w-full h-20 py-5 md:px-8 px-6 rounded-t-lg relative">
+              <img loading="lazy" class="w-24 float-left" src="{% static './static/img/marlowe-build-dark.svg' %}" alt="">
+              <h3 class="text-green text-right text-lg font-bold pt-2">Marlowe</h3>
+            </div>
+
+            <img loading="lazy" class="md:w-96 w-72 pl-5 py-5 object-cover" src="{% static './static/img/marlowe-code.gif' %}" alt="">
+
+          </div>
+          <!--Tailwind class "Rounded" does nothing-->
+
+          <!--<div class="" style=""> <img loading="lazy" class="" src="{% static './static/img/marlowe-build-code-module.png' %}" alt=""> </div>-->
+
+          <div class="lg:w-10/12 w-11/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto lg:justify-self-center self-center" style="">
+            <!--Right column-->
+            <h3 class=" text-green lg:text-xl text-lg font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
+            <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your very own smart contract ideas</h4>
+            <p class="md:text-xl text-lg lg:mb-14 mb-12">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
+            <div class="relative md:w-5/6 w-11/12">
+              <!--Row-->
+              <div class="relative w-full">
+                <!--Column-->
+                <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lgl">Try it</a>
+                <img loading="lazy" class="w-32 absolute left-52 bottom-2 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+              </div>
+              <!--Column-->
+            </div>
+            <!--Row-->
+          </div>
+          <!--Right column-->
+
+        </div>
+        <!--Row-->
+
+      </div>
+
       <img loading="lazy" style="" class="section-m-top-right absolute invisible lg:visible w-full" src="{% static './static/img/marlowe-background-m.svg' %}" alt="xx">
       <span id="faq"></span>
     </section>
@@ -285,25 +337,30 @@
          Last update (on google doc) Apr 27 7:20 AM
          #}
 
-      <div class="relative mx-auto w-11/12 max-w-screen-widest">
-        <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
-        {% macro faqComponent(index, question, answer) %}
-          <div class="faq border-t border-darkgray pt-5 mt-5  mx-auto">
-            <!--Why doesn't max-w-screen-2xl work?-->
-            <h4 class="text-lightpurple text-lg font-semibold flex cursor-pointer">
-              <span class="flex-grow">
-                {{index}}.
-                {{ question }}
-              </span>
-              <span class="flex-shrink-0 w-6 faq-caret"></span>
-            </h4>
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
 
-            <p class="text-lg faq-answer">{{ answer | safe}}</p>
-          </div>
-        {% endmacro %}
-        {% for item in faqContent %}
-          {{faqComponent(loop.index, item.question, item.answer)}}
-        {% endfor %}
+        <div class="relative w-full max-w-screen-widest">
+          <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
+          {% macro faqComponent(index, question, answer) %}
+            <div class="faq border-t border-darkgray pt-5 mt-5  mx-auto">
+              <!--Why doesn't max-w-screen-2xl work?-->
+              <h4 class="text-lightpurple text-lg font-semibold flex cursor-pointer">
+                <span class="flex-grow">
+                  {{index}}.
+                  {{ question }}
+                </span>
+                <span class="flex-shrink-0 w-6 faq-caret"></span>
+              </h4>
+
+              <p class="text-lg faq-answer">{{ answer | safe}}</p>
+            </div>
+          {% endmacro %}
+          {% for item in faqContent %}
+            {{faqComponent(loop.index, item.question, item.answer)}}
+          {% endfor %}
+        </div>
+
       </div>
       <span id="pioneers"></span>
     </section>
@@ -312,48 +369,59 @@
     <section class="relative block bg-grayblue h-auto w-full lg:py-48 md:pt-34 md:pb-30 pt-20 pb-24 text-center">
       <!--Pioneers-->
       <!--S1 - Marlowe Pioneers-->
-      <div class="relative mx-auto md:w-1/2 w-11/12">
-        <!--Row-->
-        <div class="">
-          <!--Column-->
-          <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Marlowe Pioneers</h2>
-          <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Be the first to test and feedback on this groundbreaking new DeFi technology.</h2>
-          <div class="relative mx-auto md:w-5/6 w-11/12 md:mt-18 md:mb-5 mt-12">
-            <!--Row-->
-            <div class="w-full mx-auto">
-              <!--Column-->
-              <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="relative primary-button text-lg">
-                <img loading="lazy" class="w-32 absolute -right-36 bottom-6 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
-                Register now
-              </a>
-            </div>
-            <!--Column-->
-          </div>
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="relative w-full max-w-screen-widest">
           <!--Row-->
+          <div class="">
+            <!--Column-->
+            <h2 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Marlowe Pioneers</h2>
+            <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Be the first to test and feedback on this groundbreaking new DeFi technology.</h2>
+            <div class="relative mx-auto md:w-5/6 w-11/12 md:mt-18 md:mb-5 mt-12">
+              <!--Row-->
+              <div class="w-full mx-auto">
+                <!--Column-->
+                <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="relative primary-button text-lg">
+                  <img loading="lazy" class="w-32 absolute -right-36 bottom-6 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+                  Register now
+                </a>
+              </div>
+              <!--Column-->
+            </div>
+            <!--Row-->
+          </div>
+          <!--Column-->
         </div>
-        <!--Column-->
+        <!--Row-->
+
       </div>
-      <!--Row-->
       <img loading="lazy" style="" class="pink-m-left invisible lg:visible" src="{% static './static/img/pink-m-left.svg' %}" alt="xx">
       <img loading="lazy" style="" class="pink-m-right invisible lg:visible" src="{% static './static/img/pink-m-right.svg' %}" alt="xx">
     </section>
 
-    <footer class="shadow-sm bg-white h-auto md:py-5 py-10">
-      <div class="m-5 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
-        <ul class="inline w-full">
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
-            <a class="" href="#run">Privacy</a>
-          </li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
-            <a class="" href="#build">Terms</a>
-          </li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 external block md:inline">
-            <a class="" href="#build">iohk.io</a>
-          </li>
-          <li class="relative text-base font-bold md:mr-7 md:mb-0 external block md:inline">
-            <a class="" href="#run">cardano.org</a>
-          </li>
-        </ul>
+    <footer class="shadow-sm bg-white md:py-5 py-10">
+
+      <div class="mx-3 md:mx-5vw flex justify-center">
+        {# Defines the margins #}
+
+        <div class="m-5 w-full max-w-screen-widest">
+          <ul class="inline w-full">
+            <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
+              <a class="" href="#run">Privacy</a>
+            </li>
+            <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
+              <a class="" href="#build">Terms</a>
+            </li>
+            <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 external block md:inline">
+              <a class="" href="#build">iohk.io</a>
+            </li>
+            <li class="relative text-base font-bold md:mr-7 md:mb-0 external block md:inline">
+              <a class="" href="#run">cardano.org</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </footer>
   </body>
