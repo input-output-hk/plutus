@@ -1,6 +1,9 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications  #-}
-{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
 
 module Main
     ( main
@@ -8,32 +11,31 @@ module Main
 
 import           PlutusPrelude
 
-import qualified Check.Spec                        as Check
+import qualified Check.Spec                      as Check
 import           CostModelInterface.Spec
-import           Evaluation.Spec                   (test_evaluation)
+import           Evaluation.Spec                 (test_evaluation)
+import           Names.Spec
 import           Normalization.Check
 import           Normalization.Type
 import           Pretty.Readable
-import           TypeSynthesis.Spec                (test_typecheck)
+import           TypeSynthesis.Spec              (test_typecheck)
 
 import           PlutusCore
-import           PlutusCore.DeBruijn
 import           PlutusCore.Generators
-import           PlutusCore.Generators.AST         as AST
-import           PlutusCore.Generators.Interesting
-import qualified PlutusCore.Generators.NEAT.Spec   as NEAT
+import           PlutusCore.Generators.AST       as AST
+import qualified PlutusCore.Generators.NEAT.Spec as NEAT
 import           PlutusCore.MkPlc
 import           PlutusCore.Pretty
 
 import           Control.Monad.Except
-import qualified Data.ByteString.Lazy              as BSL
-import qualified Data.Text                         as T
-import           Data.Text.Encoding                (encodeUtf8)
-import           Flat                              (flat)
+import qualified Data.ByteString.Lazy            as BSL
+import qualified Data.Text                       as T
+import           Data.Text.Encoding              (encodeUtf8)
+import           Flat                            (flat)
 import qualified Flat
-import           Hedgehog                          hiding (Var)
-import qualified Hedgehog.Gen                      as Gen
-import qualified Hedgehog.Range                    as Range
+import           Hedgehog                        hiding (Var)
+import qualified Hedgehog.Gen                    as Gen
+import qualified Hedgehog.Range                  as Range
 import           Test.Tasty
 import           Test.Tasty.Golden
 import           Test.Tasty.HUnit
@@ -177,60 +179,6 @@ propParser = property $ do
     Hedgehog.tripping prog (reprint . unTextualProgram)
                 (\p -> fmap (TextualProgram . void) $ runQuote $ runExceptT $ parseProgram @(DefaultError AlexPosn) p)
 
-propRename :: Property
-propRename = property $ do
-    prog <- forAllPretty $ runAstGen genProgram
-    let progRen = runQuote $ rename prog
-    Hedgehog.assert $ progRen == prog && prog == progRen
-
-propMangle :: Property
-propMangle = property $ do
-    (term, termMangled) <- forAll . Gen.just . runAstGen $ do
-        term <- AST.genTerm
-        mayTermMang <- mangleNames term
-        pure $ do
-            termMang <- mayTermMang
-            Just (term, termMang)
-    Hedgehog.assert $ term /= termMangled && termMangled /= term
-
-propDeBruijn :: Gen (TermOf (DefaultTerm ()) a) -> Property
-propDeBruijn gen = property . generalizeT $ do
-    (TermOf body _) <- forAllNoShowT gen
-    let
-        forward = deBruijnTerm
-        backward
-            :: Except FreeVariableError (Term NamedTyDeBruijn NamedDeBruijn DefaultUni DefaultFun a)
-            -> Except FreeVariableError (DefaultTerm a)
-        backward e = e >>= (\t -> runQuoteT $ unDeBruijnTerm t)
-    Hedgehog.tripping body forward backward
-
-allTests :: [FilePath] -> [FilePath] -> [FilePath] -> [FilePath] -> TestTree
-allTests plcFiles rwFiles typeFiles typeErrorFiles =
-  testGroup "all tests"
-    [ tests
-    , testCase "lexing constants from small types" testLexConstant
-    , testProperty "lexing constants" propLexConstant
-    , testProperty "parser round-trip" propParser
-    , testProperty "serialization round-trip (Flat)" propFlat
-    , testProperty "equality survives renaming" propRename
-    , testProperty "equality does not survive mangling" propMangle
-    , testGroup "de Bruijn transformation round-trip" $
-          fromInterestingTermGens $ \name -> testProperty name . propDeBruijn
-    , testsGolden plcFiles
-    , testsRewrite rwFiles
-    , testsType typeFiles
-    , testsType typeErrorFiles
-    , test_Pretty
-    , test_typeNormalization
-    , test_typecheck
-    , test_evaluation
-    , test_normalizationCheck
-    , test_costModelInterface
-    , Check.tests
-    , NEAT.tests NEAT.defaultGenOptions
-    ]
-
-
 type TestFunction a = BSL.ByteString -> Either (DefaultError a) T.Text
 
 asIO :: Pretty a => TestFunction a -> FilePath -> IO BSL.ByteString
@@ -258,104 +206,36 @@ testsRewrite
     = testGroup "golden rewrite tests"
     . fmap (asGolden (format $ debugPrettyConfigPlcClassic defPrettyConfigPlcOptions))
 
-testEqTerm :: Bool
-testEqTerm =
-    let
-        xName = Name "x" (Unique 0)
-        yName = Name "y" (Unique 1)
-
-        varX = Var () xName
-        varY = Var () yName
-
-        varType = TyVar () (TyName (Name "a" (Unique 2)))
-
-        lamX = LamAbs () xName varType varX
-        lamY = LamAbs () yName varType varY
-
-        term0, term1 :: DefaultTerm ()
-
-        -- [(lam x a x) x]
-        term0 = Apply () lamX varX
-        -- [(lam y a y) x]
-        term1 = Apply () lamY varX
-
-    in
-        term0 == term1
-
-testRebindShadowedVariable :: Bool
-testRebindShadowedVariable =
-    let
-        xName = TyName (Name "x" (Unique 0))
-        yName = TyName (Name "y" (Unique 1))
-        zName = TyName (Name "z" (Unique 2))
-
-        varX = TyVar () xName
-        varY = TyVar () yName
-        varZ = TyVar () zName
-
-        typeKind = Type ()
-
-        l1, r1, l2, r2 :: Type TyName DefaultUni ()
-
-        -- (all x (type) (fun (all y (type) y) x))
-        l1 = TyForall () xName typeKind (TyFun () (TyForall () yName typeKind varY) varX)
-        -- (all x (type) (fun (all x (type) x) x))
-        r1 = TyForall () xName typeKind (TyFun () (TyForall () xName typeKind varX) varX)
-
-        -- (all x (type) (all x (type) (fun x x)))
-        l2 = TyForall () xName typeKind (TyForall () xName typeKind (TyFun () varX varX))
-        -- (all y (type) (all z (type) (fun y z)))
-        r2 = TyForall () yName typeKind (TyForall () zName typeKind (TyFun () varY varZ))
-
-    in
-        l1 == r1 && l2 /= r2
-
-testRebindCapturedVariable :: Bool
-testRebindCapturedVariable =
-    let
-        wName = TyName (Name "w" (Unique 0))
-        xName = TyName (Name "x" (Unique 1))
-        yName = TyName (Name "y" (Unique 2))
-        zName = TyName (Name "z" (Unique 3))
-
-        varW = TyVar () wName
-        varX = TyVar () xName
-        varY = TyVar () yName
-        varZ = TyVar () zName
-
-        typeKind = Type ()
-
-        typeL1, typeR1, typeL2, typeR2 :: Type TyName DefaultUni ()
-
-        -- (all y (type) (all z (type) (fun y z)))
-        typeL1 = TyForall () yName typeKind (TyForall () zName typeKind (TyFun () varY varZ))
-        -- (all x (type) (all y (type) (fun x y)))
-        typeR1 = TyForall () xName typeKind (TyForall () yName typeKind (TyFun () varX varY))
-
-        -- (all z (type) (fun (all w (all x (type) (fun w x))))) z)
-        typeL2
-            = TyForall () zName typeKind
-            $ TyFun ()
-                (TyForall () wName typeKind $ TyForall () xName typeKind (TyFun () varW varX))
-                varZ
-        -- (all x (type) (fun (all x (all y (type) (fun x y))))) x)
-        typeR2
-            = TyForall () xName typeKind
-            $ TyFun ()
-                (TyForall () xName typeKind $ TyForall () yName typeKind (TyFun () varX varY))
-                varX
-    in [typeL1, typeL2] == [typeR1, typeR2]
-
 tests :: TestTree
 tests = testCase "example programs" $ fold
     [ fmt "(program 0.1.0 [(builtin addInteger) x y])" @?= Right "(program 0.1.0\n  [ [ (builtin addInteger) x ] y ]\n)"
     , fmt "(program 0.1.0 doesn't)" @?= Right "(program 0.1.0\n  doesn't\n)"
     , fmt "{- program " @?= Left (LexErr "Error in nested comment at line 1, column 12")
-    , testRebindShadowedVariable @?= True
-    , testRebindCapturedVariable @?= True
-    , testEqTerm @?= True
     ]
     where
         fmt :: BSL.ByteString -> Either (ParseError AlexPosn) T.Text
         fmt = format cfg
         cfg = defPrettyConfigPlcClassic defPrettyConfigPlcOptions
+
+allTests :: [FilePath] -> [FilePath] -> [FilePath] -> [FilePath] -> TestTree
+allTests plcFiles rwFiles typeFiles typeErrorFiles =
+  testGroup "all tests"
+    [ tests
+    , testCase "lexing constants from small types" testLexConstant
+    , testProperty "lexing constants" propLexConstant
+    , testProperty "parser round-trip" propParser
+    , testProperty "serialization round-trip (Flat)" propFlat
+    , testsGolden plcFiles
+    , testsRewrite rwFiles
+    , testsType typeFiles
+    , testsType typeErrorFiles
+    , test_names
+    , test_Pretty
+    , test_typeNormalization
+    , test_typecheck
+    , test_evaluation
+    , test_normalizationCheck
+    , test_costModelInterface
+    , Check.tests
+    , NEAT.tests NEAT.defaultGenOptions
+    ]
