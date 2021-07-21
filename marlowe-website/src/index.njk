@@ -23,7 +23,7 @@
 
     <header class="fixed top-0 left-0 right-0 z-20 shadow-sm bg-white">
 
-      <div class="md:m-5 m-3 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
+      <div class="md:m-5 m-3 md:mx-5vw xl:mx-5vw max-w-screen-widest mx-auto flex items-center">
 
         <a href=" #top" class=" scale" ="scale" "><img loading="lazy" class="md:w-36 w-32 block lg:mr-16 md:mr-12 md:ml-0 ml-2" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
         <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
@@ -52,7 +52,7 @@
     <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center lg:pt-44 md:pt-40 md:pb-20 pt-32 pb-14">
       <!--Hero-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12">
+      <div class="relative mx-auto md:w-5/6 w-11/12 max-w-screen-widest lg:mx-auto">
         <!--Row-->
 
         <div class="">
@@ -285,7 +285,7 @@
         <span id="faq"></span>
         <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
         {% macro faqComponent(index, question, answer) %}
-          <div class="faq border-t border-darkgray pt-5 mt-5 max-w-screen-xl mx-auto">
+          <div class="faq border-t border-darkgray pt-5 mt-5 max-w-screen-widest mx-auto">
             <!--Why doesn't max-w-screen-2xl work?-->
             <h4 class="text-lightpurple text-lg font-semibold flex cursor-pointer">
               <span class="flex-grow">
