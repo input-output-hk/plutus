@@ -33,6 +33,9 @@ The `start` script will:
 
 Once the `start` script completes you can access the frontend via [http://localhost:8009](http://localhost:8009)
 
+> **NOTE**: You may need to adjust `webpack.config.js` to serve non-SSL content; set
+> `module.exports.devServer.https` to `false`.
+
 ## Development Workflow
 
 The following outlines some essentials for actually working on the plutus playground code.
