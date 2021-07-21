@@ -165,6 +165,10 @@ sha2_256 = Hash.sha2
 sha3_256 :: BuiltinByteString -> BuiltinByteString
 sha3_256 = Hash.sha3
 
+{-# NOINLINE blake2b_256 #-}
+blake2b_256 :: BuiltinByteString -> BuiltinByteString
+blake2b_256 = Hash.blake2b
+
 {-# NOINLINE verifySignature #-}
 verifySignature :: BuiltinByteString -> BuiltinByteString -> BuiltinByteString -> BuiltinBool
 verifySignature pubKey message signature =

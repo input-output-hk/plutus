@@ -162,6 +162,7 @@ builtinNames = [
     , 'Builtins.dropByteString
     , 'Builtins.sha2_256
     , 'Builtins.sha3_256
+    , 'Builtins.blake2b_256
     , 'Builtins.equalsByteString
     , 'Builtins.lessThanByteString
     , 'Builtins.greaterThanByteString

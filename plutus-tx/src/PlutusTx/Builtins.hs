@@ -14,6 +14,7 @@ module PlutusTx.Builtins (
                                 , greaterThanByteString
                                 , sha2_256
                                 , sha3_256
+                                , blake2b_256
                                 , verifySignature
                                 , decodeUtf8
                                 -- * Integer builtins
@@ -99,6 +100,11 @@ sha2_256 b = fromBuiltin (BI.sha2_256 (toBuiltin b))
 -- | The SHA3-256 hash of a 'ByteString'
 sha3_256 :: ByteString -> ByteString
 sha3_256 b = fromBuiltin (BI.sha3_256 (toBuiltin b))
+
+{-# INLINABLE blake2b_256 #-}
+-- | The BLAKE2B-256 hash of a 'ByteString'
+blake2b_256 :: ByteString -> ByteString
+blake2b_256 b = fromBuiltin (BI.blake2b_256 (toBuiltin b))
 
 {-# INLINABLE verifySignature #-}
 -- | Verify that the signature is a signature of the message by the public key.

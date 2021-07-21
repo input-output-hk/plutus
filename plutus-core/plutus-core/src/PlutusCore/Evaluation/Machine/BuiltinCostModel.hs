@@ -75,6 +75,7 @@ data BuiltinCostModelBase f =
     , paramLtByteString         :: f ModelTwoArguments
     , paramGtByteString         :: f ModelTwoArguments
     , paramIfThenElse           :: f ModelThreeArguments
+    , paramBlake2b              :: f ModelOneArgument
     }
     deriving (Generic, FunctorB, TraversableB, ConstraintsB)
 

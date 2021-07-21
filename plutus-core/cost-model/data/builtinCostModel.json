@@ -302,5 +302,19 @@
             },
             "type": "linear_cost"
         }
+    },
+    "blake2b": {
+        "memory": {
+            "arguments": 0,
+            "type": "constant_cost"
+        },
+        "cpu": {
+            "arguments": {
+                "slope": 0,
+                "intercept": 0,
+                "orientation": "x"
+            },
+            "type": "linear_cost"
+        }
     }
 }

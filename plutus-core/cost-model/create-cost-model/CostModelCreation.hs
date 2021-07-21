@@ -65,6 +65,7 @@ builtinCostModelNames = BuiltinCostModelBase
   , paramLtByteString         = "ltByteStringModel"
   , paramGtByteString         = "gtByteStringModel"
   , paramIfThenElse           = "ifThenElseModel"
+  , paramBlake2b              = "bLAKE2bModel"
   }
 
 -- Loads the models from R
@@ -109,6 +110,7 @@ createBuiltinCostModel =
     paramLtByteString         <- getParams ltByteString         paramLtByteString
     paramGtByteString         <- getParams gtByteString         paramGtByteString
     paramIfThenElse           <- getParams ifThenElse           paramIfThenElse
+    paramBlake2b              <- getParams bLAKE2b              paramBlake2b
 
     pure $ BuiltinCostModelBase {..}
 
@@ -313,6 +315,12 @@ sHA3 :: MonadR m => (SomeSEXP (Region m)) -> m (CostingFun ModelOneArgument)
 sHA3 cpuModelR = do
   cpuModel <- readModelLinear cpuModelR
   let memModel = ModelOneArgumentConstantCost (memoryUsageAsCostingInteger $ PlutusHash.sha3 "")
+  pure $ CostingFun (ModelOneArgumentLinearCost cpuModel) memModel
+
+bLAKE2b :: MonadR m => (SomeSEXP (Region m)) -> m (CostingFun ModelOneArgument)
+bLAKE2b cpuModelR = do
+  cpuModel <- readModelLinear cpuModelR
+  let memModel = ModelOneArgumentConstantCost (memoryUsageAsCostingInteger $ PlutusHash.blake2b "")
   pure $ CostingFun (ModelOneArgumentLinearCost cpuModel) memModel
 
 verifySignature :: MonadR m => (SomeSEXP (Region m)) -> m (CostingFun ModelThreeArguments)
