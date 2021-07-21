@@ -23,27 +23,29 @@
 
     <header class="fixed top-0 left-0 right-0 z-20 shadow-sm bg-white">
 
-      <div class="md:m-5 m-3 md:mx-5vw xl:mx-5vw max-w-screen-widest mx-auto flex items-center">
+      <div class="m-3 md:my-5 md:mx-5vw flex justify-center">
+        <div class="max-w-screen-widest w-full flex items-center">
 
-        <a href=" #top" class=" scale" ="scale" "><img loading="lazy" class="md:w-36 w-32 block lg:mr-16 md:mr-12 md:ml-0 ml-2" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
-        <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
-        <ul class="hidden md:block">
-          <li class="inline text-base font-bold mr-7 menu-item">
-            <a class="" href="#run">Marlowe Run</a>
-          </li>
-          <li class="inline text-base font-bold mr-7 menu-item">
-            <a class="" href="#build">For Engineers</a>
-          </li>
-          <li class="inline text-base font-bold mr-7 menu-item">
-            <a class="" href="#faq">FAQs</a>
-          </li>
-          <li class="inline text-base font-bold mr-7 menu-item">
-            <a class="" href="#pioneers">Pioneers</a>
-          </li>
-          <li class="inline text-base font-bold mr-7 menu-item">
-            <a class="" href="#">Docs</a>
-          </li>
-        </ul>
+          <a href=" #top" class=" scale" ="scale" "><img loading="lazy" class="md:w-36 w-32 block lg:mr-16 md:mr-12 md:ml-0 ml-2" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
+          <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
+          <ul class="hidden md:block">
+            <li class="inline text-base font-bold mr-7 menu-item">
+              <a class="" href="#run">Marlowe Run</a>
+            </li>
+            <li class="inline text-base font-bold mr-7 menu-item">
+              <a class="" href="#build">For Engineers</a>
+            </li>
+            <li class="inline text-base font-bold mr-7 menu-item">
+              <a class="" href="#faq">FAQs</a>
+            </li>
+            <li class="inline text-base font-bold mr-7 menu-item">
+              <a class="" href="#pioneers">Pioneers</a>
+            </li>
+            <li class="inline text-base font-bold mr-7 menu-item">
+              <a class="" href="#">Docs</a>
+            </li>
+          </ul>
+        </div>
 
       </div>
 
@@ -281,11 +283,11 @@
          Last update (on google doc) Apr 27 7:20 AM
          #}
 
-      <div class="relative mx-auto lg:w-5/6 w-11/12">
+      <div class="relative mx-auto lg:w-5/6 w-11/12 max-w-screen-widest">
         <span id="faq"></span>
         <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
         {% macro faqComponent(index, question, answer) %}
-          <div class="faq border-t border-darkgray pt-5 mt-5 max-w-screen-widest mx-auto">
+          <div class="faq border-t border-darkgray pt-5 mt-5  mx-auto">
             <!--Why doesn't max-w-screen-2xl work?-->
             <h4 class="text-lightpurple text-lg font-semibold flex cursor-pointer">
               <span class="flex-grow">
