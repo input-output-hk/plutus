@@ -138,7 +138,7 @@ module.exports = {
     maxWidth: true,
     minHeight: true,
     minWidth: true,
-    objectFit: false,
+    objectFit: true,
     objectPosition: false,
     opacity: true,
     outline: true,

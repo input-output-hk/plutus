@@ -25,7 +25,7 @@
 
       <div class="md:m-5 m-3 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
 
-        <a href="#top" class="scale"><img loading="lazy" class="md:w-36 w-32 block lg:mr-16 md:mr-12 md:ml-0 ml-2" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
+        <a href=" #top" class=" scale" ="scale" "><img loading="lazy" class="md:w-36 w-32 block lg:mr-16 md:mr-12 md:ml-0 ml-2" src="{% static './static/img/marlowe-logo-light.svg' %}" alt="Marlowe Demo logo"></a>
         <a href="#" class="float-right absolute right-5"><img loading="lazy" class="w-9 md:hidden block" src="{% static './static/img/mobile-menu-purple.svg' %}" alt=""></a>
         <ul class="hidden md:block">
           <li class="inline text-base font-bold mr-7 menu-item">
@@ -171,12 +171,12 @@
     <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-28 pt-16 pb-24 text-white">
       <!--S1 - Marlowe Build-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white lg:mb-12 md:mb-0 mb-8 z-10">
+      <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white lg:mb-12 mb-8 z-10">
         <!--Row-->
         <div class="">
           <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 lg:h-logo-wider h-logo" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
-          <h3 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Sandbox for financial engineers</h3>
+          <h3 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Playground for financial engineers</h3>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
         </div>
         <!--Column-->
@@ -185,9 +185,9 @@
       <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10">
         <!--Row-->
 
-        <div class="lg:w-full md:w-4/5 w-11/12 self-center justify-self-center" style="">
+        <div class="lg:w-10/12 w-11/12 self-center">
           <!--Left column-->
-          <h3 class=" text-green lg:text-xl text-lg font-semibold md:mt-5 pb-4">No code? No problem.</h3>
+          <h3 class=" text-green lg:text-xl text-lg font-semibold lg:mt-0 md:mt-5 pb-4">No code? No problem.</h3>
           <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
           <p class="md:text-xl text-lg md:mb-0 mb-12">With the Blockly visual builder you can develop financial smart contracts whithout writing a single line of code, right in the browser.</p>
           <div class="relative md:w-5/6 w-11/12 md:mt-14 mt-8">
@@ -202,7 +202,9 @@
         </div>
         <!--Left column-->
 
-        <div class="lg:row-start-auto row-start-1 w-11/12 mx-auto mt-4 mb-8 bg-white shadow-lg h-96 rounded-lg"></div>
+        <div class="lg:row-start-auto row-start-1 w-11/12 mx-auto mt-4 mb-8 md:py-16 py-10 px-5 bg-white shadow-lg h-auto rounded-lg">
+          <img loading="lazy" class="lg:w-11/12 md:w-3/4 w-11/12 lg:h-80 md:h-80 h-60 object-cover mx-auto" src="{% static './static/img/blockly.gif' %}" alt="">
+        </div>
 
         <!--<div class="lg:row-start-auto row-start-1"> <img loading="lazy" class="w-full" src="{% static './static/img/marlowe-blockly-blocks.png' %}" alt=""> </div>-->
       </div>
@@ -232,19 +234,24 @@
       <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto  mt-8 z-10">
         <!--Row-->
 
-        <div class="w-11/12 mx-auto my-10 bg-black shadow-lg h-96 rounded-lg">
+        <div class="w-11/12 mx-auto my-10 shadow-lg h-auto rounded-lg" style="background-color:#232d3d;">
 
-          <div class="bg-darkblue w-full h-20 rounded-t-lg"></div>
+          <div class="bg-darkblue w-full h-20 py-5 px-8 rounded-t-lg relative">
+            <img loading="lazy" class="w-24 float-left" src="{% static './static/img/marlowe-build-dark.svg' %}" alt="">
+            <h3 class="text-green text-right text-lg font-bold pt-2">Marlowe</h3>
+          </div>
+
+          <img loading="lazy" class="w-96 pl-5 py-5 object-cover" src="{% static './static/img/marlowe-code.gif' %}" alt="">
 
         </div>
         <!--Tailwind class "Rounded" does nothing-->
 
         <!--<div class="" style=""> <img loading="lazy" class="" src="{% static './static/img/marlowe-build-code-module.png' %}" alt=""> </div>-->
 
-        <div class="lg:w-full w-11/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto self-center" style="">
+        <div class="lg:w-10/12 w-11/12 mb-0 md:mt-0 mt-0 md:mb-0 lg:-mx-0 mx-auto lg:justify-self-center self-center" style="">
           <!--Right column-->
           <h3 class=" text-green lg:text-xl text-lg font-semibold pb-4">Write in Marlowe, JS or Haskell</h3>
-          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your own smart contract ideas</h4>
+          <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Build your very own smart contract ideas</h4>
           <p class="md:text-xl text-lg lg:mb-14 mb-12">Rapidly build your own smart contracts from scratch or from pre-built templates in the Marlowe Build sandbox.</p>
           <div class="relative md:w-5/6 w-11/12">
             <!--Row-->
@@ -278,7 +285,8 @@
         <span id="faq"></span>
         <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
         {% macro faqComponent(index, question, answer) %}
-          <div class="faq border-t border-darkgray pt-5 mt-5">
+          <div class="faq border-t border-darkgray pt-5 mt-5 max-w-screen-xl mx-auto">
+            <!--Why doesn't max-w-screen-2xl work?-->
             <h4 class="text-lightpurple text-lg font-semibold flex cursor-pointer">
               <span class="flex-grow">
                 {{index}}.
@@ -299,7 +307,7 @@
     </section>
     <!--FAQs-->
 
-    <section class="relative block bg-grayblue h-auto w-full md:pt-34 md:pb-30 pt-20 pb-24 text-center">
+    <section class="relative block bg-grayblue h-auto w-full lg:py-48 md:pt-34 md:pb-30 pt-20 pb-24 text-center">
       <!--S1 - Marlowe Pioneers-->
       <div class="relative mx-auto md:w-1/2 w-11/12">
         <!--Row-->
