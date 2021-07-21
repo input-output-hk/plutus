@@ -41,7 +41,7 @@
             <li class="inline text-base font-bold mr-7 menu-item">
               <a class="" href="#pioneers">Pioneers</a>
             </li>
-            <li class="inline text-base font-bold mr-7 menu-item">
+            <li class="relative inline text-base font-bold mr-7 menu-item external">
               <a class="" href="#">Docs</a>
             </li>
           </ul>
@@ -54,10 +54,11 @@
     <section class="relative block bg-gradient-to-r from-purple to-lightpurple text-white h-auto w-full text-center lg:pt-44 md:pt-40 md:pb-20 pt-32 pb-14">
       <!--Hero-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12 max-w-screen-widest lg:mx-auto">
+      <!--<div class="relative mx-auto md:w-5/6 w-11/12 max-w-screen-widest lg:mx-auto bg-red">-->
+      <div class="mx-3 md:mx-5vw flex justify-center">
         <!--Row-->
 
-        <div class="">
+        <div class="w-full max-w-screen-widest">
           <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 lg:h-logo-wider h-logo" src="{% static './static/img/marlowe-logo-dark.svg' %}" alt="">
           <h1 class="md:font-comfortaa-bolder text-3xl md:text-4xl xl:text-5xl flex flex-col font-comfortaa-bold leading-tight lg:pt-8 pb-4">Peer to peer financial agreements are here</h1>
@@ -67,7 +68,7 @@
 
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 md:mt-12 mt-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 md:w-5/6 mx-auto w-11/12 md:mt-12 mt-8 bg-red">
         <!--Row-->
         <div class="mb-20 md:mb-0" style="">
           <!--Left column-->
@@ -95,13 +96,14 @@
         </a>
       </div>
 
-      <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="xx">
-      <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="xx">
+      <img loading="lazy" style="margin-top:90px;" class="section-circle-top-right invisible lg:visible" src="{% static './static/img/circle-top-right.svg' %}" alt="">
+      <img loading="lazy" class="section-circle-bottom-left invisible lg:visible" src="{% static './static/img/circle-bottom-left.svg' %}" alt="">
       <span id="run"></span>
+
     </section>
 
     <!--Hero-->
-    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-24 pt-16 pb-24">
+    <section class="relative block bg-grayblue h-auto w-full text-center md:pt-24 md:pb-20 pt-16 pb-20">
       <!--S1 - Marlowe Run-->
       <div class="relative mx-auto md:w-5/6 w-11/12">
         <!--Row-->
@@ -151,13 +153,13 @@
       </div>
       <!--Row-->
 
-      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-16 mt-12">
+      <div class="relative mx-auto md:w-5/6 w-11/12 lg:mt-16 mt-12 lg:mb-10">
         <!--Row-->
         <div class="lg:w-3/4 w-full mx-auto">
           <!--Column-->
           <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="primary-button text-lg relative">
             Try demo
-            <img loading="lazy" class="w-36 absolute -right-40 bottom-6 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+            <img loading="lazy" class="w-32 absolute -right-36 bottom-6 lg:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
           </a>
         </div>
         <!--Column-->
@@ -170,7 +172,7 @@
     </section>
     <!--S1 - Marlowe Run-->
 
-    <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-28 pt-16 pb-24 text-white">
+    <section class="relative block bg-black h-auto w-full md:pt-24 md:pb-20 pt-16 pb-24 text-white">
       <!--S1 - Marlowe Build-->
 
       <div class="relative mx-auto md:w-5/6 w-11/12 text-center text-white lg:mb-12 mb-8 z-10">
@@ -178,7 +180,7 @@
         <div class="">
           <!--Column-->
           <img loading="lazy" class="mx-auto lg:pb-0 md:pb-8 pb-8 lg:h-logo-wider h-logo" src="{% static './static/img/marlowe-build-demo-logo-dark.svg' %}" alt="">
-          <h3 class="md:text-3xl lg:text-4xl flex flex-col md:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Playground for financial engineers</h3>
+          <h3 class="md:text-3xl lg:text-4xl flex flex-col lg:font-comfortaa-bolder font-comfortaa-bold leading-tight lg:pt-8 pb-4 text-27px">Playground for financial engineers</h3>
           <h2 class="text-xl lg:text-2xl xl:text-27px pb-0">Build in the language made for finance</h2>
         </div>
         <!--Column-->
@@ -187,7 +189,7 @@
       <div class="relative grid grid-cols-1 lg:grid-cols-2 xl:w-3/4 lg:w-11/12 mx-auto z-10">
         <!--Row-->
 
-        <div class="lg:w-10/12 w-11/12 self-center">
+        <div class="lg:w-10/12 w-11/12 self-center justify-self-center">
           <!--Left column-->
           <h3 class=" text-green lg:text-xl text-lg font-semibold lg:mt-0 md:mt-5 pb-4">No code? No problem.</h3>
           <h4 class="font-comfortaa-bold md:text-3xl text-27px mb-4">Write smart contracts in the visual builder</h4>
@@ -238,12 +240,12 @@
 
         <div class="w-11/12 mx-auto my-10 shadow-lg h-auto rounded-lg" style="background-color:#232d3d;">
 
-          <div class="bg-darkblue w-full h-20 py-5 px-8 rounded-t-lg relative">
+          <div class="bg-darkblue w-full h-20 py-5 md:px-8 px-6 rounded-t-lg relative">
             <img loading="lazy" class="w-24 float-left" src="{% static './static/img/marlowe-build-dark.svg' %}" alt="">
             <h3 class="text-green text-right text-lg font-bold pt-2">Marlowe</h3>
           </div>
 
-          <img loading="lazy" class="w-96 pl-5 py-5 object-cover" src="{% static './static/img/marlowe-code.gif' %}" alt="">
+          <img loading="lazy" class="md:w-96 w-72 pl-5 py-5 object-cover" src="{% static './static/img/marlowe-code.gif' %}" alt="">
 
         </div>
         <!--Tailwind class "Rounded" does nothing-->
@@ -275,7 +277,7 @@
     </section>
     <!--S1 - Marlowe Build-->
 
-    <section class="relative block bg-white h-auto w-full lg:pt-12 md:pt-20 md:pb-24 pt-16 pb-24">
+    <section class="relative block bg-white h-auto w-full lg:pt-12 md:pt-20 md:pb-20 pt-16 pb-24">
       <!--FAQs-->
       {# The current faqContent was taken from:
          https://docs.google.com/document/d/1Ydm7k6UhTFr-Oj5wY7V3JLC6vUA3-S_PRUzl6D7Ziec/edit#
@@ -283,8 +285,7 @@
          Last update (on google doc) Apr 27 7:20 AM
          #}
 
-      <div class="relative mx-auto lg:w-5/6 w-11/12 max-w-screen-widest">
-        <span id="faq"></span>
+      <div class="relative mx-auto w-11/12 max-w-screen-widest">
         <h3 class="md:text-2xl flex flex-col font-barlow font-semibold leading-tight lg:pt-8 pb-4 text-xl text-center text-lightpurple">FAQs</h3>
         {% macro faqComponent(index, question, answer) %}
           <div class="faq border-t border-darkgray pt-5 mt-5  mx-auto">
@@ -303,13 +304,13 @@
         {% for item in faqContent %}
           {{faqComponent(loop.index, item.question, item.answer)}}
         {% endfor %}
-        <div id="faq"></div>
       </div>
-
+      <span id="pioneers"></span>
     </section>
     <!--FAQs-->
 
     <section class="relative block bg-grayblue h-auto w-full lg:py-48 md:pt-34 md:pb-30 pt-20 pb-24 text-center">
+      <!--Pioneers-->
       <!--S1 - Marlowe Pioneers-->
       <div class="relative mx-auto md:w-1/2 w-11/12">
         <!--Row-->
@@ -322,7 +323,7 @@
             <div class="w-full mx-auto">
               <!--Column-->
               <a href="https://staging.marlowe-dash.iohkdev.io" target="_blank" class="relative primary-button text-lg">
-                <img loading="lazy" class="w-36 absolute -right-40 bottom-6 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
+                <img loading="lazy" class="w-32 absolute -right-36 bottom-6 xl:block hidden" src="{% static './static/img/arrow-light.svg' %}" alt="">
                 Register now
               </a>
             </div>
@@ -340,16 +341,16 @@
     <footer class="shadow-sm bg-white h-auto md:py-5 py-10">
       <div class="m-5 md:mx-5vw xl:mx-5vw max-w-11/12 flex items-center">
         <ul class="inline w-full">
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline">
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
             <a class="" href="#run">Privacy</a>
           </li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item block md:inline">
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 block md:inline">
             <a class="" href="#build">Terms</a>
           </li>
-          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 menu-item external block md:inline">
+          <li class="relative text-base font-bold md:mr-7 mb-6 md:mb-0 external block md:inline">
             <a class="" href="#build">iohk.io</a>
           </li>
-          <li class="relative text-base font-bold md:mr-7 md:mb-0 menu-item external block md:inline">
+          <li class="relative text-base font-bold md:mr-7 md:mb-0 external block md:inline">
             <a class="" href="#run">cardano.org</a>
           </li>
         </ul>
