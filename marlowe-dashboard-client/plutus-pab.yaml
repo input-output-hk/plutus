@@ -1,25 +1,24 @@
 # This file is provided here for development purposes only. In deployment,
-# settings are taken from `deployment/morph/machines/marlowe-dash.nix` (which
-# also determines which contracts are available). In most cases we use the
-# default settings - the main thing to watch out for is that the
-# `scZeroSlotTime` here coincides with the frontend code's assumptions about
-# the time of slot 0 (in `web-common-marlowe/src/Marlowe/Slot.purs`).
+# settings are taken from `deployment/morph/machines/marlowe-dash.nix` . In
+# most cases we use the default settings - the main thing to watch out for is
+# that the `scSlotZeroTime` here coincides with the frontend code's assumptions
+# about the time of slot 0 (in `web-common-marlowe/src/Marlowe/Slot.purs`).
 dbConfig:
     dbConfigFile: pab-core.db
     dbConfigPoolSize: 20
 
 pabWebserverConfig:
-  baseUrl: http://localhost:8080
+  baseUrl: http://localhost:9080
   staticDir: plutus-pab-client/dist
   permissiveCorsPolicy: False
 
 walletServerConfig:
-  baseUrl: http://localhost:8081
+  baseUrl: http://localhost:9081
   wallet:
     getWallet: 1
 
 nodeServerConfig:
-  mscBaseUrl: http://localhost:8082
+  mscBaseUrl: http://localhost:9082
   mscSocketPath: ./node-server.sock
   mscKeptBlocks: 100
   mscNetworkId: "1"
@@ -37,19 +36,19 @@ nodeServerConfig:
     - getWallet: 3
 
 chainIndexConfig:
-  ciBaseUrl: http://localhost:8083
+  ciBaseUrl: http://localhost:9083
   ciWatchedAddresses: []
 
 requestProcessingConfig:
   requestProcessingInterval: 1
 
 signingProcessConfig:
-  spBaseUrl: http://localhost:8084
+  spBaseUrl: http://localhost:9084
   spWallet:
     getWallet: 1
 
 metadataServerConfig:
-  mdBaseUrl: http://localhost:8085
+  mdBaseUrl: http://localhost:9085
 
 # Optional timeout (in seconds) for calls to endpoints that are not currently
 # available. If this is not set, calls to unavailable endpoints fail

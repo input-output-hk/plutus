@@ -2,7 +2,7 @@
 let
   inherit (lib) types mkOption mkIf;
   pabExec = pkgs.writeShellScriptBin "pab-exec" ''
-    ${cfg.pab-package}/bin/plutus-pab --config=${pabYaml} $*
+    ${cfg.pab-package}/bin/plutus-pab-examples --config=${pabYaml} $*
   '';
   cfg = config.services.pab;
 
@@ -87,6 +87,13 @@ in
       '';
     };
 
+    pab-setup = mkOption {
+      type = types.package;
+      description = ''
+        The pab setup script to execute.
+      '';
+    };
+
     pab-package = mkOption {
       type = types.package;
       description = ''
@@ -165,14 +172,6 @@ in
       '';
     };
 
-    contracts = mkOption {
-      type = types.listOf (types.path);
-      default = [ ];
-      description = ''
-        List of paths to contracts that should be installed.
-      '';
-    };
-
     zeroSlotTime = mkOption {
       type = types.int;
       default = 1596059091000; # POSIX time of 2020-07-29T21:44:51Z (Wednesday, July 29, 2020 21:44:51) - Shelley launch time
@@ -224,7 +223,7 @@ in
           rm -rf ${cfg.dbFile}
 
           echo "[pab-init-cmd]: Creating new DB '${cfg.dbFile}'"
-          ${cfg.pab-package}/bin/plutus-pab migrate ${cfg.dbFile}
+          ${cfg.pab-setup}/bin/plutus-pab-setup migrate ${cfg.dbFile}
         '';
       in
       {
@@ -248,7 +247,7 @@ in
         Restart = "always";
         DynamicUser = true;
         StateDirectory = [ "pab" ];
-        ExecStart = "${cfg.pab-package}/bin/plutus-pab --config=${pabYaml} all-servers";
+        ExecStart = "${cfg.pab-package}/bin/plutus-pab-examples --config=${pabYaml} all-servers";
 
         # Sane defaults for security
         ProtectKernelTunables = true;
@@ -259,11 +258,6 @@ in
       };
       postStart = ''
         mkdir -p /var/lib/pab
-
-        #
-        # After pab has started we can install all contracts that have been configured via `plutus-pab contracts install <contract path>`
-        #
-        ${lib.concatMapStringsSep "\n" (p: "${cfg.pab-package}/bin/plutus-pab --config=${pabYaml} contracts install --path ${p}") cfg.contracts}
       '';
     };
   };

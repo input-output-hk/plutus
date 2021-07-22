@@ -3,8 +3,7 @@ module Main
     ) where
 
 import qualified Plutus.PAB.CoreSpec
-import qualified Plutus.PAB.Events.ContractSpec
-import           Test.Tasty                     (defaultMain, testGroup)
+import           Test.Tasty          (defaultMain, testGroup)
 
 main :: IO ()
 main =
@@ -12,5 +11,4 @@ main =
     testGroup
         "all tests"
         [ Plutus.PAB.CoreSpec.tests
-        , Plutus.PAB.Events.ContractSpec.tests
         ]

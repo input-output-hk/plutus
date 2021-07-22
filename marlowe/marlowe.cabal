@@ -115,38 +115,6 @@ test-suite marlowe-test
         template-haskell -any,
         streaming -any
 
--- | The Marlowe app, an executable that can be run in the PAB
-executable marlowe-app
-  import: lang
-  main-is: Main.hs
-  hs-source-dirs: app
-  build-depends:
-    base >= 4.9 && < 5,
-    plutus-pab -any,
-    plutus-contract -any,
-    marlowe
-
--- | The Marlowe Companion app, an executable that can be run in the PAB
-executable marlowe-companion-app
-  import: lang
-  main-is: Main.hs
-  hs-source-dirs: companion
-  build-depends:
-    base >= 4.9 && < 5,
-    plutus-pab -any,
-    plutus-contract -any,
-    marlowe
-
-executable marlowe-follow-app
-  import: lang
-  main-is: Main.hs
-  hs-source-dirs: follow
-  build-depends:
-    base >= 4.9 && < 5,
-    plutus-pab -any,
-    plutus-contract -any,
-    marlowe
-
 -- | The PAB Specialised to the marlowe contract(s)
 executable marlowe-pab
   import: lang
@@ -154,16 +122,19 @@ executable marlowe-pab
   hs-source-dirs: pab
   ghc-options:
     -threaded
+  other-modules:
+    MarloweContracts
   build-depends:
     base >= 4.9 && < 5,
-    plutus-pab -any,
-    plutus-contract -any,
-    marlowe,
     aeson -any,
+    containers -any,
+    data-default -any,
     freer-simple -any,
     prettyprinter -any,
     freer-extras -any,
+    plutus-contract -any,
     plutus-ledger -any,
+    plutus-pab -any,
     plutus-tx -any,
-    containers -any,
-    data-default -any
+    purescript-bridge -any,
+    marlowe -any,

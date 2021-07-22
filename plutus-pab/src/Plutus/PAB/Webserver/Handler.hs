@@ -5,8 +5,6 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE KindSignatures        #-}
-{-# LANGUAGE LambdaCase            #-}
-{-# LANGUAGE MonoLocalBinds        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns        #-}
 {-# LANGUAGE OverloadedStrings     #-}
@@ -52,7 +50,7 @@ import           Plutus.PAB.Types
 import           Plutus.PAB.Webserver.Types
 import           Servant                                 (NoContent (NoContent), (:<|>) ((:<|>)))
 import           Servant.Client                          (ClientEnv, ClientM, runClientM)
-import qualified Wallet.Effects                          as Wallet.Effects
+import qualified Wallet.Effects
 import           Wallet.Emulator.Error                   (WalletAPIError)
 import           Wallet.Emulator.Wallet                  (Wallet (..))
 import           Wallet.Types                            (ContractInstanceId (..), NotificationError)
@@ -63,7 +61,7 @@ handlerOld ::
     Contract.PABContract t =>
     PABAction t env ()
     :<|> (PABAction t env (FullReport (Contract.ContractDef t))
-        :<|> ((Contract.ContractDef t) -> PABAction t env ContractInstanceId)
+        :<|> (Contract.ContractDef t -> PABAction t env ContractInstanceId)
         :<|> (Text -> PABAction t env (ContractSignatureResponse (Contract.ContractDef t))
             :<|> (String -> JSON.Value -> PABAction t env (Maybe NotificationError))
             )
@@ -83,12 +81,12 @@ healthcheck = pure ()
 
 getContractReport :: forall t env. Contract.PABContract t => PABAction t env (ContractReport (Contract.ContractDef t))
 getContractReport = do
-    installedContracts <- Contract.getDefinitions @t
+    contracts <- Contract.getDefinitions @t
     activeContractIDs <- fmap fst . Map.toList <$> Contract.getActiveContracts @t
     crAvailableContracts <-
         traverse
             (\t -> ContractSignatureResponse t <$> Contract.exportSchema @t t)
-            installedContracts
+            contracts
     crActiveContractStates <- traverse (\i -> Contract.getState @t i >>= \s -> pure (i, fromResp $ Contract.serialisableState (Proxy @t) s)) activeContractIDs
     pure ContractReport {crAvailableContracts, crActiveContractStates}
 
@@ -123,11 +121,11 @@ handlerNew ::
             :<|> PABAction t env [ContractInstanceClientState (Contract.ContractDef t)]
             :<|> PABAction t env [ContractSignatureResponse (Contract.ContractDef t)]
 handlerNew =
-        (activateContract
+        activateContract
             :<|> (\x -> (parseContractId x >>= contractInstanceState) :<|> (\y z -> parseContractId x >>= \x' -> callEndpoint x' y z) :<|> (parseContractId x >>= shutdown))
             :<|> instancesForWallets
             :<|> allInstanceStates
-            :<|> availableContracts)
+            :<|> availableContracts
 
 fromInternalState ::
     t
@@ -214,10 +212,9 @@ walletProxy ::
     :<|> (Integer -> PABAction t env Value)
     :<|> (Integer -> Tx -> PABAction t env Tx))
 walletProxy createNewWallet =
-    ( createNewWallet
+    createNewWallet
     :<|> (\w tx -> fmap (const NoContent) (Core.handleAgentThread (Wallet w) $ Wallet.Effects.submitTxn tx))
     :<|> (\w -> (\pk -> WalletInfo{wiWallet=Wallet w, wiPubKey = pk, wiPubKeyHash = pubKeyHash pk }) <$> Core.handleAgentThread (Wallet w) Wallet.Effects.ownPubKey)
     :<|> (\w -> Core.handleAgentThread (Wallet w) . Wallet.Effects.balanceTx)
     :<|> (\w -> Core.handleAgentThread (Wallet w) Wallet.Effects.totalFunds)
     :<|> (\w tx -> Core.handleAgentThread (Wallet w) $ Wallet.Effects.walletAddSignature tx)
-    )

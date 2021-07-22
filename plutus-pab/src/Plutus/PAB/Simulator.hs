@@ -11,6 +11,7 @@
 {-# LANGUAGE TupleSections       #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeOperators       #-}
+
 {-
 
 A live, multi-threaded PAB simulator with agent-specific states and actions
@@ -24,7 +25,6 @@ module Plutus.PAB.Simulator(
     -- * Run with user-defined contracts
     , SimulatorContractHandler
     , runSimulationWith
-    , handleContractEffectMsg
     , SimulatorEffectHandlers
     , mkSimulatorHandlers
     , addWallet
@@ -114,8 +114,9 @@ import           Plutus.PAB.Core.ContractInstance.STM           (Activity (..), 
 import qualified Plutus.PAB.Core.ContractInstance.STM           as Instances
 import           Plutus.PAB.Effects.Contract                    (ContractStore)
 import qualified Plutus.PAB.Effects.Contract                    as Contract
+import           Plutus.PAB.Effects.Contract.Builtin            (HasDefinitions (..))
 import           Plutus.PAB.Effects.TimeEffect                  (TimeEffect)
-import           Plutus.PAB.Monitoring.PABLogMsg                (ContractEffectMsg, PABMultiAgentMsg (..))
+import           Plutus.PAB.Monitoring.PABLogMsg                (PABMultiAgentMsg (..))
 import           Plutus.PAB.Types                               (PABError (ContractInstanceNotFound, WalletError, WalletNotFound))
 import           Plutus.PAB.Webserver.Types                     (ContractActivationArgs (..))
 import           Plutus.V1.Ledger.Slot                          (Slot)
@@ -199,12 +200,13 @@ type SimulatorEffectHandlers t = EffectHandlers t (SimulatorState t)
 -- | Build 'EffectHandlers' for running a contract in the simulator
 mkSimulatorHandlers ::
     forall t.
-    Pretty (Contract.ContractDef t)
+    ( Pretty (Contract.ContractDef t)
+    , HasDefinitions (Contract.ContractDef t)
+    )
     => FeeConfig
-    -> [Contract.ContractDef t] -- ^ Available contract definitions
     -> SimulatorContractHandler t -- ^ Making calls to the contract (see 'Plutus.PAB.Effects.Contract.ContractTest.handleContractTest' for an example)
     -> SimulatorEffectHandlers t
-mkSimulatorHandlers feeCfg definitions handleContractEffect =
+mkSimulatorHandlers feeCfg handleContractEffect =
     EffectHandlers
         { initialiseEnvironment =
             (,,)
@@ -216,10 +218,10 @@ mkSimulatorHandlers feeCfg definitions handleContractEffect =
         , handleContractEffect
         , handleLogMessages = handleLogSimulator @t
         , handleServicesEffects = handleServicesSimulator @t feeCfg
-        , handleContractDefinitionStoreEffect =
+        , handleContractDefinitionEffect =
             interpret $ \case
                 Contract.AddDefinition _ -> pure () -- not supported
-                Contract.GetDefinitions  -> pure definitions
+                Contract.GetDefinitions  -> pure getDefinitions
         , onStartup = do
             SimulatorState{_logMessages} <- Core.askUserEnv @t @(SimulatorState t)
             void $ liftIO $ forkIO (printLogMessages _logMessages)
@@ -288,10 +290,6 @@ handleServicesSimulator feeCfg wallet =
         . interpret (Core.handleUserEnvReader @t @(SimulatorState t))
         . reinterpret (runWalletState @t wallet)
         . reinterpretN @'[State Wallet.WalletState, Error WAPI.WalletAPIError, LogMsg TxBalanceMsg] (Wallet.handleWallet feeCfg)
-
--- | Convenience for wrapping 'ContractEffectMsg' in 'PABMultiAgentMsg t'
-handleContractEffectMsg :: forall t x effs. Member (LogMsg (PABMultiAgentMsg t)) effs => Eff (LogMsg ContractEffectMsg ': effs) x -> Eff effs x
-handleContractEffectMsg = interpret (mapLog @_ @(PABMultiAgentMsg t) ContractMsg)
 
 -- | Handle the 'State WalletState' effect by reading from and writing
 --   to a TVar in the 'SimulatorState'
@@ -408,7 +406,7 @@ waitNSlots = Core.waitNSlots
 type Simulation t a = Core.PABAction t (SimulatorState t) a
 
 runSimulationWith :: SimulatorEffectHandlers t -> Simulation t a -> IO (Either PABError a)
-runSimulationWith handlers = Core.runPAB def handlers
+runSimulationWith = Core.runPAB def
 
 -- | Handle a 'LogMsg' effect in terms of a "larger" 'State' effect from which we have a setter.
 logIntoTQueue ::

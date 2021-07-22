@@ -6,8 +6,8 @@
 {-# LANGUAGE NamedFieldPuns     #-}
 {-# LANGUAGE StrictData         #-}
 {-# LANGUAGE TypeApplications   #-}
-{-# LANGUAGE TypeOperators      #-}
-module PayToWallet(
+
+module ContractExample.PayToWallet(
     payToWallet
     , PayToWalletParams(..)
     , PayToWalletSchema

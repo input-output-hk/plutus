@@ -16,6 +16,7 @@ nodeServerConfig:
   mscBaseUrl: http://localhost:9082
   mscSocketPath: ./node-server.sock
   mscKeptBlocks: 100
+  mscNetworkId: "1"
   mscSlotConfig:
     scZeroSlotTime: 1591566291000 # Wednesday, July 29, 2020 21:44:51 - shelley launch time in milliseconds
     scSlotLength: 1000 # In milliseconds

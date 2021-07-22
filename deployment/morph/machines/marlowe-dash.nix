@@ -11,12 +11,8 @@
 
   services.pab = {
     enable = true;
-    pab-package = pkgs.plutus-pab.pab-exes.plutus-pab;
-    contracts = [
-      "${pkgs.marlowe-app}/bin/marlowe-app"
-      "${pkgs.marlowe-companion-app}/bin/marlowe-companion-app"
-      "${pkgs.marlowe-follow-app}/bin/marlowe-follow-app"
-    ];
+    pab-setup = pkgs.plutus-pab.pab-exes.plutus-pab-setup;
+    pab-package = pkgs.plutus-pab.pab-exes.plutus-pab-examples;
     staticContent = pkgs.marlowe-dashboard.client;
     dbFile = "/var/lib/pab/pab-core.db";
     defaultWallet = 1;

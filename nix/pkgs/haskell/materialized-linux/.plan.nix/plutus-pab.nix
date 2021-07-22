@@ -34,11 +34,11 @@
       "library" = {
         depends = [
           (hsPkgs."freer-extras" or (errorHandler.buildDepError "freer-extras"))
+          (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
+          (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
           (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
           (hsPkgs."plutus-tx" or (errorHandler.buildDepError "plutus-tx"))
           (hsPkgs."plutus-tx-plugin" or (errorHandler.buildDepError "plutus-tx-plugin"))
-          (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-          (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
           (hsPkgs."QuickCheck" or (errorHandler.buildDepError "QuickCheck"))
           (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
           (hsPkgs."aeson-pretty" or (errorHandler.buildDepError "aeson-pretty"))
@@ -78,6 +78,7 @@
           (hsPkgs."ouroboros-network" or (errorHandler.buildDepError "ouroboros-network"))
           (hsPkgs."ouroboros-network-framework" or (errorHandler.buildDepError "ouroboros-network-framework"))
           (hsPkgs."plutus-ledger-api" or (errorHandler.buildDepError "plutus-ledger-api"))
+          (hsPkgs."purescript-bridge" or (errorHandler.buildDepError "purescript-bridge"))
           (hsPkgs."prettyprinter" or (errorHandler.buildDepError "prettyprinter"))
           (hsPkgs."process" or (errorHandler.buildDepError "process"))
           (hsPkgs."quickcheck-instances" or (errorHandler.buildDepError "quickcheck-instances"))
@@ -92,6 +93,7 @@
           (hsPkgs."tagged" or (errorHandler.buildDepError "tagged"))
           (hsPkgs."typed-protocols" or (errorHandler.buildDepError "typed-protocols"))
           (hsPkgs."typed-protocols-examples" or (errorHandler.buildDepError "typed-protocols-examples"))
+          (hsPkgs."servant-purescript" or (errorHandler.buildDepError "servant-purescript"))
           (hsPkgs."servant-websockets" or (errorHandler.buildDepError "servant-websockets"))
           (hsPkgs."stm" or (errorHandler.buildDepError "stm"))
           (hsPkgs."text" or (errorHandler.buildDepError "text"))
@@ -146,20 +148,19 @@
           "Cardano/Node/RandomTx"
           "Cardano/Node/Server"
           "Cardano/Node/Types"
-          "Cardano/Protocol/Socket/Type"
-          "Cardano/Protocol/Socket/Mock/Server"
           "Cardano/Protocol/Socket/Mock/Client"
+          "Cardano/Protocol/Socket/Mock/Server"
           "Cardano/Protocol/Socket/Client"
+          "Cardano/Protocol/Socket/Type"
           "Cardano/Wallet/API"
           "Cardano/Wallet/Client"
           "Cardano/Wallet/Mock"
           "Cardano/Wallet/Server"
           "Cardano/Wallet/Types"
-          "Control/Monad/Freer/Delay"
           "Control/Concurrent/Availability"
+          "Control/Monad/Freer/Delay"
           "Plutus/PAB/App"
           "Plutus/PAB/Arbitrary"
-          "Plutus/PAB/ContractCLI"
           "Plutus/PAB/Core"
           "Plutus/PAB/Core/ContractInstance"
           "Plutus/PAB/Core/ContractInstance/BlockchainEnv"
@@ -167,58 +168,65 @@
           "Plutus/PAB/Core/ContractInstance/STM"
           "Plutus/PAB/Db/Beam"
           "Plutus/PAB/Db/Beam/ContractStore"
-          "Plutus/PAB/Db/Beam/ContractDefinitionStore"
           "Plutus/PAB/Db/Memory/ContractStore"
           "Plutus/PAB/Effects/Contract"
           "Plutus/PAB/Effects/Contract/Builtin"
-          "Plutus/PAB/Effects/Contract/ContractExe"
           "Plutus/PAB/Effects/ContractRuntime"
           "Plutus/PAB/Effects/DbStore"
-          "Plutus/PAB/Effects/UUID"
           "Plutus/PAB/Effects/TimeEffect"
+          "Plutus/PAB/Effects/UUID"
+          "Plutus/PAB/Events"
+          "Plutus/PAB/Events/Contract"
+          "Plutus/PAB/Events/ContractInstanceState"
           "Plutus/PAB/Instances"
+          "Plutus/PAB/Monitoring/Config"
           "Plutus/PAB/Monitoring/Monitoring"
           "Plutus/PAB/Monitoring/PABLogMsg"
-          "Plutus/PAB/Monitoring/Config"
           "Plutus/PAB/Monitoring/Util"
+          "Plutus/PAB/Run"
+          "Plutus/PAB/Run/Cli"
+          "Plutus/PAB/Run/Command"
+          "Plutus/PAB/Run/CommandParser"
+          "Plutus/PAB/Run/PSGenerator"
+          "Plutus/PAB/Simulator"
+          "Plutus/PAB/Timeout"
+          "Plutus/PAB/Types"
           "Plutus/PAB/Webserver/API"
           "Plutus/PAB/Webserver/Handler"
           "Plutus/PAB/Webserver/Server"
           "Plutus/PAB/Webserver/Types"
           "Plutus/PAB/Webserver/WebSocket"
-          "Plutus/PAB/Events"
-          "Plutus/PAB/Events/Contract"
-          "Plutus/PAB/Events/ContractInstanceState"
-          "Plutus/PAB/ParseStringifiedJSON"
-          "Plutus/PAB/Simulator"
-          "Plutus/PAB/Timeout"
-          "Plutus/PAB/Types"
           ];
         hsSourceDirs = [ "src" ];
         };
       exes = {
-        "plutus-pab" = {
+        "plutus-pab-setup" = {
           depends = [
             (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
             (hsPkgs."aeson-pretty" or (errorHandler.buildDepError "aeson-pretty"))
             (hsPkgs."async" or (errorHandler.buildDepError "async"))
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."bytestring" or (errorHandler.buildDepError "bytestring"))
+            (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
+            (hsPkgs."contra-tracer" or (errorHandler.buildDepError "contra-tracer"))
             (hsPkgs."filepath" or (errorHandler.buildDepError "filepath"))
             (hsPkgs."freer-extras" or (errorHandler.buildDepError "freer-extras"))
             (hsPkgs."freer-simple" or (errorHandler.buildDepError "freer-simple"))
+            (hsPkgs."iohk-monitoring" or (errorHandler.buildDepError "iohk-monitoring"))
             (hsPkgs."lens" or (errorHandler.buildDepError "lens"))
+            (hsPkgs."lobemo-backend-ekg" or (errorHandler.buildDepError "lobemo-backend-ekg"))
             (hsPkgs."monad-logger" or (errorHandler.buildDepError "monad-logger"))
             (hsPkgs."mtl" or (errorHandler.buildDepError "mtl"))
             (hsPkgs."optparse-applicative" or (errorHandler.buildDepError "optparse-applicative"))
             (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
             (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
+            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
+            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
             (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
             (hsPkgs."prettyprinter" or (errorHandler.buildDepError "prettyprinter"))
             (hsPkgs."purescript-bridge" or (errorHandler.buildDepError "purescript-bridge"))
             (hsPkgs."row-types" or (errorHandler.buildDepError "row-types"))
+            (hsPkgs."servant-client" or (errorHandler.buildDepError "servant-client"))
             (hsPkgs."servant-purescript" or (errorHandler.buildDepError "servant-purescript"))
             (hsPkgs."servant-server" or (errorHandler.buildDepError "servant-server"))
             (hsPkgs."text" or (errorHandler.buildDepError "text"))
@@ -226,21 +234,46 @@
             (hsPkgs."unliftio-core" or (errorHandler.buildDepError "unliftio-core"))
             (hsPkgs."uuid" or (errorHandler.buildDepError "uuid"))
             (hsPkgs."yaml" or (errorHandler.buildDepError "yaml"))
-            (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
-            (hsPkgs."iohk-monitoring" or (errorHandler.buildDepError "iohk-monitoring"))
-            (hsPkgs."servant-client" or (errorHandler.buildDepError "servant-client"))
-            (hsPkgs."contra-tracer" or (errorHandler.buildDepError "contra-tracer"))
-            (hsPkgs."lobemo-backend-ekg" or (errorHandler.buildDepError "lobemo-backend-ekg"))
             ];
           buildable = true;
-          modules = [ "PSGenerator" "Cli" "Command" "CommandParser" ];
+          modules = [ "CommandParser" ];
           hsSourceDirs = [ "app" ];
+          mainPath = [ "Main.hs" ];
+          };
+        "plutus-pab-examples" = {
+          depends = [
+            (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
+            (hsPkgs."base" or (errorHandler.buildDepError "base"))
+            (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
+            (hsPkgs."data-default" or (errorHandler.buildDepError "data-default"))
+            (hsPkgs."freer-extras" or (errorHandler.buildDepError "freer-extras"))
+            (hsPkgs."freer-simple" or (errorHandler.buildDepError "freer-simple"))
+            (hsPkgs."lens" or (errorHandler.buildDepError "lens"))
+            (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
+            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
+            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
+            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
+            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
+            (hsPkgs."prettyprinter" or (errorHandler.buildDepError "prettyprinter"))
+            (hsPkgs."purescript-bridge" or (errorHandler.buildDepError "purescript-bridge"))
+            (hsPkgs."row-types" or (errorHandler.buildDepError "row-types"))
+            (hsPkgs."servant-purescript" or (errorHandler.buildDepError "servant-purescript"))
+            (hsPkgs."text" or (errorHandler.buildDepError "text"))
+            ];
+          buildable = true;
+          modules = [
+            "ContractExample"
+            "ContractExample/AtomicSwap"
+            "ContractExample/PayToWallet"
+            "ContractExample/WaitForTx"
+            ];
+          hsSourceDirs = [ "examples" ];
           mainPath = [ "Main.hs" ];
           };
         "plutus-uniswap" = {
           depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
+            (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
             (hsPkgs."data-default" or (errorHandler.buildDepError "data-default"))
             (hsPkgs."freer-extras" or (errorHandler.buildDepError "freer-extras"))
@@ -254,79 +287,6 @@
             ];
           buildable = true;
           hsSourceDirs = [ "examples/uniswap" ];
-          mainPath = [ "Main.hs" ];
-          };
-        "plutus-game" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."text" or (errorHandler.buildDepError "text"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/game-contract" ];
-          mainPath = [ "Main.hs" ];
-          };
-        "plutus-currency" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."text" or (errorHandler.buildDepError "text"))
-            (hsPkgs."time-units" or (errorHandler.buildDepError "time-units"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/currency-contract" ];
-          mainPath = [ "Main.hs" ];
-          };
-        "plutus-atomic-swap" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."text" or (errorHandler.buildDepError "text"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."lens" or (errorHandler.buildDepError "lens"))
-            (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
-            (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
-            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
-            (hsPkgs."plutus-ledger-api" or (errorHandler.buildDepError "plutus-ledger-api"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            (hsPkgs."time-units" or (errorHandler.buildDepError "time-units"))
-            ];
-          buildable = true;
-          modules = [ "AtomicSwap" ];
-          hsSourceDirs = [ "examples/atomic-swap-contract" ];
-          mainPath = [ "Main.hs" ];
-          };
-        "plutus-wait-for-tx" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."text" or (errorHandler.buildDepError "text"))
-            (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
-            (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
-            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
-            (hsPkgs."plutus-ledger-api" or (errorHandler.buildDepError "plutus-ledger-api"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/wait-for-tx" ];
-          mainPath = [ "Main.hs" ];
-          };
-        "plutus-pay-to-wallet" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."text" or (errorHandler.buildDepError "text"))
-            (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
-            (hsPkgs."playground-common" or (errorHandler.buildDepError "playground-common"))
-            (hsPkgs."plutus-ledger" or (errorHandler.buildDepError "plutus-ledger"))
-            (hsPkgs."plutus-ledger-api" or (errorHandler.buildDepError "plutus-ledger-api"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            ];
-          buildable = true;
-          modules = [ "PayToWallet" ];
-          hsSourceDirs = [ "examples/pay-to-wallet-contract" ];
           mainPath = [ "Main.hs" ];
           };
         "plutus-pab-test-psgenerator" = {
@@ -368,57 +328,13 @@
             ];
           buildable = true;
           modules = [
-            "AtomicSwap"
-            "PayToWallet"
+            "ContractExample/AtomicSwap"
+            "ContractExample/PayToWallet"
             "Plutus/PAB/Effects/Contract/ContractTest"
             "Plutus/PAB/Simulator/Test"
             ];
-          hsSourceDirs = [
-            "test-psgenerator"
-            "test/full"
-            "examples/pay-to-wallet-contract"
-            "examples/atomic-swap-contract"
-            ];
+          hsSourceDirs = [ "test-psgenerator" "test/full" "examples" ];
           mainPath = [ "TestPSGenerator.hs" ];
-          };
-        "prism-mirror" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/prism/mirror" ];
-          mainPath = [
-            "Main.hs"
-            ] ++ (pkgs.lib).optional (flags.defer-plugin-errors) "";
-          };
-        "prism-unlock-sto" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/prism/unlock-sto" ];
-          mainPath = [
-            "Main.hs"
-            ] ++ (pkgs.lib).optional (flags.defer-plugin-errors) "";
-          };
-        "prism-unlock-exchange" = {
-          depends = [
-            (hsPkgs."base" or (errorHandler.buildDepError "base"))
-            (hsPkgs."plutus-pab" or (errorHandler.buildDepError "plutus-pab"))
-            (hsPkgs."plutus-use-cases" or (errorHandler.buildDepError "plutus-use-cases"))
-            (hsPkgs."plutus-contract" or (errorHandler.buildDepError "plutus-contract"))
-            ];
-          buildable = true;
-          hsSourceDirs = [ "examples/prism/unlock-exchange" ];
-          mainPath = [
-            "Main.hs"
-            ] ++ (pkgs.lib).optional (flags.defer-plugin-errors) "";
           };
         "tx-inject" = {
           depends = [
@@ -550,18 +466,13 @@
             ];
           buildable = true;
           modules = [
+            "ContractExample/AtomicSwap"
+            "ContractExample/PayToWallet"
             "Plutus/PAB/CoreSpec"
-            "Plutus/PAB/Events/ContractSpec"
             "Plutus/PAB/Effects/Contract/ContractTest"
             "Plutus/PAB/Simulator/Test"
-            "AtomicSwap"
-            "PayToWallet"
             ];
-          hsSourceDirs = [
-            "test/full"
-            "examples/pay-to-wallet-contract"
-            "examples/atomic-swap-contract"
-            ];
+          hsSourceDirs = [ "test/full" "examples" ];
           mainPath = [ "Spec.hs" ];
           };
         };
