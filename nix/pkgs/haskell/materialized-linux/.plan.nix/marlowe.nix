@@ -62,6 +62,7 @@
           "Language/Marlowe/Extended"
           "Language/Marlowe/Semantics"
           "Language/Marlowe/Client"
+          "Language/Marlowe/Client/OnChain"
           "Language/Marlowe/Util"
           "Language/Marlowe/Pretty"
           "Language/Marlowe/Analysis/FSSemantics"
