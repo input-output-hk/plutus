@@ -30,7 +30,7 @@ let
   # For dev usage
   start-backend = pkgs.writeShellScriptBin "plutus-pab-server" ''
     export FRONTEND_URL=https://localhost:8009
-    export WEBGHC_URL=http://localhost:8080
+    export WEBGHC_URL=https://localhost:8888
     # There might be local modifications so only copy when missing
     ! test -f ./plutus-pab.yaml && cp ../plutus-pab/plutus-pab.yaml.sample plutus-pab.yaml
     $(nix-build ../default.nix --quiet --no-build-output -A plutus-pab.server-invoker)/bin/plutus-pab --config=plutus-pab.yaml webserver
@@ -39,7 +39,7 @@ let
   # For dev usage
   start-all-servers = pkgs.writeShellScriptBin "plutus-pab-all-servers" ''
     export FRONTEND_URL=https://localhost:8009
-    export WEBGHC_URL=http://localhost:8080
+    export WEBGHC_URL=https://localhost:8888
     # There might be local modifications so only copy when missing
     ! test -f ./plutus-pab.yaml && cp ../plutus-pab/plutus-pab.yaml.sample plutus-pab.yaml
     $(nix-build ../default.nix --quiet --no-build-output -A plutus-pab.server-invoker)/bin/plutus-pab --config=plutus-pab.yaml all-servers

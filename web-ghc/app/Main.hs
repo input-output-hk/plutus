@@ -45,7 +45,7 @@ webserverCommandParser =
           auto
           ( short 'p' <> long "port" <> help "Webserver port number"
               <> showDefault
-              <> value 8080
+              <> value 8888
           )
       _timeoutSec <-
           fromMicroseconds . (*1000000) <$> option

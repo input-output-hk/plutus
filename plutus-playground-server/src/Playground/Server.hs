@@ -106,7 +106,7 @@ initializeServerContext maxInterpretationTime secrets = liftIO $ do
   webghcURL <- case mWebghcURL of
     Just url -> parseBaseUrl url
     Nothing -> do
-      let localhost = "http://localhost:8009"
+      let localhost = "http://localhost:8888"
       putStrLn $ "WEBGHC_URL not set, using " <> localhost
       parseBaseUrl localhost
   manager <- newManager $ defaultManagerSettings
