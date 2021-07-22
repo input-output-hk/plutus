@@ -35,6 +35,8 @@ module UntypedPlutusCore.Evaluation.Machine.Cek.Internal
     , ErrorWithCause(..)
     , EvaluationError(..)
     , ExBudgetCategory(..)
+    , GivenCekEmitter
+    , emitCek
     , StepKind(..)
     , PrettyUni
     , extractEvaluationResult
