@@ -73,6 +73,7 @@ import           Data.Proxy
 import           Data.STRef
 import           Data.Semigroup                                           (stimes)
 import           Data.Text.Prettyprint.Doc
+import           Data.Time.Clock                                          (getCurrentTime)
 import           Data.Word64Array.Word8
 import           Universe
 
@@ -368,7 +369,7 @@ type CekCarryingM :: GHC.Type -> (GHC.Type -> GHC.Type) -> GHC.Type -> GHC.Type 
 -- | The monad the CEK machine runs in.
 newtype CekCarryingM term uni fun s a = CekCarryingM
     { unCekCarryingM :: ST s a
-    } deriving newtype (Functor, Applicative, Monad)
+    } deriving newtype (Show, Functor, Applicative, Monad)
 
 type CekM uni fun = CekCarryingM (Term Name uni fun ()) uni fun
 
@@ -472,9 +473,15 @@ spendBudgetCek = let (CekBudgetSpender spend) = ?cekBudgetSpender in spend
 emitCek :: GivenCekEmitter s => String -> CekM uni fun s ()
 emitCek str =
     let mayLogsRef = ?cekEmitter
+        withTime =
+            "[" ++
+            (show $ (CekCarryingM . unsafeIOToST) getCurrentTime) ++
+            "]" ++ str
     in case mayLogsRef of
         Nothing      -> pure ()
-        Just logsRef -> CekCarryingM $ modifySTRef logsRef (`DList.snoc` str)
+        Just logsRef ->
+            CekCarryingM $
+                modifySTRef logsRef (`DList.snoc` withTime)
 
 -- see Note [Scoping].
 -- | Instantiate all the free variables of a term by looking them up in an environment.

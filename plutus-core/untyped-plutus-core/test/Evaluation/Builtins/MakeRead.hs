@@ -86,7 +86,7 @@ test_collectStrings = testProperty "collectStrings" . property $ do
         Left _                             -> failure
         Right (EvaluationFailure, _)       -> failure
         Right (EvaluationSuccess _, strs') -> return strs'
-    strs === strs'
+    strs === map (tail . dropWhile (/= ']')) strs'
 
 test_noticeEvaluationFailure :: TestTree
 test_noticeEvaluationFailure =

@@ -5,8 +5,8 @@ license: Apache-2.0
 license-files:
   LICENSE
   NOTICE
-maintainer: vanessa.mchale@iohk.io
-author: Vanessa McHale
+maintainer: michael.peyton-jones@iohk.io
+author: Plutus Core Team
 tested-with: ghc ==8.2.2 ghc ==8.4.3 ghc ==8.6.1
 synopsis: Language library for Plutus Core
 description:
@@ -301,6 +301,7 @@ library
         th-lift -any,
         th-lift-instances -any,
         th-utilities -any,
+        time -any,
         transformers -any,
         unordered-containers -any,
         witherable -any,
