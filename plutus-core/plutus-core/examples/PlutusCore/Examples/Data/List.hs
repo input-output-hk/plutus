@@ -41,7 +41,7 @@ omapList = runQuote $ do
         . apply () (apply () (tyInst () (unwrap' () (var () xs)) listA) $ var () xs)
         . lamAbs () x (TyVar () a)
         . lamAbs () xs' listA
-        $ mkIterApp () (tyInst () (builtin () $ Right Cons) $ TyVar () a)
+        $ mkIterApp () (tyInst () (mkBuiltin () $ Right Cons) $ TyVar () a)
             [ apply () (var () f) $ var () x
             , apply () (var () rec) $ var () xs'
             ]

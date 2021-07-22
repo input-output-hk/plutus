@@ -24,7 +24,7 @@ import           Universe
 
 instance
         ( PrettyClassicBy configName name
-        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun
         ) => PrettyBy (PrettyConfigClassic configName) (Term name uni fun a) where
     prettyBy config = go where
         go (Constant _ val)     = parens' $ "con" </> prettyTypeOf val </> pretty val  -- NB: actually calls prettyConst

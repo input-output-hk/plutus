@@ -227,7 +227,7 @@ enumFromTo = runQuote $ do
     rec <- freshName "rec"
     n'  <- freshName "n'"
     u   <- freshName "u"
-    let gtInteger  = builtin () GreaterThanInteger
+    let gtInteger  = mkBuiltin () GreaterThanInteger
         int = mkTyBuiltin @_ @Integer ()
         listInt = TyApp () listTy int
     return
@@ -255,7 +255,7 @@ enumFromTo = runQuote $ do
 sum :: (TermLike term TyName Name uni DefaultFun, uni `Includes` Integer) => term ()
 sum = runQuote $ do
     let int = mkTyBuiltin @_ @Integer ()
-        add = builtin () AddInteger
+        add = mkBuiltin () AddInteger
     return
         . mkIterApp () (mkIterInst () foldList [int, int])
         $ [ add , mkConstant @Integer () 0]
@@ -266,7 +266,7 @@ sum = runQuote $ do
 product :: (TermLike term TyName Name uni DefaultFun, uni `Includes` Integer) => term ()
 product = runQuote $ do
     let int = mkTyBuiltin @_ @Integer ()
-        mul = builtin () MultiplyInteger
+        mul = mkBuiltin () MultiplyInteger
     return
         . mkIterApp () (mkIterInst () foldList [int, int])
         $ [ mul , mkConstant @Integer () 1]

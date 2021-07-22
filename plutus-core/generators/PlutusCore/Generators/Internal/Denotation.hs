@@ -20,6 +20,7 @@ import           PlutusCore.Generators.Internal.Dependent
 import           PlutusCore.Constant
 import           PlutusCore.Core
 import           PlutusCore.Default
+import           PlutusCore.MkPlc
 import           PlutusCore.Name
 
 import           Data.Dependent.Map                       (DMap)
@@ -102,7 +103,7 @@ insertBuiltin fun =
         BuiltinMeaning sch meta _ ->
            case typeSchemeResult sch of
                AsKnownType ->
-                   insertDenotation $ Denotation fun (Builtin ()) meta sch
+                   insertDenotation $ Denotation fun (mkBuiltin ()) meta sch
 
 -- Builtins that may fail are commented out, because we cannot handle them right now.
 -- Look for "UNDEFINED BEHAVIOR" in "PlutusCore.Generators.Internal.Dependent".

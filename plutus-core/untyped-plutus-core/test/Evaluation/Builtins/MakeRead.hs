@@ -78,7 +78,7 @@ test_collectStrings :: TestTree
 test_collectStrings = testProperty "collectStrings" . property $ do
     strs <- forAll . Gen.list (Range.linear 0 10) $ Gen.string (Range.linear 0 20) Gen.unicode
     let step arg rest = mkIterApp () sequ
-            [ apply () (builtin () Trace) $ mkConstant @String @DefaultUni () arg
+            [ apply () (mkBuiltin () Trace) $ mkConstant @String @DefaultUni () arg
             , rest
             ]
         term = foldr step unitval strs

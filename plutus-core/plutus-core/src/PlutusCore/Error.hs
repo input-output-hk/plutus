@@ -191,7 +191,7 @@ instance (GShow uni, Closed uni, uni `Everywhere` PrettyConst,  Pretty ann, Pret
     prettyBy _ (UnknownBuiltinFunctionE ann fun) =
         "An unknown built-in function at" <+> pretty ann <> ":" <+> pretty fun
 
-instance (GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Pretty ann) =>
+instance (GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun, Pretty ann) =>
             PrettyBy PrettyConfigPlc (Error uni fun ann) where
     prettyBy _      (ParseErrorE e)           = pretty e
     prettyBy _      (UniqueCoherencyErrorE e) = pretty e

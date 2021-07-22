@@ -27,11 +27,11 @@ makeClassyPrisms ''Error
 instance PLC.AsTypeError (Error uni fun a) (PLC.Term PLC.TyName PLC.Name uni fun ()) uni fun a where
     _TypeError = _PLCError . PLC._TypeError
 
-instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty fun, PP.Pretty a) =>
+instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty fun, Enum fun, PP.Pretty a) =>
          Show (Error uni fun a) where
     show = show . PLC.prettyPlcClassicDebug
 
-instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty fun, PP.Pretty a) =>
+instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty fun, Enum fun, PP.Pretty a) =>
             PLC.PrettyBy PLC.PrettyConfigPlc (Error uni fun a) where
     prettyBy config = \case
         CompilationError x e -> "Error during compilation:" <+> PP.pretty e <> "(" <> PP.pretty x <> ")"
@@ -39,6 +39,6 @@ instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, P
         PLCError e           -> PP.vsep [ "Error from the PLC compiler:", PLC.prettyBy config e ]
 
 deriving anyclass instance
-    ( PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty a, PP.Pretty fun
+    ( PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, PP.Pretty a, PP.Pretty fun, Enum fun
     , Typeable uni, Typeable fun, Typeable a
     ) => Exception (Error uni fun a)

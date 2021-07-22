@@ -85,5 +85,5 @@ builtins :: PlcFolderContents DefaultUni ExtensionFun
 builtins =
     FolderContents
         [ treeFolderContents "Builtins" $
-            map (\fun -> plcTermFile (show fun) $ builtin () fun) enumeration
+            map (\fun -> plcTermFile (show fun) $ mkBuiltin () fun) enumeration
         ]

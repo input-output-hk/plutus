@@ -94,7 +94,7 @@ data BuiltinRuntime term =
 
 -- | A 'BuiltinRuntime' for each builtin from a set of builtins.
 newtype BuiltinsRuntime fun term = BuiltinsRuntime
-    { unBuiltinRuntime :: Array fun (BuiltinRuntime term)
+    { unBuiltinRuntime :: Array Int (BuiltinRuntime term)
     }
 
 -- | Instantiate a 'BuiltinMeaning' given denotations of built-in functions and a cost model.
@@ -117,18 +117,19 @@ typeOfBuiltinFunction fun = case toBuiltinMeaning @_ @_ @(Term TyName Name _ _ (
 -- | Calculate runtime info for all built-in functions given denotations of builtins
 -- and a cost model.
 toBuiltinsRuntime
-    :: (cost ~ CostingPart uni fun, HasConstantIn uni term, ToBuiltinMeaning uni fun)
+    :: forall term uni fun cost.
+       (cost ~ CostingPart uni fun, HasConstantIn uni term, ToBuiltinMeaning uni fun)
     => cost -> BuiltinsRuntime fun term
 toBuiltinsRuntime cost =
-    BuiltinsRuntime . tabulateArray $ toBuiltinRuntime cost . toBuiltinMeaning
+    BuiltinsRuntime . tabulateArraySub $ toBuiltinRuntime cost . toBuiltinMeaning @uni @fun
 
 -- | Look up the runtime info of a built-in function during evaluation.
 lookupBuiltin
     :: (MonadError (ErrorWithCause err term) m, AsMachineError err fun, Ix fun)
-    => fun -> BuiltinsRuntime fun val -> m (BuiltinRuntime val)
+    => BuiltinTag fun -> BuiltinsRuntime fun val -> m (BuiltinRuntime val)
 -- @Data.Array@ doesn't seem to have a safe version of @(!)@, hence we use a prism.
-lookupBuiltin fun (BuiltinsRuntime env) = case env ^? ix fun of
-    Nothing  -> throwingWithCause _MachineError (UnknownBuiltin fun) Nothing
+lookupBuiltin (BuiltinTag tag) (BuiltinsRuntime env) = case env ^? ix tag of
+    Nothing  -> throwingWithCause _MachineError (UnknownBuiltin undefined) Nothing
     Just bri -> pure bri
 
 {- Note [Automatic derivation of type schemes]

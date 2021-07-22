@@ -158,7 +158,7 @@ cekStepCost costs = \case
 
 data ExBudgetCategory fun
     = BStep StepKind
-    | BBuiltinApp fun  -- Cost of evaluating a fully applied builtin function
+    | BBuiltinApp !(BuiltinTag fun)  -- Cost of evaluating a fully applied builtin function
     | BStartup
     deriving stock (Show, Eq, Ord, Generic)
     deriving anyclass (NFData, Hashable)
@@ -184,7 +184,7 @@ data CekValue uni fun =
   | VDelay (Term Name uni fun ()) !(CekValEnv uni fun)
   | VLamAbs Name (Term Name uni fun ()) !(CekValEnv uni fun)
   | VBuiltin            -- A partial builtin application, accumulating arguments for eventual full application.
-      !fun                   -- So that we know, for what builtin we're calculating the cost.
+      !(BuiltinTag fun)      -- So that we know, for what builtin we're calculating the cost.
                              -- TODO: any chance we could sneak this into 'BuiltinRuntime'
                              -- where we have a partially instantiated costing function anyway?
       (Term Name uni fun ()) -- This must be lazy. It represents the partial application of the
@@ -379,7 +379,7 @@ type CekEvaluationExceptionCarrying term fun =
 type CekEvaluationException uni fun = CekEvaluationExceptionCarrying (Term Name uni fun ()) fun
 
 -- | The set of constraints we need to be able to print things in universes, which we need in order to throw exceptions.
-type PrettyUni uni fun = (GShow uni, Closed uni, Pretty fun, Typeable uni, Typeable fun, Everywhere uni PrettyConst)
+type PrettyUni uni fun = (GShow uni, Closed uni, Pretty fun, Enum fun, Typeable uni, Typeable fun, Everywhere uni PrettyConst)
 
 {- Note [Throwing exceptions in ST]
 This note represents MPJ's best understanding right now, might be wrong.
@@ -502,7 +502,7 @@ dischargeCekValue = \case
     -- or (b) it's needed for an error message.
     VBuiltin _ term env _  -> dischargeCekValEnv env term
 
-instance (Closed uni, GShow uni, uni `Everywhere` PrettyConst, Pretty fun) =>
+instance (Closed uni, GShow uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun) =>
             PrettyBy PrettyConfigPlc (CekValue uni fun) where
     prettyBy cfg = prettyBy cfg . dischargeCekValue
 
@@ -584,7 +584,7 @@ lookupVarName varName varEnv =
 -- fully saturated or not.
 evalBuiltinApp
     :: (GivenCekReqs uni fun s, PrettyUni uni fun)
-    => fun
+    => BuiltinTag fun
     -> Term Name uni fun ()
     -> CekValEnv uni fun
     -> BuiltinRuntime (CekValue uni fun)

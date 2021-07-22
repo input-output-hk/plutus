@@ -145,6 +145,8 @@ where
 
 import           PlutusPrelude                          hiding (toList)
 
+import           PlutusCore.Core
+
 import           Data.Semigroup
 import           Data.Text.Prettyprint.Doc
 import           Deriving.Aeson
@@ -156,7 +158,7 @@ import           PlutusCore.Evaluation.Machine.ExMemory
 -- constant application and we want to be general over @exBudgetCat@ there, but still track the
 -- built-in functions category, hence the ad hoc polymorphism.
 class ExBudgetBuiltin fun exBudgetCat where
-    exBudgetBuiltin :: fun -> exBudgetCat
+    exBudgetBuiltin :: BuiltinTag fun -> exBudgetCat
 
 -- | A dummy 'ExBudgetBuiltin' instance to be used in monads where we don't care about costing.
 instance ExBudgetBuiltin fun () where

@@ -59,10 +59,10 @@ genOverapplication = do
     TermOf tj j <- genTypedBuiltinDef typedInteger
     let term =
             mkIterApp ()
-                (TyInst () (Builtin () IfThenElse) . TyFun () integer $ TyFun () integer integer)
-                [ mkIterApp () (Builtin () LessThanInteger) [ti, tj]
-                , Builtin () AddInteger
-                , Builtin () SubtractInteger
+                (TyInst () (mkBuiltin () IfThenElse) . TyFun () integer $ TyFun () integer integer)
+                [ mkIterApp () (mkBuiltin () LessThanInteger) [ti, tj]
+                , mkBuiltin () AddInteger
+                , mkBuiltin () SubtractInteger
                 , ti
                 , tj
                 ]
@@ -108,13 +108,13 @@ naiveFib iv = runQuote $ do
             [   LamAbs () rec (TyFun () intS intS)
               . LamAbs () i intS
               $ mkIterApp () (TyInst () ifThenElse intS)
-                  [ mkIterApp () (Builtin () LessThanEqualsInteger)
+                  [ mkIterApp () (mkBuiltin () LessThanEqualsInteger)
                       [Var () i, mkConstant @Integer () 1]
                   , LamAbs () u unit $ Var () i
-                  , LamAbs () u unit $ mkIterApp () (Builtin () AddInteger)
-                      [ Apply () (Var () rec) $ mkIterApp () (Builtin () SubtractInteger)
+                  , LamAbs () u unit $ mkIterApp () (mkBuiltin () AddInteger)
+                      [ Apply () (Var () rec) $ mkIterApp () (mkBuiltin () SubtractInteger)
                           [Var () i, mkConstant @Integer () 1]
-                      , Apply () (Var () rec) $ mkIterApp () (Builtin () SubtractInteger)
+                      , Apply () (Var () rec) $ mkIterApp () (mkBuiltin () SubtractInteger)
                           [Var () i, mkConstant @Integer () 2]
                       ]
                   ]
@@ -156,7 +156,7 @@ natSum :: Term TyName Name DefaultUni DefaultFun ()
 natSum = runQuote $ do
     let int = mkTyBuiltin @_ @Integer ()
         nat = _recursiveType natData
-        add = Builtin () AddInteger
+        add = mkBuiltin () AddInteger
     acc <- freshName "acc"
     n <- freshName "n"
     return
@@ -208,7 +208,7 @@ genApplyAdd1 = do
     TermOf j jv <- genTermLoose typedInt
     let term =
             mkIterApp () (mkIterInst () applyFun [int, int])
-                [ Apply () (Builtin () AddInteger) i
+                [ Apply () (mkBuiltin () AddInteger) i
                 , j
                 ]
     return . TermOf term $ iv + jv
@@ -222,7 +222,7 @@ genApplyAdd2 = do
     TermOf j jv <- genTermLoose typedInt
     let term =
             mkIterApp () (mkIterInst () applyFun [int, TyFun () int int])
-                [ Builtin () AddInteger
+                [ mkBuiltin () AddInteger
                 , i
                 , j
                 ]
@@ -233,7 +233,7 @@ genDivideByZero :: TermGen (EvaluationResult Integer)
 genDivideByZero = do
     op <- Gen.element [DivideInteger, QuotientInteger, ModInteger, RemainderInteger]
     TermOf i _ <- genTermLoose $ AsKnownType @_ @Integer
-    let term = mkIterApp () (Builtin () op) [i, mkConstant @Integer () 0]
+    let term = mkIterApp () (mkBuiltin () op) [i, mkConstant @Integer () 0]
     return $ TermOf term EvaluationFailure
 
 -- | Check that division by zero results in 'Error' even if a function doesn't use that argument.
@@ -246,7 +246,7 @@ genDivideByZeroDrop = do
     let term =
             mkIterApp () (mkIterInst () Function.const [int, int])
                 [ mkConstant @Integer () iv
-                , mkIterApp () (Builtin () op) [i, mkConstant @Integer () 0]
+                , mkIterApp () (mkBuiltin () op) [i, mkConstant @Integer () 0]
                 ]
     return $ TermOf term EvaluationFailure
 

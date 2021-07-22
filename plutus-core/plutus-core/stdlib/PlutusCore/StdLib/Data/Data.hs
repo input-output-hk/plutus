@@ -64,15 +64,15 @@ caseData = runQuote $ do
         . lamAbs () fList (TyFun () listData $ TyVar () r)
         . lamAbs () fI (TyFun () integer $ TyVar () r)
         . lamAbs () fB (TyFun () (mkTyBuiltin @_ @ByteString ()) $ TyVar () r)
-        $ mkIterApp () (tyInst () (builtin () ChooseData) . TyFun () unit $ TyVar () r)
+        $ mkIterApp () (tyInst () (mkBuiltin () ChooseData) . TyFun () unit $ TyVar () r)
             [ lamAbs () u unit $ mkIterApp () (mkIterInst () uncurry [integer, listData, TyVar () r])
                 [ var () fConstr
-                , apply () (builtin () UnConstrData) $ var () d
+                , apply () (mkBuiltin () UnConstrData) $ var () d
                 ]
-            , lamAbs () u unit . apply () (var () fMap)  . apply () (builtin () UnMapData)  $ var () d
-            , lamAbs () u unit . apply () (var () fList) . apply () (builtin () UnListData) $ var () d
-            , lamAbs () u unit . apply () (var () fI)    . apply () (builtin () UnIData)    $ var () d
-            , lamAbs () u unit . apply () (var () fB)    . apply () (builtin () UnBData)    $ var () d
+            , lamAbs () u unit . apply () (var () fMap)  . apply () (mkBuiltin () UnMapData)  $ var () d
+            , lamAbs () u unit . apply () (var () fList) . apply () (mkBuiltin () UnListData) $ var () d
+            , lamAbs () u unit . apply () (var () fI)    . apply () (mkBuiltin () UnIData)    $ var () d
+            , lamAbs () u unit . apply () (var () fB)    . apply () (mkBuiltin () UnBData)    $ var () d
             , var () d
             , unitval
             ]

@@ -15,6 +15,7 @@ module PlutusCore.MkPlc
     , UniOf
     , mkTyBuiltinOf
     , mkTyBuiltin
+    , mkBuiltin
     , mkConstantOf
     , mkConstant
     , VarDecl (..)
@@ -61,7 +62,7 @@ class TermLike term tyname name uni fun | term -> tyname name uni fun where
     lamAbs   :: ann -> name -> Type tyname uni ann -> term ann -> term ann
     apply    :: ann -> term ann -> term ann -> term ann
     constant :: ann -> Some (ValueOf uni) -> term ann
-    builtin  :: ann -> fun -> term ann
+    builtin  :: ann -> BuiltinTag fun -> term ann
     tyInst   :: ann -> term ann -> Type tyname uni ann -> term ann
     unwrap   :: ann -> term ann -> term ann
     iWrap    :: ann -> Type tyname uni ann -> Type tyname uni ann -> term ann -> term ann
@@ -85,6 +86,9 @@ mkTyBuiltin
     :: forall k (a :: k) uni tyname ann. uni `Contains` a
     => ann -> Type tyname uni ann
 mkTyBuiltin ann = mkTyBuiltinOf ann $ knownUni @_ @uni @a
+
+mkBuiltin :: (TermLike term tyname name uni fun, Enum fun) => ann -> fun -> term ann
+mkBuiltin ann = builtin ann . BuiltinTag . fromEnum
 
 -- | Embed a Haskell value (given its explicit type tag) into a PLC term.
 mkConstantOf

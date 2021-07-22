@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
@@ -65,7 +66,9 @@ module PlutusPrelude
     , foldMapM
     , reoption
     , enumeration
+    , renum
     , tabulateArray
+    , tabulateArraySub
     , (?)
     , ensure
     , asksM
@@ -165,11 +168,17 @@ reoption = foldr (const . pure) empty
 enumeration :: (Bounded a, Enum a) => [a]
 enumeration = [minBound .. maxBound]
 
+renum :: (Enum i, Enum j) => i -> j
+renum = toEnum . fromEnum
+
 -- | Basically a @Data.Functor.Representable@ instance for 'Array'.
 -- We can't provide an actual instance because of the @Distributive@ superclass: @Array i@ is not
 -- @Distributive@ unless we assume that indices in an array range over the entirety of @i@.
 tabulateArray :: (Bounded i, Enum i, Ix i) => (i -> a) -> Array i a
 tabulateArray f = listArray (minBound, maxBound) $ map f enumeration
+
+tabulateArraySub :: forall i j a. (Bounded i, Enum i, Enum j, Ix j) => (i -> a) -> Array j a
+tabulateArraySub f = listArray (renum $ minBound @i, renum $ maxBound @i) $ map f enumeration
 
 newtype PairT b f a = PairT
     { unPairT :: f (b, a)

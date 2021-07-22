@@ -47,7 +47,7 @@ instance (PrettyClassicBy configName tyname, GShow uni) =>
 instance
         ( PrettyClassicBy configName tyname
         , PrettyClassicBy configName name
-        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun
         ) => PrettyBy (PrettyConfigClassic configName) (Term tyname name uni fun a) where
     prettyBy config = cata a where
         a (ConstantF _ b)      = parens' ("con" </> prettyTypeOf b </> pretty b)  -- NB: actually calls prettyConst

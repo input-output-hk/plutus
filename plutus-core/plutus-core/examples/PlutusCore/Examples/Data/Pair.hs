@@ -25,7 +25,7 @@ obothPair = runQuote $ do
     a <- freshTyName "a"
     f <- freshName "f"
     p <- freshName "p"
-    let atAA fun = mkIterInst () (builtin () fun) [TyVar () a, TyVar () a]
+    let atAA fun = mkIterInst () (mkBuiltin () fun) [TyVar () a, TyVar () a]
     return
         . tyAbs () a (Type ())
         . lamAbs () f (TyFun () (TyVar () a) $ TyVar () a)

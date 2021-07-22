@@ -19,7 +19,7 @@ module UntypedPlutusCore.Evaluation.HOAS
     , unsafeEvaluateHoas
     ) where
 
-import           UntypedPlutusCore.Core                  (Term (..), UniOf, bindFunM)
+import           UntypedPlutusCore.Core                  (BuiltinTag (..), Term (..), UniOf, bindFunM)
 
 import           PlutusCore.Constant                     hiding (lookupBuiltin)
 import           PlutusCore.Evaluation.Machine.Exception
@@ -130,7 +130,7 @@ instance AsUnliftingError (InternalHoasError fun) where
 -- | Convert an 'HTerm' into a 'Term' running all internal monadic actions along the way.
 fromHTerm :: Monad m => HTerm m name uni fun ann -> m (Term name uni fun ann)
 fromHTerm (HConstant ann val)     = pure $ Constant ann val
-fromHTerm (HBuiltin ann fun)      = pure $ Builtin ann fun
+fromHTerm (HBuiltin ann fun)      = undefined -- pure $ Builtin ann fun
 fromHTerm (HVar ann name)         = pure $ Var ann name
 -- Here we do not recover the original annotation and instead use the one that the whole lambda
 -- is annotated with. We could probably handle annotations better, but we don't care for now.
@@ -171,11 +171,11 @@ lookupVar ann name env =
 -- | Retrieve the meaning of a built-in function.
 lookupBuiltin
     :: (value ~ Value unique name uni fun ann, Ix fun)
-    => ann -> fun -> BuiltinsRuntime fun value -> EvalM unique name uni fun ann value
-lookupBuiltin ann fun (BuiltinsRuntime meanings) =
-    case meanings ^? ix fun of
-        Nothing      -> throwingWithCause _InternalHoasError (UnknownBuiltinHoasError fun) Nothing
-        Just meaning -> pure . HBuiltin ann $ BuiltinApp (pure $ Builtin ann fun) meaning
+    => ann -> BuiltinTag fun -> BuiltinsRuntime fun value -> EvalM unique name uni fun ann value
+lookupBuiltin ann fun (BuiltinsRuntime meanings) = undefined
+    -- case meanings ^? ix fun of
+    --     Nothing      -> throwingWithCause _InternalHoasError (UnknownBuiltinHoasError fun) Nothing
+    --     Just meaning -> pure . HBuiltin ann $ BuiltinApp (pure $ Builtin ann fun) meaning
 
 {- Note [Handling non-constant results]
 Evaluation may return a non-constant term. This has a couple of implications:

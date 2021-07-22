@@ -387,7 +387,7 @@ scottSumHeadsOr0 = runQuote $ do
               . LamAbs () xs' (vecInteger $ TyVar () p)
               . LamAbs () coe
                   (TyFun () (vecInteger $ TyVar () n) $ vecInteger (TyApp () succT $ TyVar () p))
-              $ mkIterApp () (builtin () AddInteger)
+              $ mkIterApp () (mkBuiltin () AddInteger)
                   [ Var () x
                   ,   Apply () (mkIterInst () scottHead [integer, TyVar () p])
                     . Apply () (Var () coe)

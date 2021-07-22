@@ -159,6 +159,7 @@ deriving via (GenericExMemoryUsage (Either a b)) instance
 deriving via (GenericExMemoryUsage (a, b)) instance
     (ExMemoryUsage a, ExMemoryUsage b) => ExMemoryUsage (a, b)
 
+deriving newtype instance ExMemoryUsage (BuiltinTag fun)
 deriving via (GenericExMemoryUsage Name) instance ExMemoryUsage Name
 deriving via (GenericExMemoryUsage (Type tyname uni ann)) instance
     (ExMemoryUsage tyname, ExMemoryUsage ann) => ExMemoryUsage (Type tyname uni ann)

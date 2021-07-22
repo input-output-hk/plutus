@@ -21,12 +21,12 @@ import           Universe
 
 instance
         ( PrettyClassic name
-        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun
         ) => Pretty (Term name uni fun ann) where
     pretty = prettyClassicDef
 
 instance
         ( PrettyClassic name
-        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun
         ) => Pretty (Program name uni fun ann) where
     pretty = prettyClassicDef

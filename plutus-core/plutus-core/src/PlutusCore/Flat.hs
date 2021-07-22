@@ -246,6 +246,8 @@ encodeTerm = safeEncodeBits termTagWidth
 decodeTerm :: Get Word8
 decodeTerm = dBEBits8 termTagWidth
 
+instance Flat (BuiltinTag fun)
+
 instance ( Closed uni
          , uni `Everywhere` Flat
          , Flat fun

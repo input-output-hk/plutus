@@ -108,7 +108,7 @@ bunchOfIdNats =
             -- evaluation, which causes @idN@ to get forced, which on the first iteration causes
             -- @id0@ to get forced, which gives us a sufficiently big AST.
             -- > idN' = id {nat -> nat} idN
-            idN' = apply () (tyInst () (builtin () Id) $ Plc.TyFun () Plc.natTy Plc.natTy) idN
+            idN' = apply () (tyInst () (mkBuiltin () Id) $ Plc.TyFun () Plc.natTy Plc.natTy) idN
 
 -- | Same as 'bunchOfIdNats' except uses the built-in @ifThenElse@.
 bunchOfIfThenElseNats :: PlcFolderContents DefaultUni DefaultFun
@@ -126,7 +126,7 @@ bunchOfIfThenElseNats =
             idN'
 
                 = etaExpand Plc.natTy
-                $ mkIterApp () (tyInst () (builtin () IfThenElse) $ Plc.TyFun () Plc.natTy Plc.natTy)
+                $ mkIterApp () (tyInst () (mkBuiltin () IfThenElse) $ Plc.TyFun () Plc.natTy Plc.natTy)
                     [mkConstant () $ even n, idN, idN]
 
 test_budget :: TestTree

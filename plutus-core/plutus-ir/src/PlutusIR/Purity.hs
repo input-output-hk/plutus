@@ -43,13 +43,13 @@ isSaturated (BuiltinApp fun args) =
 
 -- | View a 'Term' as a 'BuiltinApp' if possible.
 asBuiltinApp :: Term tyname name uni fun a -> Maybe (BuiltinApp tyname name uni fun a)
-asBuiltinApp = go []
+asBuiltinApp = undefined {- go []
     where
         go argsSoFar = \case
             Apply _ t arg  -> go (TermArg arg:argsSoFar) t
             TyInst _ t arg -> go (TypeArg arg:argsSoFar) t
             Builtin _ b    -> Just $ BuiltinApp b argsSoFar
-            _              -> Nothing
+            _              -> Nothing -}
 
 {- Note [Purity, strictness, and variables]
 Variables in PLC won't have effects: they can have something else substituted for them, but those will be fully evaluated already.

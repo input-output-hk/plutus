@@ -94,7 +94,7 @@ newtype BuiltinTypes uni fun = BuiltinTypes
     -- but only when 'maxBound' is not equal to 'minBound' (and both exist). Which sucks.
     --
     -- So we use 'Nothing' to say "no builtins". It's sufficient and doesn't complicate anything.
-    { unBuiltinTypes :: Maybe (Array fun (Dupable (Normalized (Type TyName uni ()))))
+    { unBuiltinTypes :: Maybe (Array Int (Dupable (Normalized (Type TyName uni ()))))
     }
 
 type TyVarKinds = UniqueMap TypeUnique (Kind ())
@@ -136,11 +136,11 @@ withTyVar name = local . over tceTyVarKinds . insertByName name
 -- | Look up the type of a built-in function.
 lookupBuiltinM
     :: (AsTypeError err term uni fun ann, HasTypeCheckConfig cfg uni fun, Ix fun)
-    => ann -> fun -> TypeCheckM uni fun cfg err (Normalized (Type TyName uni ()))
-lookupBuiltinM ann fun = do
+    => ann -> BuiltinTag fun -> TypeCheckM uni fun cfg err (Normalized (Type TyName uni ()))
+lookupBuiltinM ann fun@(BuiltinTag tag) = do
     BuiltinTypes mayArr <- view $ tceTypeCheckConfig . tccBuiltinTypes
-    case mayArr >>= preview (ix fun) of
-        Nothing -> throwing _TypeError $ UnknownBuiltinFunctionE ann fun
+    case mayArr >>= preview (ix tag) of
+        Nothing -> throwing _TypeError $ UnknownBuiltinFunctionE ann undefined
         Just ty -> liftDupable ty
 
 -- | Extend the context of a 'TypeCheckM' computation with a typed variable.

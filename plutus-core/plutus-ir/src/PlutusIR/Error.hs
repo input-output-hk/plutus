@@ -77,21 +77,21 @@ instance (PrettyUni uni ann) => PrettyBy PLC.PrettyConfigPlc (TypeErrorExt uni a
              , "The expected result-type is:" <+> prettyBy config expType]
 
 -- show via pretty, for printing as SomeExceptions
-instance (PrettyUni uni ann, Pretty fun) => Show (Error uni fun ann) where
+instance (PrettyUni uni ann, Pretty fun, Enum fun) => Show (Error uni fun ann) where
     show = show . PP.pretty
 
 -- FIXME: we get rid of this when our TestLib stops using rethrow
 deriving anyclass instance
-    (PrettyUni uni ann, Typeable uni, Typeable fun, Typeable ann, Pretty fun) => Exception (Error uni fun ann)
+    (PrettyUni uni ann, Typeable uni, Typeable fun, Typeable ann, Pretty fun, Enum fun) => Exception (Error uni fun ann)
 
 instance
-        (Pretty ann, Pretty fun,
+        (Pretty ann, Pretty fun, Enum fun,
         PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
         ) => Pretty (Error uni fun ann) where
     pretty = PLC.prettyPlcClassicDef
 
 
-instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, Pretty fun, Pretty ann) =>
+instance (PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst, Pretty fun, Enum fun, Pretty ann) =>
             PrettyBy PLC.PrettyConfigPlc (Error uni fun ann) where
      prettyBy config er = PP.pretty (errorCode er) <> ":" <+> case er of
         CompilationError x e -> "Error during compilation:" <+> PP.pretty e <> "(" <> PP.pretty x <> ")"

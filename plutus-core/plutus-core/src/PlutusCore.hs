@@ -46,6 +46,7 @@ module PlutusCore
     , typeSubtypes
     , Kind (..)
     , ParseError (..)
+    , BuiltinTag (..)
     , Version (..)
     , Program (..)
     , Name (..)

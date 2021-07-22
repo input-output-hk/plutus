@@ -23,7 +23,7 @@ module PlutusIR.Core.Type (
 
 import           PlutusPrelude
 
-import           PlutusCore          (Kind, Name, TyName, Type (..))
+import           PlutusCore          (BuiltinTag (..), Kind, Name, TyName, Type (..))
 import qualified PlutusCore          as PLC
 import           PlutusCore.Constant (AsConstant (..), FromConstant (..), throwNotAConstant)
 import           PlutusCore.Core     (UniOf)
@@ -138,7 +138,7 @@ data Term tyname name uni fun a =
                         | LamAbs a name (Type tyname uni a) (Term tyname name uni fun a)
                         | Apply a (Term tyname name uni fun a) (Term tyname name uni fun a)
                         | Constant a (PLC.Some (PLC.ValueOf uni))
-                        | Builtin a fun
+                        | Builtin a (BuiltinTag fun)
                         | TyInst a (Term tyname name uni fun a) (Type tyname uni a)
                         | Error a (Type tyname uni a)
                         | IWrap a (Type tyname uni a) (Type tyname uni a) (Term tyname name uni fun a)

@@ -28,7 +28,7 @@ succInteger = runQuote $ do
     i  <- freshName "i"
     return
         . lamAbs () i integer
-        . mkIterApp () (builtin () AddInteger)
+        . mkIterApp () (mkBuiltin () AddInteger)
         $ [ var () i
           , mkConstant @Integer () 1
           ]

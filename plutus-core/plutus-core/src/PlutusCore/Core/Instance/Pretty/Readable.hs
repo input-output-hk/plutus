@@ -62,7 +62,7 @@ instance (PrettyReadableBy configName tyname, GShow uni) =>
 instance
         ( PrettyReadableBy configName tyname
         , PrettyReadableBy configName name
-        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun
+        , GShow uni, Closed uni, uni `Everywhere` PrettyConst, Pretty fun, Enum fun
         ) => PrettyBy (PrettyConfigReadable configName) (Term tyname name uni fun a) where
     prettyBy = inContextM $ \case
         Constant _ con         -> unitDocM $ pretty con

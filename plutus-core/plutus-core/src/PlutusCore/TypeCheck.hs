@@ -42,10 +42,11 @@ type Typecheckable uni fun = (ToKind uni, HasUniApply uni, ToBuiltinMeaning uni 
 -- | Extract the 'TypeScheme' from a 'BuiltinMeaning' and convert it to the
 -- corresponding 'Type' for each built-in function.
 builtinMeaningsToTypes
-    :: (MonadError err m, AsTypeError err term uni fun ann, Typecheckable uni fun)
+    :: forall term uni fun ann err m.
+       (MonadError err m, AsTypeError err term uni fun ann, Typecheckable uni fun)
     => ann -> m (BuiltinTypes uni fun)
 builtinMeaningsToTypes ann =
-    runQuoteT . fmap (BuiltinTypes . Just) . sequence . tabulateArray $ \fun -> do
+    runQuoteT . fmap (BuiltinTypes . Just) . sequence . tabulateArraySub @fun $ \fun -> do
         let ty = typeOfBuiltinFunction fun
         _ <- inferKind (TypeCheckConfig $ BuiltinTypes Nothing) $ ann <$ ty
         pure <$> normalizeType ty

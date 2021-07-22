@@ -27,13 +27,13 @@ pair = mkTyBuiltin @_ @(,) ()
 --
 -- > /\(a :: *) (b :: *) -> \(p : pair a b) -> fst {a} {b} p
 fstPair :: TermLike term TyName Name DefaultUni DefaultFun => term ()
-fstPair = builtin () FstPair
+fstPair = mkBuiltin () FstPair
 
 -- | @snd@ as a PLC term.
 --
 -- > /\(a :: *) (b :: *) -> \(p : pair a b) -> snd {a} {b} p
 sndPair :: TermLike term TyName Name DefaultUni DefaultFun => term ()
-sndPair = builtin () SndPair
+sndPair = mkBuiltin () SndPair
 
 -- | @uncurry@ as a PLC term.
 --

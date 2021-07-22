@@ -43,7 +43,7 @@ caseList = runQuote $ do
     f <- freshName "f"
     u <- freshName "u"
     let listA = TyApp () list $ TyVar () a
-        funAtXs fun = apply () (tyInst () (builtin () fun) $ TyVar () a) $ var () xs
+        funAtXs fun = apply () (tyInst () (mkBuiltin () fun) $ TyVar () a) $ var () xs
     return
         . tyAbs () a (Type ())
         . lamAbs () xs listA

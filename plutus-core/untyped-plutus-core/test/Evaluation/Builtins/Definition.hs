@@ -51,7 +51,7 @@ test_Factorial =
     testCase "Factorial" $ do
         let ten = mkConstant @Integer @DefaultUni () 10
             lhs = typecheckEvaluateCek defaultCekParametersExt $
-                    apply () (builtin () $ Right Factorial) ten
+                    apply () (mkBuiltin () $ Right Factorial) ten
             rhs = typecheckEvaluateCek defaultCekParametersExt $
                     apply () (mapFun Left factorial) ten
         assertBool "type checks" $ isRight lhs
@@ -68,7 +68,7 @@ test_Const =
             tB = mkConstant () b
             char = toTypeAst @_ @DefaultUni @Char Proxy
             runConst con = mkIterApp () (mkIterInst () con [char, bool]) [tC, tB]
-            lhs = typecheckReadKnownCek defaultCekParametersExt $ runConst $ builtin () (Right Const)
+            lhs = typecheckReadKnownCek defaultCekParametersExt $ runConst $ mkBuiltin () (Right Const)
             rhs = typecheckReadKnownCek defaultCekParametersExt $ runConst $ mapFun Left Plc.const
         lhs === Right (Right c)
         lhs === rhs
@@ -83,7 +83,7 @@ test_Id =
             oneU = mkConstant @Integer @DefaultUni () 1
             -- id {integer -> integer} ((\(i : integer) (j : integer) -> i) 1) 0
             term =
-                mkIterApp () (tyInst () (builtin () $ Right Id) (TyFun () integer integer))
+                mkIterApp () (tyInst () (mkBuiltin () $ Right Id) (TyFun () integer integer))
                     [ apply () constIntegerInteger oneT
                     , zer
                     ] where
@@ -107,7 +107,7 @@ test_IdFInteger =
             -- sum (idFInteger {list} (enumFromTo 1 10))
             term
                 = apply () (mapFun Left Scott.sum)
-                . apply () (tyInst () (builtin () $ Right IdFInteger) Scott.listTy)
+                . apply () (tyInst () (mkBuiltin () $ Right IdFInteger) Scott.listTy)
                 $ mkIterApp () (mapFun Left Scott.enumFromTo) [one, ten]
         typecheckEvaluateCekNoEmit defaultCekParametersExt term @?= Right (EvaluationSuccess res)
 
@@ -124,7 +124,7 @@ test_IdList =
             -- sum (idList {integer} (enumFromTo 1 10))
             term
                 = apply () (mapFun Left Scott.sum)
-                . apply () (tyInst () (builtin () $ Right IdList) integer)
+                . apply () (tyInst () (mkBuiltin () $ Right IdList) integer)
                 $ mkIterApp () (mapFun Left Scott.enumFromTo) [one, ten]
         tyAct @?= tyExp
         typecheckEvaluateCekNoEmit defaultCekParametersExt term @?= Right (EvaluationSuccess res)
@@ -161,7 +161,7 @@ test_IdRank2 =
             -- sum (idRank2 {list} nil {integer})
             term
                 = apply () (mapFun Left Scott.sum)
-                . tyInst () (apply () (tyInst () (builtin () $ Right IdRank2) Scott.listTy) Scott.nil)
+                . tyInst () (apply () (tyInst () (mkBuiltin () $ Right IdRank2) Scott.listTy) Scott.nil)
                 $ integer
         typecheckEvaluateCekNoEmit defaultCekParametersExt term @?= Right (EvaluationSuccess res)
 
@@ -171,7 +171,7 @@ test_FailingSucc :: TestTree
 test_FailingSucc =
     testCase "FailingSucc" $ do
         let term =
-                apply () (builtin () $ Right FailingSucc) $
+                apply () (mkBuiltin () $ Right FailingSucc) $
                     mkConstant @Integer @DefaultUni () 0
         typeErrOrEvalExcOrRes :: Either _ (Either BuiltinErrorCall _) <-
             -- Here we rely on 'typecheckAnd' lazily running the action after type checking the term.
@@ -185,7 +185,7 @@ test_ExpensiveSucc :: TestTree
 test_ExpensiveSucc =
     testCase "ExpensiveSucc" $ do
         let term =
-                apply () (builtin () $ Right ExpensiveSucc) $
+                apply () (mkBuiltin () $ Right ExpensiveSucc) $
                     mkConstant @Integer @DefaultUni () 0
         typeErrOrEvalExcOrRes :: Either _ (Either BuiltinErrorCall _) <-
             traverse (try . evaluate) $ typecheckEvaluateCekNoEmit defaultCekParametersExt term
@@ -197,7 +197,7 @@ test_FailingPlus :: TestTree
 test_FailingPlus =
     testCase "FailingPlus" $ do
         let term =
-                mkIterApp () (builtin () $ Right FailingPlus)
+                mkIterApp () (mkBuiltin () $ Right FailingPlus)
                     [ mkConstant @Integer @DefaultUni () 0
                     , mkConstant @Integer @DefaultUni () 1
                     ]
@@ -213,7 +213,7 @@ test_ExpensivePlus :: TestTree
 test_ExpensivePlus =
     testCase "ExpensivePlus" $ do
         let term =
-                mkIterApp () (builtin () $ Right ExpensivePlus)
+                mkIterApp () (mkBuiltin () $ Right ExpensivePlus)
                     [ mkConstant @Integer @DefaultUni () 0
                     , mkConstant @Integer @DefaultUni () 1
                     ]
@@ -229,7 +229,7 @@ test_BuiltinList =
             res = mkConstant @Integer @DefaultUni () $ foldr (-) 0 xs
             term
                 = mkIterApp () (mkIterInst () Builtin.foldrList [integer, integer])
-                    [ Builtin () SubtractInteger
+                    [ mkBuiltin () SubtractInteger
                     , mkConstant @Integer () 0
                     , mkConstant @[Integer] () xs
                     ]
@@ -244,7 +244,7 @@ test_IdBuiltinList =
             listOfInteger = mkTyBuiltin @_ @[Integer] ()
             term
                 = mkIterApp () (mkIterInst () (mapFun Left Builtin.foldrList) [integer, listOfInteger])
-                    [ tyInst () (builtin () $ Right Cons) integer
+                    [ tyInst () (mkBuiltin () $ Right Cons) integer
                     , mkConstant @[Integer] () []
                     , xsTerm
                     ]
@@ -254,7 +254,7 @@ test_BuiltinPair :: TestTree
 test_BuiltinPair =
     testCase "BuiltinPair" $ do
         let arg = mkConstant @(Integer, Bool) @DefaultUni () (1, False)
-            inst efun = mkIterInst () (builtin () efun) [integer, bool]
+            inst efun = mkIterInst () (mkBuiltin () efun) [integer, bool]
             swapped = apply () (inst $ Right Swap) arg
             fsted   = apply () (inst $ Left FstPair) arg
             snded   = apply () (inst $ Left SndPair) arg
@@ -275,17 +275,17 @@ test_SwapEls =
             res = mkConstant @Integer @DefaultUni () $
                     foldr (\p r -> r + (if snd p then -1 else 1) * fst p) 0 xs
             el = mkTyBuiltin @_ @(Integer, Bool) ()
-            instProj proj = mkIterInst () (builtin () proj) [integer, bool]
+            instProj proj = mkIterInst () (mkBuiltin () proj) [integer, bool]
             fun = runQuote $ do
                     p <- freshName "p"
                     r <- freshName "r"
                     return
                         . lamAbs () p el
                         . lamAbs () r integer
-                        $ mkIterApp () (builtin () AddInteger)
+                        $ mkIterApp () (mkBuiltin () AddInteger)
                             [ Var () r
-                            , mkIterApp () (builtin () MultiplyInteger)
-                                [ mkIterApp () (tyInst () (builtin () IfThenElse) integer)
+                            , mkIterApp () (mkBuiltin () MultiplyInteger)
+                                [ mkIterApp () (tyInst () (mkBuiltin () IfThenElse) integer)
                                     [ apply () (instProj SndPair) $ Var () p
                                     , mkConstant @Integer () (-1)
                                     , mkConstant @Integer () 1
@@ -308,7 +308,7 @@ test_IdBuiltinData =
     testCase "IdBuiltinData" $ do
         let dTerm :: TermLike term tyname name DefaultUni fun => term ()
             dTerm = mkConstant @Data () $ Map [(I 42, Constr 4 [List [B "abc", Constr 2 []], I 0])]
-            emb = builtin () . Left
+            emb = mkBuiltin () . Left
             term = mkIterApp () ofoldrData
                 [ emb ConstrData
                 , emb MapData

@@ -83,7 +83,7 @@ runCekNoEmit params mode term =
 unsafeRunCekNoEmit
     :: ( GShow uni, Typeable uni
        , Closed uni, uni `EverywhereAll` '[ExMemoryUsage, PrettyConst]
-       , Ix fun, Pretty fun, Typeable fun
+       , Ix fun, Pretty fun, Enum fun, Typeable fun
        )
     => MachineParameters CekMachineCosts CekValue uni fun
     -> ExBudgetMode cost uni fun
@@ -114,7 +114,7 @@ evaluateCekNoEmit params = fst . runCekNoEmit params restrictingEnormous
 unsafeEvaluateCek
     :: ( GShow uni, Typeable uni
        , Closed uni, uni `EverywhereAll` '[ExMemoryUsage, PrettyConst]
-       , Ix fun, Pretty fun, Typeable fun
+       , Ix fun, Pretty fun, Enum fun, Typeable fun
        )
     => MachineParameters CekMachineCosts CekValue uni fun
     -> Term Name uni fun ()
@@ -125,7 +125,7 @@ unsafeEvaluateCek params = first unsafeExtractEvaluationResult . evaluateCek par
 unsafeEvaluateCekNoEmit
     :: ( GShow uni, Typeable uni
        , Closed uni, uni `EverywhereAll` '[ExMemoryUsage, PrettyConst]
-       , Ix fun, Pretty fun, Typeable fun
+       , Ix fun, Pretty fun, Enum fun, Typeable fun
        )
     => MachineParameters CekMachineCosts CekValue uni fun
     -> Term Name uni fun ()

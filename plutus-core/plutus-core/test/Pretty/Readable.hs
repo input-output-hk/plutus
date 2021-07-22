@@ -27,7 +27,7 @@ test_PrettyReadable =
         , folder examples
         ]
   where
-    folder :: Pretty fun => PlcFolderContents DefaultUni fun -> TestTree
+    folder :: (Pretty fun, Enum fun) => PlcFolderContents DefaultUni fun -> TestTree
     folder
         = runTestNestedIn ["plutus-core", "test", "Pretty", "Golden"]
         . testNested "Readable"

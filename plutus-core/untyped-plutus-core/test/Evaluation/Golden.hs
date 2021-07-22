@@ -140,7 +140,7 @@ closure = runQuote $ do
 -- Various components that we'll use to build larger terms for testing
 
 lte :: Term TyName Name DefaultUni DefaultFun ()
-lte = Builtin () LessThanEqualsInteger
+lte = mkBuiltin () LessThanEqualsInteger
 
 eleven :: Term TyName Name DefaultUni DefaultFun ()
 eleven = mkConstant @Integer () 11
@@ -163,7 +163,7 @@ lteExpr = mkIterApp () lte [eleven, twentytwo]
 
 -- (builtin ifThenElse) : WellTypedRuns
 ite :: Term TyName Name DefaultUni DefaultFun ()
-ite = Builtin () IfThenElse
+ite = mkBuiltin () IfThenElse
 
 -- { (builtin ifThenElse) t }
 iteAt :: Type TyName DefaultUni () -> Term TyName Name DefaultUni DefaultFun ()
@@ -228,8 +228,8 @@ iteAtIntegerArrowIntegerApplied1 ::  Term TyName Name DefaultUni DefaultFun ()
 iteAtIntegerArrowIntegerApplied1 =  mkIterApp ()
                                    iteAtIntegerArrowInteger
                                    [ lteExpr
-                                   , Apply () (Builtin () MultiplyInteger) eleven
-                                   , Apply () (Builtin () SubtractInteger) twentytwo
+                                   , Apply () (mkBuiltin () MultiplyInteger) eleven
+                                   , Apply () (mkBuiltin () SubtractInteger) twentytwo
                                    ]
 
 -- [ { (builtin ifThenElse) (fun (con integer) (con integer)) } (11<=22) (*) (-)] :
@@ -238,8 +238,8 @@ iteAtIntegerArrowIntegerApplied2 ::  Term TyName Name DefaultUni DefaultFun ()
 iteAtIntegerArrowIntegerApplied2 =  mkIterApp ()
                                     iteAtIntegerArrowInteger
                                     [ lteExpr
-                                    , Builtin () MultiplyInteger
-                                    , Builtin () SubtractInteger
+                                    , mkBuiltin () MultiplyInteger
+                                    , mkBuiltin () SubtractInteger
                                     ]
 
 -- [ { (builtin ifThenElse) (fun (con integer) (con integer)) } (11<=22) (11 *) (22 -) 22] :
@@ -282,7 +282,7 @@ iteTypeTermType = TyInst () iteAtIntegerWithCond string
 
 -- (builtin multiplyInteger) (not tested)
 mul ::  Term TyName Name DefaultUni DefaultFun ()
-mul = Builtin () MultiplyInteger
+mul = mkBuiltin () MultiplyInteger
 
 -- [ [ (builtin multiplyInteger) 11 ] 22 ] : WellTypedRuns
 mulOK :: Term TyName Name DefaultUni DefaultFun ()
@@ -301,7 +301,7 @@ mulInstError3 :: Term TyName Name DefaultUni DefaultFun ()
 mulInstError3 = TyInst () (Apply () (Apply () mul eleven) twentytwo) string
 
 takeTooMuch :: Term TyName Name DefaultUni DefaultFun ()
-takeTooMuch = mkIterApp () (Builtin () TakeByteString)
+takeTooMuch = mkIterApp () (mkBuiltin () TakeByteString)
     [ mkConstant () $ (2 :: Integer) ^ (150 :: Integer)
     , mkConstant () ("whatever" :: BS.ByteString)
     ]

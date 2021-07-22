@@ -52,7 +52,7 @@ instance ( PLC.PrettyClassicBy configName tyname
 instance ( PLC.PrettyClassicBy configName tyname
          , PLC.PrettyClassicBy configName name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => PrettyBy (PLC.PrettyConfigClassic configName) (Binding tyname name uni fun a) where
     prettyBy config = \case
         TermBind _ s d t -> parens' ("termbind" </> vsep' [prettyBy config s, prettyBy config d, prettyBy config t])
@@ -62,7 +62,7 @@ instance ( PLC.PrettyClassicBy configName tyname
 instance ( PLC.PrettyClassicBy configName tyname
          , PLC.PrettyClassicBy configName name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => PrettyBy (PLC.PrettyConfigClassic configName) (Term tyname name uni fun a) where
     prettyBy config = \case
         Let _ r bs t -> parens' ("let" </> vsep' [prettyBy config r, vsep' . toList $ fmap (prettyBy config) bs, prettyBy config t])
@@ -84,7 +84,7 @@ instance ( PLC.PrettyClassicBy configName tyname
 instance ( PLC.PrettyClassicBy configName tyname
          , PLC.PrettyClassicBy configName name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => PrettyBy (PLC.PrettyConfigClassic configName) (Program tyname name uni fun a) where
     prettyBy config (Program _ t) = parens' ("program" </> prettyBy config t)
 
@@ -108,20 +108,20 @@ instance ( PLC.PrettyClassic tyname
 instance ( PLC.PrettyClassic tyname
          , PLC.PrettyClassic name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => Pretty (Binding tyname name uni fun a) where
     pretty = PLC.prettyClassicDef
 
 instance ( PLC.PrettyClassic tyname
          , PLC.PrettyClassic name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => Pretty (Term tyname name uni fun a) where
     pretty = PLC.prettyClassicDef
 
 instance ( PLC.PrettyClassic tyname
          , PLC.PrettyClassic name
          , PLC.GShow uni, PLC.Closed uni, uni `PLC.Everywhere` PLC.PrettyConst
-         , Pretty fun
+         , Pretty fun, Enum fun
          ) => Pretty (Program tyname name uni fun a) where
     pretty = PLC.prettyClassicDef
