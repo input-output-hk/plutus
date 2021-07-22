@@ -177,6 +177,7 @@ validateTransaction :: ValidationMonad m
 validateTransaction h t = do
     -- Phase 1 validation
     checkSlotRange h t
+    _ <- lkpOutputs $ toListOf (inputs . scriptTxIns) t
 
     -- see note [Minting of Ada]
     emptyUtxoSet <- reader (Map.null . getIndex)
