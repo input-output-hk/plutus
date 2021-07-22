@@ -25,6 +25,7 @@ Plutus Tx
 
 Writing Plutus Core by hand is not a job for a human!
 It is designed to be written by a compiler, and the Platform provides a compiler from a subset of Haskell to Plutus Core.
+This subset is known as Plutus Tx.
 This allows you to seamlessly write applications in Haskell, while compiling part of the code to on-chain Plutus Core, and part into an off-chain application.
 
 Supporting "mixed" code in this way enables libraries written with the Plutus Haskell SDK to share logic and datatypes across both parts of the application, reducing the risk of errors significantly.
