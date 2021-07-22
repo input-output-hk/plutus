@@ -39,7 +39,7 @@ run_test () {
 	else
 	    gpp -DSIZE=$size -DARG=$n $testdir/testprogs/$prog.plc > test.plc
 	fi
-	$TIME -o $ofile -a -f "%U %S %M" $plc evaluate -f test.plc -mCEK >/dev/null 2>&1
+	$TIME -o $ofile -a -f "%U %S %M" $plc evaluate -f test.plc >/dev/null 2>&1
     done  
 
     rm test.plc

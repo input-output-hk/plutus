@@ -29,7 +29,7 @@ import qualified Data.Text                     as T
 -- and thus its type can escape, or nested and thus not allowed to escape.
 data AllowEscape = YesEscape | NoEscape
 
--- | extending theh plc typecheck config with AllowEscape
+-- | extending the plc typecheck config with AllowEscape
 data PirTCConfig uni fun = PirTCConfig {
       _pirConfigTCConfig      :: PLC.TypeCheckConfig uni fun
       , _pirConfigAllowEscape :: AllowEscape
