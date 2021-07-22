@@ -213,8 +213,14 @@ test-suite marlowe-actus-test
     type: exitcode-stdio-1.0
     main-is: Spec.hs
     other-modules:
+        Spec.Marlowe.Util
         Spec.Marlowe.Actus
     build-depends:
+        vector -any,
+        unordered-containers -any,
+        scientific -any,
+        extra -any,
+        utf8-string -any,
         aeson -any,
         base >=4.9 && <5,
         containers -any,

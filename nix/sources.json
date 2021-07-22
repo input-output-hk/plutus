@@ -1,4 +1,16 @@
 {
+    "actus-tests": {
+        "branch": "master",
+        "description": "Contains testbeds for contracts in different formats",
+        "homepage": null,
+        "owner": "actusfrf",
+        "repo": "actus-tests",
+        "rev": "acfaab81a2eac8334dda0ac01edff89f3271e4df",
+        "sha256": "064w56mww7lhfcayzlfb2vgmz1wgl0p54nj1vhjz0fdbvpajy77x",
+        "type": "tarball",
+        "url": "https://github.com/actusfrf/actus-tests/archive/acfaab81a2eac8334dda0ac01edff89f3271e4df.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cardano-repo-tool": {
         "branch": "master",
         "description": "A tool for handling the update of Cardano related git repos",

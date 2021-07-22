@@ -46,8 +46,8 @@ _STF_PY_PAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _F
         ipac' = ipac + y_sd_t * ipnr * nt
 
         fac' = case _FEB of
-            FEB_N -> fac + y_sd_t * nt * _FER
-            _     -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
+            Just FEB_N -> fac + y_sd_t * nt * _FER
+            _          -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
 
     in st {ipac = ipac', fac = fac', sd = t}
 
@@ -84,12 +84,18 @@ _STF_IPCI_PAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus 
 
 _STF_RR_PAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _FEB _FER _CNTRL _RRLF _RRLC _RRPC _RRPF _RRMLT _RRSP o_rf_RRMO =
     let
+        ipac' = ipac + y_sd_t * ipnr * nt
+        fac'  =
+          case _FEB of
+            Just FEB_N -> fac + y_sd_t * nt * _FER
+            _          -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
+
         st' = _STF_PRD_PAM st t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _FEB _FER _CNTRL
 
         delta_r = (_min (_max (o_rf_RRMO * _RRMLT + _RRSP - ipnr) _RRPF) _RRPC)
 
         ipnr' = (_min (_max (ipnr + delta_r) _RRLF) _RRLC)
-    in st' {ipnr = ipnr'}
+    in st' {ipac = ipac', fac = fac', ipnr = ipnr', sd = t}
 
 _STF_RRF_PAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _FEB _FER _CNTRL _RRNXT =
     let
@@ -137,8 +143,8 @@ _STF_PR_LAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _F
         nt' = nt - _r _CNTRL * prnxt
 
         fac' = case _FEB of
-            FEB_N -> fac + y_sd_t * nt * _FER
-            _     -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
+            Just FEB_N -> fac + y_sd_t * nt * _FER
+            _          -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
 
         ipcb' = case (fromJust _IPCB) of
             IPCB_NT -> nt'
@@ -168,8 +174,8 @@ _STF_PY_LAM st@ContractStatePoly{..} t y_sd_t y_tfpminus_t y_tfpminus_tfpplus _F
         ipac' = ipac + y_sd_t * ipnr * ipcb
 
         fac' = case _FEB of
-            FEB_N -> fac + y_sd_t * nt * _FER
-            _     -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
+            Just FEB_N -> fac + y_sd_t * nt * _FER
+            _          -> (y_tfpminus_t / y_tfpminus_tfpplus) * _r _CNTRL * _FER
 
     in st {ipac = ipac', fac = fac', sd = t}
 

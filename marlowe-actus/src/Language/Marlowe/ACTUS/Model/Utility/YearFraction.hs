@@ -4,7 +4,6 @@ import           Data.Time                                        (Day, diffDays
                                                                    isLeapYear, toGregorian)
 import           Language.Marlowe.ACTUS.Definitions.ContractTerms (DCC (DCC_A_360, DCC_A_365, DCC_A_AISDA, DCC_E30_360, DCC_E30_360ISDA))
 
-
 yearFraction :: DCC -> Day -> Day -> Maybe Day -> Double
 yearFraction DCC_A_AISDA startDay endDay _
   | startDay <= endDay
@@ -18,12 +17,13 @@ yearFraction DCC_A_AISDA startDay endDay _
         else
           let
             d2YearFraction = (if isLeapYear d2Year then 366 else 365) :: Double
-            d1YearLastDay      = fromGregorian d1Year 12 31
+            d1YearLastDay      = fromGregorian (d1Year + 1) 1 1
+            d2YearLastDay      = fromGregorian d2Year 1 1
             firstFractionDays  = fromIntegral (diffDays d1YearLastDay startDay)
-            secondFractionDays = fromIntegral (diffDays endDay d1YearLastDay)
+            secondFractionDays = fromIntegral (diffDays endDay d2YearLastDay)
           in
             (firstFractionDays / d1YearFraction)
-              + (secondFractionDays / d2YearFraction)
+              + (secondFractionDays / d2YearFraction) + (fromIntegral d2Year) - (fromIntegral d1Year) - 1
   | otherwise
   = 0.0
 

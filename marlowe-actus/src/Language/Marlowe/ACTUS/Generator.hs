@@ -9,6 +9,7 @@ module Language.Marlowe.ACTUS.Generator
 where
 
 import qualified Data.List                                                as L (foldl', zip6)
+import           Data.Map                                                 as M (empty)
 import           Data.Maybe                                               (fromMaybe, isNothing, maybeToList)
 import           Data.Monoid
 import           Data.String                                              (IsString (fromString))
@@ -24,7 +25,7 @@ import           Language.Marlowe                                         (Actio
 import           Language.Marlowe.ACTUS.Analysis                          (genProjectedCashflows, genZeroRiskAssertions)
 import           Language.Marlowe.ACTUS.Definitions.BusinessEvents        (EventType (..))
 import           Language.Marlowe.ACTUS.Definitions.ContractTerms         (AssertionContext (..), Assertions (..),
-                                                                           ContractTerms (collateralAmount, constraints, ct_CURS, ct_SD),
+                                                                           ContractTerms (collateralAmount, constraints, ct_SD, enableSettlement),
                                                                            TermValidationError (..),
                                                                            setDefaultContractTermValues)
 import           Language.Marlowe.ACTUS.Definitions.Schedule              (CashFlow (..))
@@ -122,7 +123,7 @@ inquiryFs ev ct timePosfix date oracle context continue =
             riskFactorInquiry "o_rf_CURS" .
                 riskFactorInquiry "pp_payoff"
         riskFactorsInquiryEv _ =
-            if ct_CURS ct then riskFactorInquiry "o_rf_CURS"
+            if enableSettlement ct then riskFactorInquiry "o_rf_CURS"
             else Let (ValueId (fromString ("o_rf_CURS" ++ timePosfix))) (constnt 1.0)
     in
         riskFactorsInquiryEv ev continue
@@ -134,7 +135,7 @@ genStaticContract terms =
         Success _ ->
             let
                 t = setDefaultContractTermValues terms
-                cfs = genProjectedCashflows t
+                cfs = genProjectedCashflows (M.empty) t
                 gen CashFlow {..}
                     | amount == 0.0 = id
                     | amount > 0.0
@@ -178,7 +179,7 @@ genFsContract terms =
                     in compose toAssert cont
 
                 payoffAt t = ValueId $ fromString $ "payoff_" ++ show t
-                schedCfs = genProjectedCashflows terms'
+                schedCfs = genProjectedCashflows (M.empty) terms'
                 schedEvents = cashEvent <$> schedCfs
                 schedDates = Slot . dayToSlotNumber . cashPaymentDay <$> schedCfs
                 previousDates = ct_SD terms' : (cashCalculationDay <$> schedCfs)

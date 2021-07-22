@@ -933,7 +933,6 @@ actusContractToTerms raw = do
         , scfg:
             ScheduleConfig
               { calendar: []
-              , includeEndDay: true
               , eomc: Just EOMC_EOM
               , bdc: Just BDC_NULL
               }

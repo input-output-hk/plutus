@@ -4,9 +4,9 @@
 module Language.Marlowe.ACTUS.Model.SCHED.ContractScheduleModel where
 
 import           Data.Maybe                                             (fromJust, fromMaybe, isJust, isNothing)
-import           Language.Marlowe.ACTUS.Definitions.ContractTerms       (IPCB (IPCB_NTL), PPEF (..), PYTP (..),
-                                                                         SCEF (..), ScheduleConfig (..))
-import           Language.Marlowe.ACTUS.Definitions.Schedule            ()
+import           Language.Marlowe.ACTUS.Definitions.ContractTerms       (Cycle (..), IPCB (IPCB_NTL), PPEF (..),
+                                                                         PYTP (..), SCEF (..))
+import           Language.Marlowe.ACTUS.Definitions.Schedule            (ShiftedDay (..))
 import           Language.Marlowe.ACTUS.Model.Utility.DateShift         (applyBDCWithCfg)
 import           Language.Marlowe.ACTUS.Model.Utility.ScheduleGenerator (generateRecurrentScheduleWithCorrections, inf,
                                                                          minusCycle, plusCycle, remove)
@@ -39,41 +39,59 @@ _SCHED_FP_PAM scfg _FER _FECL _IED _FEANX _MD =
                 | otherwise                          = _FEANX
 
         result  | _FER == 0.0                         = Nothing
-                | otherwise                          = (\s -> _S s (fromJust _FECL) _MD scfg) <$> maybeS
+                | otherwise                          = (\s -> _S s (fromJust _FECL){ includeEndDay = True } _MD scfg) <$> maybeS
     in result
 
-_SCHED_PRD_PAM scfg _PRD = Just [shift scfg _PRD]
+_SCHED_PRD_PAM scfg _PRD =
+  case _PRD of
+    Just _PRD' ->
+      Just [shift scfg _PRD']
+    Nothing ->
+      Nothing
 
-_SCHED_TD_PAM scfg _TD = Just [shift scfg _TD]
+_SCHED_TD_PAM scfg _TD =
+  case _TD of
+    Just _TD' ->
+      Just [shift scfg _TD']
+    Nothing ->
+      Nothing
 
 _SCHED_IP_PAM scfg _IPNR _IED _IPANX _IPCL _IPCED _MD =
     let maybeS  | isNothing _IPANX && isNothing _IPCL  = Nothing
-                | isJust _IPCED                       = _IPCED
+                -- | isJust _IPCED                       = _IPCED -- present in the specification, but not correct, according to pam18 test case
                 | isNothing _IPANX                    = Just $ _IED `plusCycle` fromJust _IPCL
                 | otherwise                           = _IPANX
 
         result  | isNothing _IPNR                     = Nothing
-                | otherwise                           = (\s -> _S s (fromJust _IPCL) _MD scfg) <$> maybeS
-    in result
+                | otherwise                           = (\s -> _S s (fromJust _IPCL){ includeEndDay = True } _MD scfg) <$> maybeS
 
-_SCHED_IPCI_PAM scfg _IED _IPANX _IPCL _IPCED =
+        result' | isJust result && isJust _IPCED = Just $ filter (\ss -> (calculationDay ss) > fromJust _IPCED) $ fromJust result
+                | otherwise     = result
+    in result'
+
+_SCHED_IPCI_PAM scfg _IED _IPANX _IPCL _IPCED _MD _IPNR =
+    -- calculate IP sched:
     let maybeS  | isNothing _IPANX && isNothing _IPCL  = Nothing
+                -- | isJust _IPCED                       = _IPCED -- present in the specification, but not correct, according to pam18 test case
                 | isNothing _IPANX                    = Just $ _IED `plusCycle` fromJust _IPCL
-                | otherwise                           =  _IPANX
+                | otherwise                           = _IPANX
 
-        result  | isNothing _IPCED                    = Nothing
-                | otherwise                           = (\s -> _S s (fromJust _IPCL) (fromJust _IPCED) scfg) <$> maybeS
+        schedIP | isNothing _IPNR                     = Nothing
+                | otherwise                           = (\s -> _S s (fromJust _IPCL){ includeEndDay = True } _MD scfg) <$> maybeS
+
+        result  | isJust _IPCL && isJust _IPCED = Just $ (filter (\ss -> (calculationDay ss) < fromJust _IPCED) $ fromJust schedIP) ++ [shift scfg $ fromJust _IPCED]
+                | otherwise = Nothing
     in result
 
 _SCHED_RR_PAM scfg _IED _SD _RRANX _RRCL _RRNXT _MD =
     let maybeS  | isNothing _RRANX                 = Just $ _IED `plusCycle` fromJust _RRCL
                 | otherwise                           = _RRANX
 
-        tt      = (\s -> _S s (fromJust _RRCL) _MD scfg) <$> maybeS
+        tt      = (\s -> _S s (fromJust _RRCL){ includeEndDay = False } _MD scfg) <$> maybeS
         trry    = fromJust $ inf (fromJust tt) _SD
 
-        result  | isNothing _RRANX && isNothing _RRCL  = Nothing
-                | isNothing _RRNXT                    = remove trry <$> tt
+        result  | isNothing _RRANX && isNothing _RRCL = Nothing
+                | isJust _RRNXT                       = remove trry <$> tt
                 | otherwise                           = tt
     in result
 
@@ -92,7 +110,7 @@ _SCHED_SC_PAM scfg _IED _SCEF _SCANX _SCCL _MD =
                 | isNothing _SCANX                    = Just $ _IED `plusCycle` fromJust _SCCL
                 | otherwise                           = _SCANX
 
-        tt      = (\s -> _S s (fromJust _SCCL) _MD scfg) <$> maybeS
+        tt      = (\s -> _S s (fromJust _SCCL){ includeEndDay = False } _MD scfg) <$> maybeS
 
         result  | _SCEF == SE_000                      = Nothing
                 | otherwise                           = tt
@@ -105,7 +123,7 @@ _SCHED_PR_LAM scfg _PRCL _IED _PRANX _MD =
     let maybeS  | isNothing _PRANX && isNothing _PRCL = Nothing
                 | isNothing _PRANX                   = Just $ _IED `plusCycle` fromJust _PRCL
                 | otherwise                          = _PRANX
-    in (\s -> _S s (fromJust _PRCL) _MD (scfg { includeEndDay = False })) <$> maybeS
+    in (\s -> _S s (fromJust _PRCL) _MD scfg ) <$> maybeS
 
 _SCHED_MD_LAM scfg tmd = Just [shift scfg tmd]
 
@@ -178,7 +196,7 @@ _SCHED_IP_NAM scfg _IED _PRCL _PRANX _IPCED _IPANX _IPCL _MD =
         result
 
 
-_SCHED_IPCI_NAM scfg _IED _IPANX _IPCL _IPCED = _SCHED_IPCI_PAM scfg _IED _IPANX _IPCL _IPCED
+_SCHED_IPCI_NAM = _SCHED_IPCI_PAM
 
 _SCHED_IPCB_NAM scfg _IED _IPCB _IPCBCL _IPCBANX _MD = _SCHED_IPCB_LAM scfg _IED _IPCB _IPCBCL _IPCBANX _MD
 

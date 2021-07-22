@@ -210,6 +210,11 @@
       tests = {
         "marlowe-actus-test" = {
           depends = [
+            (hsPkgs."vector" or (errorHandler.buildDepError "vector"))
+            (hsPkgs."unordered-containers" or (errorHandler.buildDepError "unordered-containers"))
+            (hsPkgs."scientific" or (errorHandler.buildDepError "scientific"))
+            (hsPkgs."extra" or (errorHandler.buildDepError "extra"))
+            (hsPkgs."utf8-string" or (errorHandler.buildDepError "utf8-string"))
             (hsPkgs."aeson" or (errorHandler.buildDepError "aeson"))
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
@@ -235,7 +240,7 @@
             (hsPkgs."validation" or (errorHandler.buildDepError "validation"))
             ];
           buildable = true;
-          modules = [ "Spec/Marlowe/Actus" ];
+          modules = [ "Spec/Marlowe/Util" "Spec/Marlowe/Actus" ];
           hsSourceDirs = [ "test" ];
           mainPath = [ "Spec.hs" ];
           };

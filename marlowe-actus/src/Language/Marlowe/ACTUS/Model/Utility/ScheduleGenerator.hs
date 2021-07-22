@@ -13,17 +13,15 @@ where
 
 import           Control.Arrow                                    ((>>>))
 import           Data.Function                                    ((&))
-import qualified Data.List                                        as L (init, last, notElem)
+import qualified Data.List                                        as L (delete, init, last, length)
 import           Data.Maybe                                       (fromJust)
 import           Data.Time.Calendar                               (Day, addDays, addGregorianMonthsClip,
                                                                    addGregorianYearsClip, fromGregorian,
                                                                    gregorianMonthLength, toGregorian)
 import           Language.Marlowe.ACTUS.Definitions.ContractTerms (Cycle (..), EOMC (EOMC_EOM), Period (..),
-                                                                   ScheduleConfig (..), Stub (ShortStub))
-import           Language.Marlowe.ACTUS.Definitions.Schedule      (ShiftedDay (calculationDay, paymentDay),
-                                                                   ShiftedSchedule)
+                                                                   ScheduleConfig (..), Stub (LongStub))
+import           Language.Marlowe.ACTUS.Definitions.Schedule      (ShiftedDay (..), ShiftedSchedule)
 import           Language.Marlowe.ACTUS.Model.Utility.DateShift   (applyBDC)
-
 
 
 maximumMaybe :: Ord a => [a] -> Maybe a
@@ -45,39 +43,44 @@ sup set threshold =
 remove :: ShiftedDay -> [ShiftedDay] -> [ShiftedDay]
 remove d = filter (\t -> calculationDay t /= calculationDay d)
 
-stubCorrection :: Stub -> Day -> ShiftedSchedule -> ShiftedSchedule
-stubCorrection stub endDay schedule =
-  if null schedule then schedule
-  else if (paymentDay $ L.last schedule) == endDay || stub == ShortStub then schedule
-  else L.init schedule
-
-endDateCorrection :: Bool -> Day -> [Day] -> [Day]
-endDateCorrection includeEndDay endDay schedule
-  | includeEndDay && L.notElem endDay schedule = schedule ++ [endDay]
--- we don't remove end date if it's already in the schedule:
---  | not includeEndDay && L.elem endDay schedule = L.init schedule
-  | otherwise = schedule
+correction :: Cycle -> Day -> Day -> [Day] -> [Day]
+correction Cycle{ stub = stub, includeEndDay = includeEndDay} anchorDate endDate schedule =
+  let
+    lastDate = L.last schedule
+    schedule' = L.init schedule
+    schedule'Size = L.length schedule'
+    schedule'' =
+      if includeEndDay then
+        schedule' ++ [endDate]
+      else
+        if endDate == anchorDate then
+          L.delete anchorDate schedule'
+        else
+          schedule'
+  in
+    if stub == LongStub && L.length schedule'' > 2 && endDate /= lastDate then
+      L.delete (schedule'' !! (schedule'Size - 1)) schedule''
+    else
+      schedule''
 
 generateRecurrentSchedule :: Cycle -> Day -> Day -> [Day]
 generateRecurrentSchedule Cycle {..} anchorDate endDate =
   let go :: Day -> Integer -> [Day] -> [Day]
-      go current k acc = if current > endDate
-        then acc
+      go current k acc = if current >= endDate
+        then acc ++ [current]
         else
           (let current' = shiftDate anchorDate (k * n) p
            in  go current' (k + 1) (acc ++ [current])
           )
   in  go anchorDate 1 []
 
-
 generateRecurrentScheduleWithCorrections
   :: Day -> Cycle -> Day -> ScheduleConfig -> ShiftedSchedule
 generateRecurrentScheduleWithCorrections anchorDate cycle endDate ScheduleConfig {..}
   = generateRecurrentSchedule cycle anchorDate endDate &
-      (endDateCorrection includeEndDay endDate >>>
+      ((correction cycle anchorDate endDate) >>>
       (fmap $ applyEOMC anchorDate cycle (fromJust eomc)) >>>
-      (fmap $ applyBDC (fromJust bdc) calendar) >>>
-      stubCorrection (stub cycle) endDate)
+      (fmap $ applyBDC (fromJust bdc) (fromJust calendar)))
 
 plusCycle :: Day -> Cycle -> Day
 plusCycle date cycle = shiftDate date (n cycle) (p cycle)

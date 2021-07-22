@@ -16,6 +16,7 @@
   # Whether to set the `defer-plugin-errors` flag on those packages that need
   # it. If set to true, we will also build the haddocks for those packages.
 , deferPluginErrors
+, actus-tests
 }:
 let
   r-packages = with rPackages; [ R tidyverse dplyr stringr MASS plotly shiny shinyjs purrr ];
@@ -120,6 +121,12 @@ let
             # Seems to be broken on darwin for some reason
             platforms = lib.platforms.linux;
           };
+
+          # The marlowe-actus tests depend on external data which is
+          # provided from Nix (as niv dependency)
+          marlowe-actus.components.tests.marlowe-actus-test.preCheck = ''
+            export ACTUS_TEST_DATA_DIR=${actus-tests}/tests/
+          '';
 
           # Broken due to warnings, unclear why the setting that fixes this for the build doesn't work here.
           iohk-monitoring.doHaddock = false;

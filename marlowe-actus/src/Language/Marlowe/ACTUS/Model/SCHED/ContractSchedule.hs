@@ -3,7 +3,6 @@
 module Language.Marlowe.ACTUS.Model.SCHED.ContractSchedule where
 
 import           Data.Maybe                                                 (fromJust, fromMaybe)
-
 import           Language.Marlowe.ACTUS.Definitions.BusinessEvents          (EventType (FP, IED, IP, IPCB, IPCI, MD, PP, PR, PRD, PY, RR, RRF, SC, TD))
 import           Language.Marlowe.ACTUS.Definitions.ContractState           (ContractStatePoly (tmd))
 import           Language.Marlowe.ACTUS.Definitions.ContractTerms           (CT (LAM, NAM, PAM), ContractTerms (..))
@@ -29,8 +28,6 @@ schedule ev
         ct_IED'  = fromJust ct_IED
         ct_FER'  = fromJust ct_FER
         ct_MD'   = fromJust ct_MD
-        ct_PRD'  = fromJust ct_PRD
-        ct_TD'   = fromJust ct_TD
         ct_SCEF' = fromJust ct_SCEF
         ct_PYTP' = fromJust ct_PYTP
         ct_PPEF' = fromJust ct_PPEF
@@ -42,10 +39,10 @@ schedule ev
             PP   -> _SCHED_PP_PAM scfg ct_PPEF' ct_OPCL ct_IED' ct_OPANX ct_MD'
             PY   -> _SCHED_PY_PAM scfg ct_PYTP' ct_PPEF' ct_OPCL ct_IED' ct_OPANX ct_MD'
             FP   -> _SCHED_FP_PAM scfg ct_FER' ct_FECL ct_IED' ct_FEANX ct_MD'
-            PRD  -> _SCHED_PRD_PAM scfg ct_PRD'
-            TD   -> _SCHED_TD_PAM scfg ct_TD'
+            PRD  -> _SCHED_PRD_PAM scfg ct_PRD
+            TD   -> _SCHED_TD_PAM scfg ct_TD
             IP   -> _SCHED_IP_PAM scfg ct_IPNR ct_IED' ct_IPANX ct_IPCL ct_IPCED ct_MD'
-            IPCI -> _SCHED_IPCI_PAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED
+            IPCI -> _SCHED_IPCI_PAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED ct_MD' ct_IPNR
             RR   -> _SCHED_RR_PAM scfg ct_IED' ct_SD ct_RRANX ct_RRCL ct_RRNXT ct_MD'
             RRF  -> _SCHED_RRF_PAM scfg ct_IED' ct_RRANX ct_RRCL ct_MD'
             SC   -> _SCHED_SC_PAM scfg ct_IED' ct_SCEF' ct_SCANX ct_SCCL ct_MD'
@@ -70,10 +67,10 @@ schedule ev
             PP   -> _SCHED_PP_LAM scfg ct_PPEF' ct_OPCL ct_IED' ct_OPANX _tmd
             PY   -> _SCHED_PY_LAM scfg ct_PYTP' ct_PPEF' ct_OPCL ct_IED' ct_OPANX _tmd
             FP   -> _SCHED_FP_LAM scfg ct_FER' ct_FECL ct_IED' ct_FEANX _tmd
-            PRD  -> _SCHED_PRD_LAM scfg ct_PRD'
-            TD   -> _SCHED_TD_LAM scfg ct_TD'
+            PRD  -> _SCHED_PRD_LAM scfg ct_PRD
+            TD   -> _SCHED_TD_LAM scfg ct_TD
             IP   -> _SCHED_IP_LAM scfg ct_IPNR ct_IED' ct_IPANX ct_IPCL ct_IPCED _tmd
-            IPCI -> _SCHED_IPCI_LAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED
+            IPCI -> _SCHED_IPCI_LAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED ct_MD' ct_IPNR
             IPCB -> _SCHED_IPCB_LAM scfg ct_IED' ct_IPCB ct_IPCBCL ct_IPCBANX _tmd
             RR   -> _SCHED_RR_LAM scfg ct_IED' ct_SD ct_RRANX ct_RRCL ct_RRNXT _tmd
             RRF  -> _SCHED_RRF_LAM scfg ct_IED' ct_RRANX ct_RRCL _tmd
@@ -99,10 +96,10 @@ schedule ev
             PP   -> _SCHED_PP_NAM scfg ct_PPEF' ct_OPCL ct_IED' ct_OPANX _tmd
             PY   -> _SCHED_PY_NAM scfg ct_PYTP' ct_PPEF' ct_OPCL ct_IED' ct_OPANX _tmd
             FP   -> _SCHED_FP_NAM scfg ct_FER' ct_FECL ct_IED' ct_FEANX _tmd
-            PRD  -> _SCHED_PRD_NAM scfg ct_PRD'
-            TD   -> _SCHED_TD_NAM scfg ct_TD'
+            PRD  -> _SCHED_PRD_NAM scfg ct_PRD
+            TD   -> _SCHED_TD_NAM scfg ct_TD
             IP   -> _SCHED_IP_NAM scfg ct_IED' ct_PRCL ct_PRANX ct_IPCED ct_IPANX ct_IPCL _tmd
-            IPCI -> _SCHED_IPCI_NAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED
+            IPCI -> _SCHED_IPCI_NAM scfg ct_IED' ct_IPANX ct_IPCL ct_IPCED ct_MD' ct_IPNR
             IPCB -> _SCHED_IPCB_NAM scfg ct_IED' ct_IPCB ct_IPCBCL ct_IPCBANX _tmd
             RR   -> _SCHED_RR_NAM scfg ct_IED' ct_SD ct_RRANX ct_RRCL ct_RRNXT _tmd
             RRF  -> _SCHED_RRF_NAM scfg ct_IED' ct_RRANX ct_RRCL _tmd

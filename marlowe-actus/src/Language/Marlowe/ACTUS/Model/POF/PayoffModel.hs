@@ -8,6 +8,7 @@ import           Language.Marlowe.ACTUS.Ops                       (ActusNum (..)
                                                                    RoleSignOps (_r))
 import           Prelude                                          hiding (Fractional, Num, (*), (+), (-), (/))
 
+
 -- Principal at Maturity
 _POF_IED_PAM o_rf_CURS _CNTRL _NT _PDIED =
     _zero - o_rf_CURS * _r _CNTRL * (_NT + _PDIED)

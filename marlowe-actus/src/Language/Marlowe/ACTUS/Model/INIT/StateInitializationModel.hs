@@ -62,7 +62,7 @@ _INIT_PAM t0 tminus tfp_minus tfp_plus
         ipac
                 | isNothing _IPNR               = 0.0
                 | isJust _IPAC                  = fromJust _IPAC
-                | otherwise                     = y _DCC' tminus t0 _MD * nt * ipnr
+                | otherwise                     = (y _DCC' tminus t0 _MD) * nt * ipnr
         fac
                 | isNothing _FER                = 0.0
                 | isJust _FEAC                  = fromJust _FEAC
