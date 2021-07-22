@@ -16,52 +16,49 @@
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# OPTIONS_GHC -fno-ignore-interface-pragmas #-}
-{-# OPTIONS_GHC -fno-omit-interface-pragmas #-}
-{-# OPTIONS_GHC -fno-specialise #-}
 
 module Language.Marlowe.Client where
 import           Control.Lens
-import           Control.Monad                (forM_, void)
-import           Control.Monad.Error.Lens     (catching, throwing)
-import           Data.Aeson                   (FromJSON, ToJSON, parseJSON, toJSON)
-import           Data.Default                 (Default (def))
-import           Data.Map.Strict              (Map)
-import qualified Data.Map.Strict              as Map
-import           Data.Maybe                   (isNothing, maybeToList)
-import           Data.Monoid                  (First (..))
-import           Data.Semigroup.Generic       (GenericSemigroupMonoid (..))
-import qualified Data.Set                     as Set
-import qualified Data.Text                    as T
-import           GHC.Generics                 (Generic)
-import           Language.Marlowe.Semantics   hiding (Contract)
-import qualified Language.Marlowe.Semantics   as Marlowe
-import           Language.Marlowe.Util        (extractContractRoles)
-import           Ledger                       (CurrencySymbol, Datum (..), PubKeyHash, ScriptContext (..), Slot (..),
-                                               TokenName, TxOut (..), TxOutTx (..), ValidatorHash, eitherTx, inScripts,
-                                               mkValidatorScript, pubKeyHash, txOutDatum, txOutValue, txOutputs,
-                                               validatorHash, valueSpent)
+import           Control.Monad                   (forM_, void)
+import           Control.Monad.Error.Lens        (catching, throwing)
+import           Data.Aeson                      (FromJSON, ToJSON, parseJSON, toJSON)
+import           Data.Default                    (Default (def))
+import           Data.Map.Strict                 (Map)
+import qualified Data.Map.Strict                 as Map
+import           Data.Maybe                      (isNothing, maybeToList)
+import           Data.Monoid                     (First (..))
+import           Data.Semigroup.Generic          (GenericSemigroupMonoid (..))
+import qualified Data.Set                        as Set
+import qualified Data.Text                       as T
+import           GHC.Generics                    (Generic)
+import           Language.Marlowe.Client.OnChain (mkMarloweClient, rolePayoutScript)
+import           Language.Marlowe.Semantics      hiding (Contract)
+import qualified Language.Marlowe.Semantics      as Marlowe
+import           Language.Marlowe.Util           (extractContractRoles)
+import           Ledger                          (CurrencySymbol, Datum (..), PubKeyHash, ScriptContext (..), Slot (..),
+                                                  TokenName, TxOut (..), TxOutTx (..), ValidatorHash, eitherTx,
+                                                  inScripts, pubKeyHash, txOutDatum, txOutValue, txOutputs,
+                                                  validatorHash, valueSpent)
 import qualified Ledger
-import           Ledger.Ada                   (adaSymbol, adaValueOf)
-import           Ledger.Address               (pubKeyHashAddress, scriptHashAddress)
-import           Ledger.AddressMap            (outputsMapFromTxForAddress)
+import           Ledger.Ada                      (adaSymbol, adaValueOf)
+import           Ledger.Address                  (pubKeyHashAddress, scriptHashAddress)
+import           Ledger.AddressMap               (outputsMapFromTxForAddress)
 import           Ledger.Constraints
-import qualified Ledger.Constraints           as Constraints
-import qualified Ledger.Interval              as Interval
-import           Ledger.Scripts               (Validator, datumHash, unitRedeemer)
-import qualified Ledger.TimeSlot              as TimeSlot
-import qualified Ledger.Typed.Scripts         as Scripts
-import           Ledger.Typed.Tx              (TypedScriptTxOut (..), tyTxOutData)
-import qualified Ledger.Value                 as Val
+import qualified Ledger.Constraints              as Constraints
+import qualified Ledger.Interval                 as Interval
+import           Ledger.Scripts                  (datumHash, unitRedeemer)
+import qualified Ledger.TimeSlot                 as TimeSlot
+import qualified Ledger.Typed.Scripts            as Scripts
+import           Ledger.Typed.Tx                 (TypedScriptTxOut (..), tyTxOutData)
+import qualified Ledger.Value                    as Val
 import           Plutus.Contract
-import           Plutus.Contract.StateMachine (AsSMContractError (..), StateMachine (..), StateMachineClient (..), Void,
-                                               WaitingResult (..), getStates)
-import qualified Plutus.Contract.StateMachine as SM
-import qualified Plutus.Contracts.Currency    as Currency
+import           Plutus.Contract.StateMachine    (AsSMContractError (..), StateMachineClient (..), Void,
+                                                  WaitingResult (..), getStates)
+import qualified Plutus.Contract.StateMachine    as SM
+import qualified Plutus.Contracts.Currency       as Currency
 import qualified PlutusTx
-import qualified PlutusTx.AssocMap            as AssocMap
-import qualified PlutusTx.Prelude             as P
+import qualified PlutusTx.AssocMap               as AssocMap
+import qualified PlutusTx.Prelude                as P
 
 type MarloweSlotRange = (Slot, Slot)
 type MarloweInput = (MarloweSlotRange, [Input])
@@ -478,11 +475,6 @@ applyInputs params slotInterval inputs = mapError (review _MarloweError) $ do
             throwing _TransitionError e
         SM.TransitionSuccess d -> return d
 
-rolePayoutScript :: CurrencySymbol -> Validator
-rolePayoutScript symbol = mkValidatorScript ($$(PlutusTx.compile [|| wrapped ||]) `PlutusTx.applyCode` PlutusTx.liftCode symbol)
-  where
-    wrapped s = Scripts.wrapValidator (rolePayoutValidator s)
-
 
 {-# INLINABLE rolePayoutValidator #-}
 rolePayoutValidator :: CurrencySymbol -> TokenName -> () -> ScriptContext -> Bool
@@ -602,45 +594,6 @@ mkMarloweStateMachineTransition params SM.State{ SM.stateData=MarloweData{..}, S
         payoutByParty (Payment _ (Party party) money) = AssocMap.singleton party money
 
         payoutByParty (Payment _ (Account _) _)       = AssocMap.empty
-
-
-{-# INLINABLE isFinal #-}
-isFinal :: MarloweData -> Bool
-isFinal MarloweData{marloweContract=c} = c P.== Close
-
-
-{-# INLINABLE mkValidator #-}
-mkValidator :: MarloweParams -> Scripts.ValidatorType MarloweStateMachine
-mkValidator p = SM.mkValidator $ SM.mkStateMachine Nothing (mkMarloweStateMachineTransition p) isFinal
-
-
-mkMarloweValidatorCode
-    :: MarloweParams
-    -> PlutusTx.CompiledCode (Scripts.ValidatorType MarloweStateMachine)
-mkMarloweValidatorCode params =
-    $$(PlutusTx.compile [|| mkValidator ||]) `PlutusTx.applyCode` PlutusTx.liftCode params
-
-
-type MarloweStateMachine = StateMachine MarloweData MarloweInput
-
-typedValidator :: MarloweParams -> Scripts.TypedValidator MarloweStateMachine
-typedValidator params = Scripts.mkTypedValidator @MarloweStateMachine
-    (mkMarloweValidatorCode params)
-    $$(PlutusTx.compile [|| wrap ||])
-    where
-        wrap = Scripts.wrapValidator @MarloweData @MarloweInput
-
-
-mkMachineInstance :: MarloweParams -> SM.StateMachineInstance MarloweData MarloweInput
-mkMachineInstance params =
-    SM.StateMachineInstance
-    (SM.mkStateMachine Nothing (mkMarloweStateMachineTransition params) isFinal)
-    (typedValidator params)
-
-
-mkMarloweClient :: MarloweParams -> SM.StateMachineClient MarloweData MarloweInput
-mkMarloweClient params = SM.mkStateMachineClient (mkMachineInstance params)
-
 
 defaultTxValidationRange :: Slot
 defaultTxValidationRange = 10
