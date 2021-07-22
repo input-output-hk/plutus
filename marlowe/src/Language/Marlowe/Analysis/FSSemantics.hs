@@ -568,7 +568,7 @@ executeAndInterpret sta ((l, h, v, b):t) cont
   | b == 0 = computeAndContinue transaction [] sta cont t
   | otherwise =
        case reduceContractUntilQuiescent env sta cont of
-         ContractQuiescent _ _ _ tempCont ->
+         ContractQuiescent _ _ _ _ tempCont ->
            case tempCont of
              When cases _ _ -> computeAndContinue transaction
                                   [caseToInput cases b v] sta cont t

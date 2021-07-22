@@ -86,6 +86,7 @@ import           Text.PrettyPrint.Leijen  (comma, hang, lbrace, line, rbrace, sp
 {-# INLINABLE applyInput #-}
 {-# INLINABLE convertReduceWarnings #-}
 {-# INLINABLE applyAllInputs #-}
+{-# INLINABLE isClose #-}
 {-# INLINABLE computeTransaction #-}
 {-# INLINABLE contractLifespanUpperBound #-}
 {-# INLINABLE totalBalance #-}
@@ -337,7 +338,7 @@ data ReduceStepResult = Reduced ReduceWarning ReduceEffect State Contract
 
 
 -- | Result of 'reduceContractUntilQuiescent'
-data ReduceResult = ContractQuiescent [ReduceWarning] [Payment] State Contract
+data ReduceResult = ContractQuiescent Bool [ReduceWarning] [Payment] State Contract
                   | RRAmbiguousSlotIntervalError
   deriving stock (Haskell.Show)
 
@@ -355,7 +356,7 @@ data ApplyResult = Applied ApplyWarning State Contract
 
 
 -- | Result of 'applyAllInputs'
-data ApplyAllResult = ApplyAllSuccess [TransactionWarning] [Payment] State Contract
+data ApplyAllResult = ApplyAllSuccess Bool [TransactionWarning] [Payment] State Contract
                     | ApplyAllNoMatchError
                     | ApplyAllAmbiguousSlotIntervalError
   deriving stock (Haskell.Show)
@@ -621,8 +622,8 @@ reduceContractStep env state contract = case contract of
 reduceContractUntilQuiescent :: Environment -> State -> Contract -> ReduceResult
 reduceContractUntilQuiescent env state contract = let
     reductionLoop
-      :: Environment -> State -> Contract -> [ReduceWarning] -> [Payment] -> ReduceResult
-    reductionLoop env state contract warnings payments =
+      :: Bool -> Environment -> State -> Contract -> [ReduceWarning] -> [Payment] -> ReduceResult
+    reductionLoop reduced env state contract warnings payments =
         case reduceContractStep env state contract of
             Reduced warning effect newState cont -> let
                 newWarnings = if warning == ReduceNoWarning then warnings
@@ -630,12 +631,12 @@ reduceContractUntilQuiescent env state contract = let
                 newPayments  = case effect of
                     ReduceWithPayment payment -> payment : payments
                     ReduceNoPayment           -> payments
-                in reductionLoop env newState cont newWarnings newPayments
+                in reductionLoop True env newState cont newWarnings newPayments
             AmbiguousSlotIntervalReductionError -> RRAmbiguousSlotIntervalError
             -- this is the last invocation of reductionLoop, so we can reverse lists
-            NotReduced -> ContractQuiescent (reverse warnings) (reverse payments) state contract
+            NotReduced -> ContractQuiescent reduced (reverse warnings) (reverse payments) state contract
 
-    in reductionLoop env state contract [] []
+    in reductionLoop False env state contract [] []
 
 
 -- | Apply a single Input to the contract (assumes the contract is reduced)
@@ -689,18 +690,20 @@ convertReduceWarnings = foldr (\warn acc -> case warn of
 applyAllInputs :: Environment -> State -> Contract -> [Input] -> ApplyAllResult
 applyAllInputs env state contract inputs = let
     applyAllLoop
-        :: Environment
+        :: Bool
+        -> Environment
         -> State
         -> Contract
         -> [Input]
         -> [TransactionWarning]
         -> [Payment]
         -> ApplyAllResult
-    applyAllLoop env state contract inputs warnings payments =
+    applyAllLoop contractChanged env state contract inputs warnings payments =
         case reduceContractUntilQuiescent env state contract of
             RRAmbiguousSlotIntervalError -> ApplyAllAmbiguousSlotIntervalError
-            ContractQuiescent reduceWarns pays curState cont -> case inputs of
+            ContractQuiescent reduced reduceWarns pays curState cont -> case inputs of
                 [] -> ApplyAllSuccess
+                    (contractChanged || reduced)
                     (warnings ++ convertReduceWarnings reduceWarns)
                     (payments ++ pays)
                     curState
@@ -708,6 +711,7 @@ applyAllInputs env state contract inputs = let
                 (input : rest) -> case applyInput env curState input cont of
                     Applied applyWarn newState cont ->
                         applyAllLoop
+                            True
                             env
                             newState
                             cont
@@ -717,7 +721,7 @@ applyAllInputs env state contract inputs = let
                                 ++ convertApplyWarning applyWarn)
                             (payments ++ pays)
                     ApplyNoMatchError -> ApplyAllNoMatchError
-    in applyAllLoop env state contract inputs [] []
+    in applyAllLoop False env state contract inputs [] []
   where
     convertApplyWarning :: ApplyWarning -> [TransactionWarning]
     convertApplyWarning warn =
@@ -726,6 +730,9 @@ applyAllInputs env state contract inputs = let
             ApplyNonPositiveDeposit party accId tok amount ->
                 [TransactionNonPositiveDeposit party accId tok amount]
 
+isClose :: Contract -> Bool
+isClose Close = True
+isClose _     = False
 
 -- | Try to compute outputs of a transaction given its inputs, a contract, and it's @State@
 computeTransaction :: TransactionInput -> State -> Contract -> TransactionOutput
@@ -733,8 +740,8 @@ computeTransaction tx state contract = let
     inputs = txInputs tx
     in case fixInterval (txInterval tx) state of
         IntervalTrimmed env fixState -> case applyAllInputs env fixState contract inputs of
-            ApplyAllSuccess warnings payments newState cont ->
-                    if (contract == cont) && ((contract /= Close) || (Map.null $ accounts state))
+            ApplyAllSuccess reduced warnings payments newState cont ->
+                    if not reduced && (not (isClose contract) || (Map.null $ accounts state))
                     then Error TEUselessTransaction
                     else TransactionOutput { txOutWarnings = warnings
                                            , txOutPayments = payments

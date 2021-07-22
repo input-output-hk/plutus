@@ -81,7 +81,7 @@ timeoutState currentSlot { semanticState, contract, history, mPendingTimeouts, m
         let
           { txOutState, txOutContract } = case reduceContractUntilQuiescent env state' contract' of
             -- TODO: SCP-2088 We need to discuss how to display the warnings that computeTransaction may give
-            ContractQuiescent _ _ txOutState txOutContract -> { txOutState, txOutContract }
+            ContractQuiescent _ _ _ txOutState txOutContract -> { txOutState, txOutContract }
             -- FIXME: Change timeoutState to return an Either
             RRAmbiguousSlotIntervalError -> { txOutState: state', txOutContract: contract' }
 
