@@ -129,6 +129,11 @@ The Haskell packages can be built directly with `cabal`.
 We do this during development (see <<how-to-develop>>).
 The best way is to do this is inside a `nix-shell`.
 
+[NOTE]
+====
+For fresh development setups, you also need to run `cabal update`.
+====
+
 Run `cabal build plutus-core` from the root to build the Plutus Core library.
 
 See the link:./cabal.project[cabal project file] to see the other packages that you can build with `cabal`.
