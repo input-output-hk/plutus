@@ -29,14 +29,20 @@ counterparty = Role "Counterparty"
 oracle :: Party
 oracle = Role "kraken"
 
-depositAmount :: BigInteger
-depositAmount = fromInt 100000000
+partyDepositAmount :: BigInteger
+partyDepositAmount = (fromInt 100000000)
 
-deposit :: Value
-deposit = Constant depositAmount
+counterpartyDepositAmount :: BigInteger
+counterpartyDepositAmount = (fromInt 100000000)
 
-doubleDeposit :: Value
-doubleDeposit = Constant (depositAmount * fromInt 2)
+partyDeposit :: Value
+partyDeposit = Constant partyDepositAmount
+
+counterpartyDeposit :: Value
+counterpartyDeposit = Constant counterpartyDepositAmount
+
+bothDeposits :: Value
+bothDeposits = Constant (partyDepositAmount + counterpartyDepositAmount)
 
 priceBeginning :: Value
 priceBeginning = Constant (fromInt 100000000)
@@ -56,8 +62,8 @@ decreaseInPrice = ValueId "Decrease in price"
 increaseInPrice :: ValueId
 increaseInPrice = ValueId "Increase in price"
 
-initialDeposit :: Party -> Timeout -> Contract -> Contract -> Contract
-initialDeposit by timeout timeoutContinuation continuation =
+initialDeposit :: Party -> Value -> Timeout -> Contract -> Contract -> Contract
+initialDeposit by deposit timeout timeoutContinuation continuation =
   When [ Case (Deposit by by ada deposit) continuation ]
     timeout
     timeoutContinuation
@@ -78,29 +84,29 @@ gtLtEq value1 value2 gtContinuation ltContinuation eqContinuation =
         eqContinuation
 
 recordEndPrice :: ValueId -> ChoiceId -> ChoiceId -> Contract -> Contract
-recordEndPrice name choiceId1 choiceId2 = Let name (Scale (Rational one (fromInt 100000000)) (MulValue (ChoiceValue choiceId1) (ChoiceValue choiceId2)))
+recordEndPrice name choiceId1 choiceId2 = Let name (Scale (Rational one ((fromInt 100000000) * (fromInt 100000000))) (MulValue priceBeginning (MulValue (ChoiceValue choiceId1) (ChoiceValue choiceId2))))
 
 recordDifference :: ValueId -> Value -> Value -> Contract -> Contract
 recordDifference name val1 val2 = Let name (SubValue val1 val2)
 
-transferUpToDeposit :: Party -> Party -> Value -> Contract -> Contract
-transferUpToDeposit from to amount = Pay from (Account to) ada (Cond (ValueLT amount deposit) amount deposit)
+transferUpToDeposit :: Party -> Value -> Party -> Value -> Contract -> Contract
+transferUpToDeposit from payerDeposit to amount = Pay from (Account to) ada (Cond (ValueLT amount payerDeposit) amount payerDeposit)
 
 extendedContract :: Contract
 extendedContract =
-  initialDeposit party (Slot $ fromInt 300) Close
-    $ initialDeposit counterparty (Slot $ fromInt 600) Close
+  initialDeposit party partyDeposit (Slot $ fromInt 300) Close
+    $ initialDeposit counterparty counterpartyDeposit (Slot $ fromInt 600) Close
     $ oracleInput exchangeBeginning (Slot $ fromInt 900) Close
     $ wait (Slot $ fromInt 1500)
     $ oracleInput exchangeEnd (Slot $ fromInt 1800) Close
     $ recordEndPrice priceEnd exchangeBeginning exchangeEnd
     $ gtLtEq priceBeginning (UseValue priceEnd)
         ( recordDifference decreaseInPrice priceBeginning (UseValue priceEnd)
-            $ transferUpToDeposit counterparty party (UseValue decreaseInPrice)
+            $ transferUpToDeposit counterparty counterpartyDeposit party (UseValue decreaseInPrice)
                 Close
         )
         ( recordDifference increaseInPrice (UseValue priceEnd) priceBeginning
-            $ transferUpToDeposit party counterparty (UseValue increaseInPrice)
+            $ transferUpToDeposit party partyDeposit counterparty (UseValue increaseInPrice)
                 Close
         )
         Close

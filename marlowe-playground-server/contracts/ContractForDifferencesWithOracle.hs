@@ -17,12 +17,14 @@ party = Role "Party"
 counterparty = Role "Counterparty"
 oracle = Role "kraken"
 
-depositAmount :: Integer
-depositAmount = 100_000_000
+partyDepositAmount, counterpartyDepositAmount :: Integer
+partyDepositAmount = 100_000_000
+counterpartyDepositAmount = 100_000_000
 
-deposit, doubleDeposit :: Value
-deposit = Constant depositAmount
-doubleDeposit = Constant (depositAmount * 2)
+partyDeposit, counterpartyDeposit, bothDeposits :: Value
+partyDeposit = Constant partyDepositAmount
+counterpartyDeposit = Constant counterpartyDepositAmount
+bothDeposits = Constant (partyDepositAmount + counterpartyDepositAmount)
 
 priceBeginning :: Value
 priceBeginning = Constant 100_000_000
@@ -38,8 +40,8 @@ decreaseInPrice, increaseInPrice :: ValueId
 decreaseInPrice = "Decrease in price"
 increaseInPrice = "Increase in price"
 
-initialDeposit :: Party -> Timeout -> Contract -> Contract -> Contract
-initialDeposit by timeout timeoutContinuation continuation =
+initialDeposit :: Party -> Value -> Timeout -> Contract -> Contract -> Contract
+initialDeposit by deposit timeout timeoutContinuation continuation =
   When [Case (Deposit by by ada deposit) continuation]
        timeout
        timeoutContinuation
@@ -61,14 +63,14 @@ gtLtEq value1 value2 gtContinuation ltContinuation eqContinuation =
 
 recordEndPrice :: ValueId -> ChoiceId -> ChoiceId -> Contract -> Contract
 recordEndPrice name choiceId1 choiceId2 =
-    Let name (Scale (1%100_000_000) (MulValue (ChoiceValue choiceId1) (ChoiceValue choiceId2)))
+    Let name (Scale (1%10_000_000_000_000_000) (MulValue priceBeginning (MulValue (ChoiceValue choiceId1) (ChoiceValue choiceId2))))
 
 recordDifference :: ValueId -> Value -> Value -> Contract -> Contract
 recordDifference name val1 val2 = Let name (SubValue val1 val2)
 
-transferUpToDeposit :: Party -> Party -> Value -> Contract -> Contract
-transferUpToDeposit from to amount =
-   Pay from (Account to) ada (Cond (ValueLT amount deposit) amount deposit)
+transferUpToDeposit :: Party -> Value -> Party -> Value -> Contract -> Contract
+transferUpToDeposit from payerDeposit to amount =
+   Pay from (Account to) ada (Cond (ValueLT amount payerDeposit) amount payerDeposit)
 
 refund :: Party -> Value -> Contract -> Contract
 refund who amount
@@ -76,38 +78,38 @@ refund who amount
   | otherwise = id
 
 refundBoth :: Contract
-refundBoth = refund party deposit (refund counterparty deposit Close)
+refundBoth = refund party partyDeposit (refund counterparty counterpartyDeposit Close)
 
 refundIfGtZero :: Party -> Value -> Contract -> Contract
 refundIfGtZero who amount continuation
   | explicitRefunds = If (ValueGT amount (Constant 0)) (refund who amount continuation) continuation
   | otherwise = continuation
 
-refundUpToDoubleOfDeposit :: Party -> Value -> Contract -> Contract
-refundUpToDoubleOfDeposit who amount
-  | explicitRefunds = refund who $ Cond (ValueGT amount doubleDeposit) doubleDeposit amount
+refundUpToBothDeposits :: Party -> Value -> Contract -> Contract
+refundUpToBothDeposits who amount
+  | explicitRefunds = refund who $ Cond (ValueGT amount bothDeposits) bothDeposits amount
   | otherwise = id
 
-refundAfterDifference :: Party -> Party -> Value -> Contract
-refundAfterDifference payer payee difference =
-    refundIfGtZero payer (SubValue deposit difference)
-  $ refundUpToDoubleOfDeposit payee (AddValue deposit difference)
+refundAfterDifference :: Party -> Value -> Party -> Value -> Value -> Contract
+refundAfterDifference payer payerDeposit payee payeeDeposit difference =
+    refundIfGtZero payer (SubValue payerDeposit difference)
+  $ refundUpToBothDeposits payee (AddValue payeeDeposit difference)
     Close
 
 contract :: Contract
-contract = initialDeposit party 300 Close
-         $ initialDeposit counterparty 600 (refund party deposit Close)
+contract = initialDeposit party partyDeposit 300 Close
+         $ initialDeposit counterparty counterpartyDeposit 600 (refund party partyDeposit Close)
          $ oracleInput exchangeBeginning 900 refundBoth
          $ wait 1500
          $ oracleInput exchangeEnd 1800 refundBoth
          $ recordEndPrice priceEnd exchangeBeginning exchangeEnd
          $ gtLtEq priceBeginning (UseValue priceEnd)
                   ( recordDifference decreaseInPrice priceBeginning (UseValue priceEnd)
-                  $ transferUpToDeposit counterparty party (UseValue decreaseInPrice)
-                  $ refundAfterDifference counterparty party (UseValue decreaseInPrice)
+                  $ transferUpToDeposit counterparty counterpartyDeposit party (UseValue decreaseInPrice)
+                  $ refundAfterDifference counterparty counterpartyDeposit party partyDeposit (UseValue decreaseInPrice)
                   )
                   ( recordDifference increaseInPrice (UseValue priceEnd) priceBeginning
-                  $ transferUpToDeposit party counterparty (UseValue increaseInPrice)
-                  $ refundAfterDifference party counterparty (UseValue increaseInPrice)
+                  $ transferUpToDeposit party partyDeposit counterparty (UseValue increaseInPrice)
+                  $ refundAfterDifference party partyDeposit counterparty counterpartyDeposit (UseValue increaseInPrice)
                   )
                   refundBoth
