@@ -75,7 +75,6 @@ import           Data.Semigroup                                           (stime
 import           Data.Text.Prettyprint.Doc
 import           Data.Time.Clock                                          (getCurrentTime)
 import           Data.Word64Array.Word8
-import           System.IO.Unsafe                                         (unsafePerformIO)
 import           Universe
 
 {- Note [Compilation peculiarities]
@@ -370,7 +369,7 @@ type CekCarryingM :: GHC.Type -> (GHC.Type -> GHC.Type) -> GHC.Type -> GHC.Type 
 -- | The monad the CEK machine runs in.
 newtype CekCarryingM term uni fun s a = CekCarryingM
     { unCekCarryingM :: ST s a
-    } deriving newtype (Functor, Applicative, Monad)
+    } deriving newtype (Show, Functor, Applicative, Monad)
 
 type CekM uni fun = CekCarryingM (Term Name uni fun ()) uni fun
 
@@ -476,7 +475,7 @@ emitCek str =
     let mayLogsRef = ?cekEmitter
         withTime =
             "[" ++
-            (show $ unsafePerformIO getCurrentTime) ++
+            (show $ (CekCarryingM . unsafeIOToST) getCurrentTime) ++
             "]" ++ str
     in case mayLogsRef of
         Nothing      -> pure ()
