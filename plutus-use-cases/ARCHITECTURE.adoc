@@ -29,4 +29,16 @@ There is also an executable `plutus-use-cases-scripts` writes out the applied va
 
 === `plutus-use-cases-scripts`
 
-A tool that extracts applied validators and partial transactions from unit tests
+A tool that extracts applied validators and partial transactions from unit tests.
+
+The tool is run during CI and the result is available for download from Hydra. For example:
+
+```
+# Scripts output:
+https://hydra.iohk.io/build/<BUILD_ID>/download/1/plutus-use-cases-scripts-output/scripts/<SCRIPT_NAME>.flat
+
+# Partial transactions output:
+https://hydra.iohk.io/build/<BUILD_ID>/download/1/plutus-use-cases-scripts-output/transactions/<SCRIPT_NAME>(.cbor|.json)
+```
+
+For the possible script names, see `plutus-use-cases/scripts/Main.hs`.

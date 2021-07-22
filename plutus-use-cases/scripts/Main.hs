@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE NamedFieldPuns     #-}
@@ -115,7 +114,7 @@ main = execParser progParser >>= writeScripts
 
 writeScripts :: ScriptsConfig -> IO ()
 writeScripts config = do
-    putStrLn $ "Writing " <> writeWhat (scCommand config) <> " to: " <> (scPath config)
+    putStrLn $ "Writing " <> writeWhat (scCommand config) <> " to: " <> scPath config
     traverse_ (uncurry3 (writeScriptsTo config))
         [ ("auction_1", Auction.auctionTrace1, Auction.auctionEmulatorCfg)
         , ("auction_2", Auction.auctionTrace2, Auction.auctionEmulatorCfg)

@@ -99,6 +99,10 @@ rec {
     inherit haskell webCommon webCommonPlutus;
   });
 
+  plutus-use-cases = pkgs.recurseIntoAttrs (pkgs.callPackage ./plutus-use-cases {
+    inherit haskell;
+  });
+
   tests = import ./nix/tests/default.nix {
     inherit pkgs docs;
     inherit (plutus.lib) gitignore-nix;
