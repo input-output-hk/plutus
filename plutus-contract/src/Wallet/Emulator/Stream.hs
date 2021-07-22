@@ -16,6 +16,8 @@ module Wallet.Emulator.Stream(
     , initialChainState
     , initialDist
     , initialState
+    , slotConfig
+    , feeConfig
     , runTraceStream
     -- * Stream manipulation
     , takeUntilSlot
@@ -59,6 +61,7 @@ import           Wallet.Emulator.MultiAgent             (EmulatorState, Emulator
 import           Wallet.Emulator.Wallet                 (Wallet (..), walletAddress)
 
 -- TODO: Move these two to 'Wallet.Emulator.XXX'?
+import           Ledger.TimeSlot                        (SlotConfig)
 import           Plutus.Contract.Trace                  (InitialDistribution, defaultDist)
 import           Plutus.Trace.Emulator.ContractInstance (EmulatorRuntimeError)
 
@@ -93,7 +96,7 @@ foldStreamM :: forall m a b c.
     => L.FoldM m a b
     -> S.Stream (S.Of a) m c
     -> m (S.Of b c)
-foldStreamM theFold = L.impurely S.foldM theFold
+foldStreamM = L.impurely S.foldM
 
 -- | Consume an emulator event stream.
 foldEmulatorStreamM :: forall effs a b.
@@ -107,7 +110,6 @@ foldEmulatorStreamM theFold =
 --   the final state of the emulator.
 runTraceStream :: forall effs.
     EmulatorConfig
-    -> FeeConfig
     -> Eff '[ State EmulatorState
             , LogMsg EmulatorEvent'
             , MultiAgentEffect
@@ -117,7 +119,7 @@ runTraceStream :: forall effs.
             , Error EmulatorRuntimeError
             ] ()
     -> Stream (Of (LogMessage EmulatorEvent)) (Eff effs) (Maybe EmulatorErr, EmulatorState)
-runTraceStream conf feeCfg =
+runTraceStream conf@EmulatorConfig{_slotConfig, _feeConfig} =
     fmap (first (either Just (const Nothing)))
     . S.hoist (pure . run)
     . runStream @(LogMessage EmulatorEvent) @_ @'[]
@@ -128,14 +130,16 @@ runTraceStream conf feeCfg =
     . wrapError WalletErr
     . wrapError AssertionErr
     . wrapError InstanceErr
-    . EM.processEmulated feeCfg
+    . EM.processEmulated _slotConfig _feeConfig
     . subsume
     . subsume @(State EmulatorState)
     . raiseEnd
 
-newtype EmulatorConfig =
+data EmulatorConfig =
     EmulatorConfig
-        { _initialChainState      :: InitialChainState -- ^ State of the blockchain at the beginning of the simulation. Can be given as a map of funds to wallets, or as a block of transactions.
+        { _initialChainState :: InitialChainState -- ^ State of the blockchain at the beginning of the simulation. Can be given as a map of funds to wallets, or as a block of transactions.
+        , _slotConfig        :: SlotConfig -- ^ Set the start time of slot 0 and the length of one slot
+        , _feeConfig         :: FeeConfig -- ^ Configure the fee of a transaction
         } deriving (Eq, Show)
 
 type InitialChainState = Either InitialDistribution EM.TxPool
@@ -152,6 +156,8 @@ initialDist = either id (walletFunds . map Valid) where
 instance Default EmulatorConfig where
   def = EmulatorConfig
           { _initialChainState = Left defaultDist
+          , _slotConfig = def
+          , _feeConfig = def
           }
 
 initialState :: EmulatorConfig -> EM.EmulatorState

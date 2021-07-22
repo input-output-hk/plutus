@@ -23,7 +23,7 @@ import           Control.Monad.Freer.Extras.Log     (LogLevel (..))
 import           Data.Default                       (Default (def))
 import           Data.Monoid                        (Last (..))
 
-import           Ledger                             (Ada, Slot (..), Value, pubKeyHash)
+import           Ledger                             (Ada, POSIXTime, Slot (..), Value, pubKeyHash)
 import qualified Ledger.Ada                         as Ada
 import           Plutus.Contract                    hiding (currentSlot)
 import           Plutus.Contract.Test               hiding (not)
@@ -42,12 +42,12 @@ import           Test.QuickCheck                    hiding ((.&&.))
 import           Test.Tasty
 import           Test.Tasty.QuickCheck              (testProperty)
 
-params :: AuctionParams
-params =
+params :: POSIXTime -> AuctionParams
+params startTime =
     AuctionParams
         { apOwner   = pubKeyHash $ walletPubKey w1
         , apAsset   = theToken
-        , apEndTime = TimeSlot.slotToEndPOSIXTime def 100
+        , apEndTime = startTime + 100999
         }
 
 -- | The token that we are auctioning off.
@@ -69,10 +69,14 @@ options :: CheckOptions
 options = set emulatorConfig auctionEmulatorCfg defaultCheckOptions
 
 seller :: Contract AuctionOutput SellerSchema AuctionError ()
-seller = auctionSeller (apAsset params) (apEndTime params)
+seller = do
+    startTime <- TimeSlot.scSlotZeroTime <$> getSlotConfig
+    auctionSeller (apAsset $ params startTime) (apEndTime $ params startTime)
 
 buyer :: ThreadToken -> Contract AuctionOutput BuyerSchema AuctionError ()
-buyer cur = auctionBuyer cur params
+buyer cur = do
+    startTime <- TimeSlot.scSlotZeroTime <$> getSlotConfig
+    auctionBuyer cur $ params startTime
 
 w1, w2, w3 :: Wallet
 w1 = Wallet 1
@@ -90,7 +94,7 @@ auctionTrace1 = do
     hdl2 <- Trace.activateContractWallet w2 (buyer currency)
     _ <- Trace.waitNSlots 1
     Trace.callEndpoint @"bid" hdl2 trace1WinningBid
-    void $ Trace.waitUntilTime $ apEndTime params
+    void $ Trace.waitUntilTime $ apEndTime $ params $ TimeSlot.scSlotZeroTime def
     void $ Trace.waitNSlots 2
 
 
@@ -117,7 +121,7 @@ auctionTrace2 = do
     Trace.callEndpoint @"bid" hdl3 60
     _ <- Trace.waitNSlots 35
     Trace.callEndpoint @"bid" hdl2 trace2WinningBid
-    void $ Trace.waitUntilTime $ apEndTime params
+    void $ Trace.waitUntilTime $ apEndTime $ params $ TimeSlot.scSlotZeroTime def
     void $ Trace.waitNSlots 2
 
 trace1FinalState :: AuctionOutput
@@ -152,7 +156,7 @@ threadToken =
         $ Freer.runError @Folds.EmulatorFoldErr
         $ Stream.foldEmulatorStreamM fld
         $ Stream.takeUntilSlot 10
-        $ Trace.runEmulatorStream (options ^. emulatorConfig) (options ^. feeConfig)
+        $ Trace.runEmulatorStream (options ^. emulatorConfig)
         $ do
             void $ Trace.activateContractWallet w1 (void con)
             Trace.waitNSlots 3
@@ -183,10 +187,14 @@ instance ContractModel AuctionModel where
     data Action AuctionModel = Init | Bid Wallet Integer | WaitUntil Slot
         deriving (Eq, Show)
 
-    initialState = AuctionModel { _currentBid = 0
-                                , _winner     = w1
-                                , _endSlot    = TimeSlot.posixTimeToEnclosingSlot def $ apEndTime params
-                                , _phase      = NotStarted }
+    initialState = AuctionModel
+        { _currentBid = 0
+        , _winner     = w1
+        , _endSlot    = TimeSlot.posixTimeToEnclosingSlot def $ apEndTime
+                                                              $ params
+                                                              $ TimeSlot.scSlotZeroTime def
+        , _phase      = NotStarted
+        }
 
     arbitraryAction s
         | p /= NotStarted =

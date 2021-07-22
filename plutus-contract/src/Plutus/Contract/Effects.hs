@@ -6,6 +6,7 @@
 {-# LANGUAGE TemplateHaskell   #-}
 module Plutus.Contract.Effects( -- TODO: Move to Requests.Internal
     PABReq(..),
+    _GetSlotConfigReq,
     _AwaitSlotReq,
     _AwaitTimeReq,
     _CurrentSlotReq,
@@ -19,6 +20,7 @@ module Plutus.Contract.Effects( -- TODO: Move to Requests.Internal
     _WriteBalancedTxReq,
     _ExposeEndpointReq,
     PABResp(..),
+    _GetSlotConfigResp,
     _AwaitSlotResp,
     _AwaitTimeResp,
     _CurrentSlotResp,
@@ -54,13 +56,15 @@ import           Ledger.AddressMap           (UtxoMap)
 import           Ledger.Constraints.OffChain (UnbalancedTx)
 import           Ledger.Slot                 (Slot (..))
 import           Ledger.Time                 (POSIXTime (..))
+import           Ledger.TimeSlot             (SlotConfig)
 import           Wallet.API                  (WalletAPIError)
 import           Wallet.Types                (AddressChangeRequest, AddressChangeResponse, ContractInstanceId,
                                               EndpointDescription, EndpointValue)
 
 -- | Requests that 'Contract's can make
 data PABReq =
-    AwaitSlotReq Slot
+    GetSlotConfigReq
+    | AwaitSlotReq Slot
     | AwaitTimeReq POSIXTime
     | CurrentSlotReq
     | CurrentTimeReq
@@ -77,6 +81,7 @@ data PABReq =
 
 instance Pretty PABReq where
   pretty = \case
+    GetSlotConfigReq         -> "Slot config"
     AwaitSlotReq s           -> "Await slot:" <+> pretty s
     AwaitTimeReq s           -> "Await time:" <+> pretty s
     CurrentSlotReq           -> "Current slot"
@@ -92,7 +97,8 @@ instance Pretty PABReq where
 
 -- | Responses that 'Contract's receive
 data PABResp =
-    AwaitSlotResp Slot
+    GetSlotConfigResp SlotConfig
+    | AwaitSlotResp Slot
     | AwaitTimeResp POSIXTime
     | CurrentSlotResp Slot
     | CurrentTimeResp POSIXTime
@@ -110,6 +116,7 @@ data PABResp =
 
 instance Pretty PABResp where
   pretty = \case
+    GetSlotConfigResp s         -> "Slot config:" <+> pretty s
     AwaitSlotResp s             -> "Slot:" <+> pretty s
     AwaitTimeResp s             -> "Time:" <+> pretty s
     CurrentSlotResp s           -> "Current slot:" <+> pretty s

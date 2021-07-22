@@ -4,6 +4,7 @@
 {-# LANGUAGE GADTs               #-}
 {-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE NamedFieldPuns      #-}
+{-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeApplications    #-}
@@ -24,6 +25,7 @@ import           Data.Maybe                     (listToMaybe)
 import           GHC.Generics                   (Generic)
 import           Ledger                         (Block, Slot (..), Tx (..))
 import qualified Ledger.Index                   as Index
+import           Ledger.TimeSlot                (SlotConfig)
 import qualified Wallet.Emulator.Chain          as EC
 
 type TxPool = [Tx]
@@ -104,10 +106,12 @@ handleControlChain = \case
 
 handleChain ::
      ( Member (State MockNodeServerChainState) effs )
-  => EC.ChainEffect ~> Eff effs
-handleChain = \case
+  => SlotConfig
+  -> EC.ChainEffect ~> Eff effs
+handleChain slotCfg = \case
     EC.QueueTx tx     -> modify $ over txPool (addTxToPool tx)
     EC.GetCurrentSlot -> gets _currentSlot
+    EC.GetSlotConfig  -> pure slotCfg
 
 logEvent :: Member (LogMsg EC.ChainEvent) effs => EC.ChainEvent -> Eff effs ()
 logEvent e = case e of

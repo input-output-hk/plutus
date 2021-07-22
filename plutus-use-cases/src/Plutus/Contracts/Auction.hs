@@ -27,7 +27,6 @@ module Plutus.Contracts.Auction(
 
 import           Control.Lens                     (makeClassyPrisms)
 import           Data.Aeson                       (FromJSON, ToJSON)
-import           Data.Default                     (Default (def))
 import           Data.Monoid                      (Last (..))
 import           Data.Semigroup.Generic           (GenericSemigroupMonoid (..))
 import           GHC.Generics                     (Generic)
@@ -264,18 +263,19 @@ data BuyerEvent =
 waitForChange :: AuctionParams -> StateMachineClient AuctionState AuctionInput -> HighestBid -> Contract AuctionOutput BuyerSchema AuctionError BuyerEvent
 waitForChange AuctionParams{apEndTime} client lastHighestBid = do
     t <- currentTime
+    slotCfg <- getSlotConfig
     let
         auctionOver = awaitTime apEndTime >> pure (AuctionIsOver lastHighestBid)
         submitOwnBid = SubmitOwnBid <$> endpoint @"bid"
         otherBid = do
             let address = Scripts.validatorAddress (SM.typedValidator (SM.scInstance client))
-                targetTime = TimeSlot.slotToBeginPOSIXTime def
+                targetTime = TimeSlot.slotToBeginPOSIXTime slotCfg
                            $ Haskell.succ
-                           $ TimeSlot.posixTimeToEnclosingSlot def t
+                           $ TimeSlot.posixTimeToEnclosingSlot slotCfg t
             AddressChangeResponse{acrTxns} <- addressChangeRequest
                 AddressChangeRequest
-                { acreqSlotRangeFrom = TimeSlot.posixTimeToEnclosingSlot def targetTime
-                , acreqSlotRangeTo = TimeSlot.posixTimeToEnclosingSlot def targetTime
+                { acreqSlotRangeFrom = TimeSlot.posixTimeToEnclosingSlot slotCfg targetTime
+                , acreqSlotRangeTo = TimeSlot.posixTimeToEnclosingSlot slotCfg targetTime
                 , acreqAddress = address
                 }
             case acrTxns of

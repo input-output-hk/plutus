@@ -6,6 +6,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeOperators       #-}
+
 -- | Waiting for things to happen
 module Plutus.Trace.Effects.Waiting(
     Waiting(..)

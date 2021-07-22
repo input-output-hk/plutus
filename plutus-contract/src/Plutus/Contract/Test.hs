@@ -13,6 +13,7 @@
 {-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ViewPatterns         #-}
+
 -- | Testing contracts with HUnit and Tasty
 module Plutus.Contract.Test(
       module X
@@ -62,7 +63,6 @@ module Plutus.Contract.Test(
     , minLogLevel
     , maxSlot
     , emulatorConfig
-    , feeConfig
     -- * Etc
     , goldenPir
     ) where
@@ -111,7 +111,6 @@ import qualified PlutusTx.Prelude                      as P
 import           Ledger                                (Validator)
 import qualified Ledger
 import           Ledger.Address                        (Address)
-import           Ledger.Fee                            (FeeConfig)
 import           Ledger.Generators                     (GeneratorModel, Mockchain (..))
 import qualified Ledger.Generators                     as Gen
 import           Ledger.Index                          (ScriptValidationEvent, ValidationError)
@@ -147,7 +146,6 @@ data CheckOptions =
         { _minLogLevel    :: LogLevel -- ^ Minimum log level for emulator log messages to be included in the test output (printed if the test fails)
         , _maxSlot        :: Slot -- ^ When to stop the emulator
         , _emulatorConfig :: EmulatorConfig
-        , _feeConfig      :: FeeConfig
         } deriving (Eq, Show)
 
 makeLenses ''CheckOptions
@@ -158,7 +156,6 @@ defaultCheckOptions =
         { _minLogLevel = Info
         , _maxSlot = 125
         , _emulatorConfig = def
-        , _feeConfig = def
         }
 
 type TestEffects = '[Reader InitialDistribution, Error EmulatorFoldErr, Writer (Doc Void)]
@@ -190,10 +187,10 @@ checkPredicateInner :: forall m.
     -> (String -> m ()) -- ^ Print out debug information in case of test failures
     -> (Bool -> m ()) -- ^ assert
     -> m ()
-checkPredicateInner CheckOptions{_minLogLevel, _maxSlot, _emulatorConfig, _feeConfig} predicate action annot assert = do
+checkPredicateInner CheckOptions{_minLogLevel, _maxSlot, _emulatorConfig} predicate action annot assert = do
     let dist = _emulatorConfig ^. initialChainState . to initialDist
         theStream :: forall effs. S.Stream (S.Of (LogMessage EmulatorEvent)) (Eff effs) ()
-        theStream = takeUntilSlot _maxSlot $ runEmulatorStream _emulatorConfig _feeConfig action
+        theStream = takeUntilSlot _maxSlot $ runEmulatorStream _emulatorConfig action
         consumeStream :: forall a. S.Stream (S.Of (LogMessage EmulatorEvent)) (Eff TestEffects) a -> Eff TestEffects (S.Of Bool a)
         consumeStream = foldEmulatorStreamM @TestEffects predicate
     result <- runM

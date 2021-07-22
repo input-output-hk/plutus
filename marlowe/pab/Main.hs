@@ -143,5 +143,5 @@ handleMarloweContract = Builtin.handleBuiltin getSchema getContract where
 
 handlers :: SimulatorEffectHandlers (Builtin Marlowe)
 handlers =
-    Simulator.mkSimulatorHandlers @(Builtin Marlowe) def [MarloweApp]
+    Simulator.mkSimulatorHandlers @(Builtin Marlowe) def def [MarloweApp]
     $ interpret handleMarloweContract

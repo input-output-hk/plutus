@@ -4,7 +4,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE TypeApplications    #-}
+
 {-# OPTIONS_GHC -fno-warn-incomplete-uni-patterns -fno-warn-unused-do-bind #-}
+
 module Spec.Crowdfunding(tests) where
 
 import qualified Control.Foldl                         as L
@@ -24,6 +26,7 @@ import qualified Test.Tasty.HUnit                      as HUnit
 
 import qualified Ledger.Ada                            as Ada
 import           Ledger.Slot                           (Slot (..))
+import qualified Ledger.TimeSlot                       as TimeSlot
 import           Plutus.Contract                       hiding (runError)
 import           Plutus.Contract.Test
 import           Plutus.Contracts.Crowdfunding
@@ -42,7 +45,7 @@ w3 = Wallet 3
 w4 = Wallet 4
 
 theContract :: Contract () CrowdfundingSchema ContractError ()
-theContract = crowdfunding theCampaign
+theContract = getSlotConfig >>= crowdfunding . theCampaign . TimeSlot.scSlotZeroTime
 
 tests :: TestTree
 tests = testGroup "crowdfunding"
@@ -55,20 +58,20 @@ tests = testGroup "crowdfunding"
     , checkPredicateOptions (defaultCheckOptions & maxSlot .~ 20) "make contribution"
         (walletFundsChange w1 (Ada.lovelaceValueOf (-100)))
         $ let contribution = Ada.lovelaceValueOf 100
-          in makeContribution w1 contribution >> void Trace.nextSlot
+          in makeContribution startTime w1 contribution >> void Trace.nextSlot
 
     , checkPredicate "make contributions and collect"
         (walletFundsChange w1 (Ada.lovelaceValueOf 225))
-        successfulCampaign
+        $ successfulCampaign startTime
 
     , checkPredicate "cannot collect money too late"
         (walletFundsChange w1 PlutusTx.zero
         .&&. assertNoFailedTransactions)
         $ do
-            ContractHandle{chInstanceId} <- startCampaign
-            makeContribution w2 (Ada.lovelaceValueOf 100)
-            makeContribution w3 (Ada.lovelaceValueOf 100)
-            makeContribution w4 (Ada.lovelaceValueOf 25)
+            ContractHandle{chInstanceId} <- startCampaign startTime
+            makeContribution startTime w2 (Ada.lovelaceValueOf 100)
+            makeContribution startTime w3 (Ada.lovelaceValueOf 100)
+            makeContribution startTime w4 (Ada.lovelaceValueOf 25)
             Trace.freezeContractInstance chInstanceId
             -- Add some blocks to bring the total up to 31
             -- (that is, above the collection deadline)
@@ -80,10 +83,10 @@ tests = testGroup "crowdfunding"
     , checkPredicate "cannot collect unless notified"
         (walletFundsChange w1 PlutusTx.zero)
         $ do
-            ContractHandle{chInstanceId} <- startCampaign
-            makeContribution w2 (Ada.lovelaceValueOf 100)
-            makeContribution w3 (Ada.lovelaceValueOf 100)
-            makeContribution w4 (Ada.lovelaceValueOf 25)
+            ContractHandle{chInstanceId} <- startCampaign startTime
+            makeContribution startTime w2 (Ada.lovelaceValueOf 100)
+            makeContribution startTime w3 (Ada.lovelaceValueOf 100)
+            makeContribution startTime w4 (Ada.lovelaceValueOf 25)
             Trace.freezeContractInstance chInstanceId
             -- The contributions could be collected now, but without
             -- the slot notifications, wallet 1 is not aware that the
@@ -95,9 +98,9 @@ tests = testGroup "crowdfunding"
         .&&. walletFundsChange w2 mempty
         .&&. walletFundsChange w3 mempty)
         $ do
-            ContractHandle{chInstanceId} <- startCampaign
-            makeContribution w2 (Ada.lovelaceValueOf 50)
-            void $ makeContribution w3 (Ada.lovelaceValueOf 50)
+            ContractHandle{chInstanceId} <- startCampaign startTime
+            makeContribution startTime w2 (Ada.lovelaceValueOf 50)
+            void $ makeContribution startTime w3 (Ada.lovelaceValueOf 50)
             Trace.freezeContractInstance chInstanceId
             void $ Trace.waitUntilSlot 31
 
@@ -112,12 +115,12 @@ tests = testGroup "crowdfunding"
     , goldenVsString
         "renders the log of a single contract instance sensibly"
         "test/Spec/crowdfundingWallet1TestOutput.txt"
-        (pure $ renderWalletLog successfulCampaign)
+        (pure $ renderWalletLog $ successfulCampaign startTime)
 
     , goldenVsString
         "renders the emulator log sensibly"
         "test/Spec/crowdfundingEmulatorTestOutput.txt"
-        (pure $ renderEmulatorLog successfulCampaign)
+        (pure $ renderEmulatorLog $ successfulCampaign startTime)
 
     , let con :: Contract () EmptySchema ContractError () = throwError "something went wrong" in
         goldenVsString
@@ -126,13 +129,16 @@ tests = testGroup "crowdfunding"
         (pure $ renderWalletLog (void $ Trace.activateContractWallet w1 con))
     ]
 
+    where
+        startTime = TimeSlot.scSlotZeroTime def
+
 renderWalletLog :: EmulatorTrace () -> ByteString
 renderWalletLog trace =
     let result =
             run
             $ foldEmulatorStreamM (L.generalize $ Folds.instanceLog (Trace.walletInstanceTag w1))
             $ filterLogLevel Info
-            $ Trace.runEmulatorStream def def trace
+            $ Trace.runEmulatorStream def trace
     in BSL.fromStrict $ T.encodeUtf8 $ renderStrict $ layoutPretty defaultLayoutOptions $ vsep $ fmap pretty $ S.fst' result
 
 renderEmulatorLog :: EmulatorTrace () -> ByteString
@@ -141,5 +147,5 @@ renderEmulatorLog trace =
             run
             $ foldEmulatorStreamM (L.generalize Folds.emulatorLog)
             $ filterLogLevel Info
-            $ Trace.runEmulatorStream def def trace
+            $ Trace.runEmulatorStream def trace
     in BSL.fromStrict $ T.encodeUtf8 $ renderStrict $ layoutPretty defaultLayoutOptions $ vsep $ fmap pretty $ S.fst' result

@@ -2,7 +2,7 @@
 # settings are taken from `deployment/morph/machines/marlowe-dash.nix` (which
 # also determines which contracts are available). In most cases we use the
 # default settings - the main thing to watch out for is that the
-# `scZeroSlotTime` here coincides with the frontend code's assumptions about
+# `scSlotZeroTime` here coincides with the frontend code's assumptions about
 # the time of slot 0 (in `web-common-marlowe/src/Marlowe/Slot.purs`).
 dbConfig:
     dbConfigFile: pab-core.db
@@ -25,7 +25,7 @@ nodeServerConfig:
   mscNetworkId: "1"
   # mscRandomTxInterval: 20 -- this creates random transactions on the blockchain
   mscSlotConfig:
-    scZeroSlotTime: 1591566291000 # In milliseconds. See note [Datetime to slot] in Marlowe.Slot
+    scSlotZeroTime: 1591566291000 # In milliseconds. See note [Datetime to slot] in Marlowe.Slot
     scSlotLength: 1000 # In milliseconds
   mscFeeConfig:
     fcConstantFee:

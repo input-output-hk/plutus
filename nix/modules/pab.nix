@@ -30,7 +30,7 @@ let
       mscSocketPath = "/tmp/node-server.sock";
       mscRandomTxInterval = 20000000;
       mscSlotConfig = {
-        scZeroSlotTime = cfg.zeroSlotTime;
+        scSlotZeroTime = cfg.slotZeroTime;
         scSlotLength = cfg.slotLength;
       };
       mscFeeConfig = {
@@ -173,7 +173,7 @@ in
       '';
     };
 
-    zeroSlotTime = mkOption {
+    slotZeroTime = mkOption {
       type = types.int;
       default = 1596059091000; # POSIX time of 2020-07-29T21:44:51Z (Wednesday, July 29, 2020 21:44:51) - Shelley launch time
       description = ''

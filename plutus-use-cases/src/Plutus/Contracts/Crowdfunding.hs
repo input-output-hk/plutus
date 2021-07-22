@@ -55,7 +55,6 @@ import           Data.Text                (Text)
 import qualified Data.Text                as Text
 import           GHC.Generics             (Generic)
 
-import           Data.Default             (Default (def))
 import           Ledger                   (POSIXTime, POSIXTimeRange, PubKeyHash, Validator, txId)
 import qualified Ledger
 import qualified Ledger.Ada               as Ada
@@ -63,7 +62,6 @@ import qualified Ledger.Constraints       as Constraints
 import           Ledger.Contexts          as V
 import qualified Ledger.Interval          as Interval
 import qualified Ledger.Scripts           as Scripts
-import qualified Ledger.TimeSlot          as TimeSlot
 import qualified Ledger.Typed.Scripts     as Scripts hiding (validatorHash)
 import           Ledger.Value             (Value)
 import           Plutus.Contract
@@ -190,10 +188,10 @@ crowdfunding :: Campaign -> Contract () CrowdfundingSchema ContractError ()
 crowdfunding c = contribute c `select` scheduleCollection c
 
 -- | A sample campaign
-theCampaign :: Campaign
-theCampaign = Campaign
-    { campaignDeadline = TimeSlot.slotToEndPOSIXTime def 20
-    , campaignCollectionDeadline = TimeSlot.slotToEndPOSIXTime def 30
+theCampaign :: POSIXTime -> Campaign
+theCampaign startTime = Campaign
+    { campaignDeadline = startTime + 20999
+    , campaignCollectionDeadline = startTime + 30999
     , campaignOwner = pubKeyHash $ Emulator.walletPubKey (Emulator.Wallet 1)
     }
 
@@ -251,23 +249,23 @@ scheduleCollection cmp = do
 
 -- | Call the "schedule collection" endpoint and instruct the campaign owner's
 --   wallet (wallet 1) to start watching the campaign address.
-startCampaign :: EmulatorTrace (ContractHandle () CrowdfundingSchema ContractError)
-startCampaign = do
-    hdl <- Trace.activateContractWallet (Wallet 1) (crowdfunding theCampaign)
+startCampaign :: POSIXTime -> EmulatorTrace (ContractHandle () CrowdfundingSchema ContractError)
+startCampaign startTime = do
+    hdl <- Trace.activateContractWallet (Wallet 1) (crowdfunding $ theCampaign startTime)
     Trace.callEndpoint @"schedule collection" hdl ()
     pure hdl
 
 -- | Call the "contribute" endpoint, contributing the amount from the wallet
-makeContribution :: Wallet -> Value -> EmulatorTrace ()
-makeContribution w v = do
-    hdl <- Trace.activateContractWallet w (crowdfunding theCampaign)
+makeContribution :: POSIXTime -> Wallet -> Value -> EmulatorTrace ()
+makeContribution startTime w v = do
+    hdl <- Trace.activateContractWallet w (crowdfunding $ theCampaign startTime)
     Trace.callEndpoint @"contribute" hdl Contribution{contribValue=v}
 
 -- | Run a successful campaign with contributions from wallets 2, 3 and 4.
-successfulCampaign :: EmulatorTrace ()
-successfulCampaign = do
-    _ <- startCampaign
-    makeContribution (Wallet 2) (Ada.lovelaceValueOf 100)
-    makeContribution (Wallet 3) (Ada.lovelaceValueOf 100)
-    makeContribution (Wallet 4) (Ada.lovelaceValueOf 25)
+successfulCampaign :: POSIXTime -> EmulatorTrace ()
+successfulCampaign startTime = do
+    _ <- startCampaign startTime
+    makeContribution startTime (Wallet 2) (Ada.lovelaceValueOf 100)
+    makeContribution startTime (Wallet 3) (Ada.lovelaceValueOf 100)
+    makeContribution startTime (Wallet 4) (Ada.lovelaceValueOf 25)
     void $ Trace.waitUntilSlot 21

@@ -3,6 +3,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE NamedFieldPuns     #-}
 {-# LANGUAGE NoImplicitPrelude  #-}
+{-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE TemplateHaskell    #-}
 
 -- The '-fno-worker-wrapper' GHC option prevents the error:
@@ -22,8 +23,11 @@ module Ledger.TimeSlot(
 , currentSlot
 ) where
 
+import           Codec.Serialise           (Serialise)
+import           Control.DeepSeq           (NFData)
 import           Data.Aeson                (FromJSON, ToJSON)
 import           Data.Default              (Default (def))
+import           Data.Text.Prettyprint.Doc (Pretty (pretty), (<+>))
 import qualified Data.Time.Clock           as Time
 import qualified Data.Time.Clock.POSIX     as Time
 import           GHC.Generics              (Generic)
@@ -40,15 +44,24 @@ import qualified Prelude                   as Haskell
 data SlotConfig =
     SlotConfig
         { scSlotLength   :: Integer -- ^ Length (number of milliseconds) of one slot
-        , scZeroSlotTime :: POSIXTime -- ^ Beginning of the first slot (in milliseconds)
+        , scSlotZeroTime :: POSIXTime -- ^ Beginning of slot 0 (in milliseconds)
         }
-    deriving (Show, Eq, Generic, ToJSON, FromJSON)
+    deriving (Show, Eq, Generic, ToJSON, FromJSON, Serialise, NFData)
 
 makeLift ''SlotConfig
 
 instance Default SlotConfig where
   {-# INLINABLE def #-}
-  def = SlotConfig{ scSlotLength = 1000, scZeroSlotTime = POSIXTime beginningOfTime }
+  def = SlotConfig{ scSlotLength = 1000, scSlotZeroTime = POSIXTime beginningOfTime }
+
+instance Pretty SlotConfig where
+    pretty SlotConfig {scSlotLength, scSlotZeroTime} =
+            "Slot 0 starts at"
+        <+> pretty scSlotZeroTime
+        <+> "and one slot has length of"
+        <+> pretty scSlotLength
+        <+> "ms"
+
 
 {-# INLINABLE beginningOfTime #-}
 -- | 'beginningOfTime' corresponds to the Shelley launch date
@@ -77,9 +90,9 @@ slotToPOSIXTimeRange sc slot =
 {-# INLINABLE slotToBeginPOSIXTime #-}
 -- | Get the starting 'POSIXTime' of a 'Slot' given a 'SlotConfig'.
 slotToBeginPOSIXTime :: SlotConfig -> Slot -> POSIXTime
-slotToBeginPOSIXTime SlotConfig{scSlotLength, scZeroSlotTime} (Slot n) =
+slotToBeginPOSIXTime SlotConfig{scSlotLength, scSlotZeroTime} (Slot n) =
   let msAfterBegin = n * scSlotLength
-   in POSIXTime $ getPOSIXTime scZeroSlotTime + msAfterBegin
+   in POSIXTime $ getPOSIXTime scSlotZeroTime + msAfterBegin
 
 {-# INLINABLE slotToEndPOSIXTime #-}
 -- | Get the ending 'POSIXTime' of a 'Slot' given a 'SlotConfig'.
@@ -96,8 +109,8 @@ posixTimeRangeToSlotRange sc = fmap (posixTimeToEnclosingSlot sc)
 {-# INLINABLE posixTimeToEnclosingSlot #-}
 -- | Convert a 'POSIXTime' to 'Slot' given a 'SlotConfig'.
 posixTimeToEnclosingSlot :: SlotConfig -> POSIXTime -> Slot
-posixTimeToEnclosingSlot SlotConfig{scSlotLength, scZeroSlotTime} (POSIXTime t) =
-  let timePassed = t - getPOSIXTime scZeroSlotTime
+posixTimeToEnclosingSlot SlotConfig{scSlotLength, scSlotZeroTime} (POSIXTime t) =
+  let timePassed = t - getPOSIXTime scSlotZeroTime
       slotsPassed = divide timePassed scSlotLength
   in Slot slotsPassed
 

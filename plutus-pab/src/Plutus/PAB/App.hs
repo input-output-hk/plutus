@@ -135,7 +135,7 @@ appEffectHandlers storageBackend config trace =
             . reinterpret (Core.handleMappedReader @AppEnv @MockClient.TxSendHandle txSendHandle)
             . interpret (Core.handleUserEnvReader @ContractExe @AppEnv)
             . reinterpret (Core.handleMappedReader @AppEnv @ClientEnv nodeClientEnv)
-            . reinterpretN @'[_, _, _, _] (handleNodeClientClient @IO)
+            . reinterpretN @'[_, _, _, _] (handleNodeClientClient @IO $ mscSlotConfig $ nodeServerConfig config)
 
             -- handle 'ChainIndexEffect'
             . flip handleError (throwError . ChainIndexError)

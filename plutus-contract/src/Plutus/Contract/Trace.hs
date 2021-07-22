@@ -25,6 +25,7 @@ module Plutus.Contract.Trace
     , toNotifyError
     -- * Handle contract requests
     , handleBlockchainQueries
+    , handleGetSlotConfig
     , handleSlotNotifications
     , handleTimeNotifications
     , handleOwnPubKeyQueries
@@ -108,6 +109,14 @@ makeTimed e = do
     emulatorTime <- gets (view (EM.chainState . EM.currentSlot))
     pure $ review (EM.emulatorTimeEvent emulatorTime) (EM.NotificationEvent e)
 
+handleGetSlotConfig ::
+    ( Member (LogObserve (LogMessage Text)) effs
+    , Member NodeClientEffect effs
+    )
+    => RequestHandler effs PABReq PABResp
+handleGetSlotConfig =
+    generalise (preview E._GetSlotConfigReq) E.GetSlotConfigResp RequestHandler.handleGetSlotConfig
+
 handleSlotNotifications ::
     ( Member (LogObserve (LogMessage Text)) effs
     , Member (LogMsg RequestHandlerLogMsg) effs
@@ -155,6 +164,7 @@ handleBlockchainQueries =
     <> handleOwnPubKeyQueries
     <> handleAddressChangedAtQueries
     <> handleOwnInstanceIdQueries
+    <> handleGetSlotConfig
     <> handleSlotNotifications
     <> handleCurrentSlotQueries
     <> handleTimeNotifications

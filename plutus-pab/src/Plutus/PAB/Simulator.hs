@@ -105,6 +105,7 @@ import qualified Ledger.Ada                                     as Ada
 import           Ledger.Crypto                                  (PubKey, pubKeyHash)
 import           Ledger.Fee                                     (FeeConfig)
 import qualified Ledger.Index                                   as UtxoIndex
+import           Ledger.TimeSlot                                (SlotConfig)
 import           Ledger.Value                                   (Value, flattenValue)
 import           Plutus.Contract.Effects                        (TxConfirmed)
 import           Plutus.PAB.Core                                (EffectHandlers (..))
@@ -201,10 +202,11 @@ mkSimulatorHandlers ::
     forall t.
     Pretty (Contract.ContractDef t)
     => FeeConfig
+    -> SlotConfig
     -> [Contract.ContractDef t] -- ^ Available contract definitions
     -> SimulatorContractHandler t -- ^ Making calls to the contract (see 'Plutus.PAB.Effects.Contract.ContractTest.handleContractTest' for an example)
     -> SimulatorEffectHandlers t
-mkSimulatorHandlers feeCfg definitions handleContractEffect =
+mkSimulatorHandlers feeCfg slotCfg definitions handleContractEffect =
     EffectHandlers
         { initialiseEnvironment =
             (,,)
@@ -215,7 +217,7 @@ mkSimulatorHandlers feeCfg definitions handleContractEffect =
             interpret handleContractStore
         , handleContractEffect
         , handleLogMessages = handleLogSimulator @t
-        , handleServicesEffects = handleServicesSimulator @t feeCfg
+        , handleServicesEffects = handleServicesSimulator @t feeCfg slotCfg
         , handleContractDefinitionStoreEffect =
             interpret $ \case
                 Contract.AddDefinition _ -> pure () -- not supported
@@ -232,7 +234,7 @@ mkSimulatorHandlers feeCfg definitions handleContractEffect =
                 $ handleDelayEffect
                 $ interpret (Core.handleUserEnvReader @t @(SimulatorState t))
                 $ interpret (Core.handleBlockchainEnvReader @t @(SimulatorState t))
-                $ advanceClock @t
+                $ advanceClock @t slotCfg
             Core.waitUntilSlot 1
         , onShutdown = do
             handleDelayEffect $ delayThread (500 :: Millisecond) -- need to wait a little to avoid garbled terminal output in GHCi.
@@ -257,10 +259,11 @@ handleServicesSimulator ::
     , Member (Error PABError) effs
     )
     => FeeConfig
+    -> SlotConfig
     -> Wallet
     -> Eff (WalletEffect ': ChainIndexEffect ': NodeClientEffect ': effs)
     ~> Eff effs
-handleServicesSimulator feeCfg wallet =
+handleServicesSimulator feeCfg slotCfg wallet =
     let makeTimedChainIndexEvent wllt =
             interpret (mapLog @_ @(PABMultiAgentMsg t) EmulatorMsg)
             . reinterpret (Core.timed @EmulatorEvent')
@@ -274,10 +277,10 @@ handleServicesSimulator feeCfg wallet =
         makeTimedChainEvent
         . interpret (Core.handleBlockchainEnvReader @t @(SimulatorState t))
         . interpret (Core.handleUserEnvReader @t @(SimulatorState t))
-        . reinterpretN @'[Reader (SimulatorState t), Reader BlockchainEnv, LogMsg _] (handleChainEffect @t)
+        . reinterpretN @'[Reader (SimulatorState t), Reader BlockchainEnv, LogMsg _] (handleChainEffect @t slotCfg)
 
         . interpret (Core.handleUserEnvReader @t @(SimulatorState t))
-        . reinterpret2 (handleNodeClient @t wallet)
+        . reinterpret2 (handleNodeClient @t slotCfg wallet)
 
         . makeTimedChainIndexEvent wallet
         . interpret (Core.handleUserEnvReader @t @(SimulatorState t))
@@ -341,8 +344,10 @@ makeBlock ::
     , Member (Reader BlockchainEnv) effs
     , Member DelayEffect effs
     , Member TimeEffect effs
-    ) => Eff effs ()
-makeBlock = do
+    )
+    => SlotConfig
+    -> Eff effs ()
+makeBlock slotCfg = do
     let makeTimedChainEvent =
             interpret (logIntoTQueue @_ @(SimulatorState t) (view logMessages))
             . reinterpret (mapLog @_ @(PABMultiAgentMsg t) EmulatorMsg)
@@ -358,7 +363,7 @@ makeBlock = do
         $ makeTimedChainIndexEvent
         $ makeTimedChainEvent
         $ interpret (handleChainIndexControlEffect @t)
-        $ interpret (handleChainControl @t)
+        $ interpret (handleChainControl @t slotCfg)
         $ Chain.processBlock >> Chain.modifySlot succ
 
 -- | Get the current state of the contract instance.
@@ -408,7 +413,7 @@ waitNSlots = Core.waitNSlots
 type Simulation t a = Core.PABAction t (SimulatorState t) a
 
 runSimulationWith :: SimulatorEffectHandlers t -> Simulation t a -> IO (Either PABError a)
-runSimulationWith handlers = Core.runPAB def handlers
+runSimulationWith = Core.runPAB def
 
 -- | Handle a 'LogMsg' effect in terms of a "larger" 'State' effect from which we have a setter.
 logIntoTQueue ::
@@ -432,19 +437,20 @@ handleChainControl ::
     , Member (LogMsg Chain.ChainEvent) effs
     , Member (LogMsg ChainIndex.ChainIndexEvent) effs
     )
-    => ChainControlEffect
+    => SlotConfig
+    -> ChainControlEffect
     ~> Eff effs
-handleChainControl = \case
+handleChainControl slotCfg = \case
     Chain.ProcessBlock -> do
         blockchainEnv <- ask @BlockchainEnv
-        (txns, slot) <- runChainEffects @t @_ ((,) <$> Chain.processBlock <*> Chain.getCurrentSlot)
+        (txns, slot) <- runChainEffects @t @_ slotCfg ((,) <$> Chain.processBlock <*> Chain.getCurrentSlot)
         runChainIndexEffects @t (ChainIndex.chainIndexNotify $ BlockValidated txns)
 
         void $ liftIO $ STM.atomically $ BlockchainEnv.processBlock blockchainEnv txns slot
 
         pure txns
     Chain.ModifySlot f -> do
-        slot <- runChainEffects @t @_ (Chain.modifySlot f)
+        slot <- runChainEffects @t @_ slotCfg (Chain.modifySlot f)
         runChainIndexEffects @t (ChainIndex.chainIndexNotify $ SlotChanged slot)
         pure slot
 
@@ -454,9 +460,10 @@ runChainEffects ::
     , Member (LogMsg Chain.ChainEvent) effs
     , LastMember IO effs
     )
-    => Eff (Chain.ChainEffect ': Chain.ChainControlEffect ': Chain.ChainEffs) a
+    => SlotConfig
+    -> Eff (Chain.ChainEffect ': Chain.ChainControlEffect ': Chain.ChainEffs) a
     -> Eff effs a
-runChainEffects action = do
+runChainEffects slotCfg action = do
     SimulatorState{_chainState} <- ask @(SimulatorState t)
     (a, logs) <- liftIO $ STM.atomically $ do
                         oldState <- STM.readTVar _chainState
@@ -466,7 +473,7 @@ runChainEffects action = do
                                 $ reinterpret @(LogMsg Chain.ChainEvent) @(Writer [LogMessage Chain.ChainEvent]) (handleLogWriter _singleton)
                                 $ runState oldState
                                 $ interpret Chain.handleControlChain
-                                $ interpret Chain.handleChain action
+                                $ interpret (Chain.handleChain slotCfg) action
                         STM.writeTVar _chainState newState
                         pure (a, logs)
     traverse_ (send . LMessage) logs
@@ -504,10 +511,11 @@ handleNodeClient ::
     , Member Chain.ChainEffect effs
     , Member (Reader (SimulatorState t)) effs
     )
-    => Wallet
+    => SlotConfig
+    -> Wallet
     -> NodeClientEffect
     ~> Eff effs
-handleNodeClient wallet = \case
+handleNodeClient slotCfg wallet = \case
     PublishTx tx  -> do
         Chain.queueTx tx
         SimulatorState{_agentStates} <- ask @(SimulatorState t)
@@ -521,6 +529,7 @@ handleNodeClient wallet = \case
                     let newState = s' & submittedFees . at (txId tx) ?~ txFee tx
                     STM.writeTVar _agentStates (Map.insert wallet newState mp)
     GetClientSlot -> Chain.getCurrentSlot
+    GetClientSlotConfig -> pure slotCfg
 
 -- | Handle the 'Chain.ChainEffect' using the 'SimulatorState'.
 handleChainEffect ::
@@ -529,11 +538,13 @@ handleChainEffect ::
     , Member (Reader (SimulatorState t)) effs
     , Member (LogMsg Chain.ChainEvent) effs
     )
-    => Chain.ChainEffect
+    => SlotConfig
+    -> Chain.ChainEffect
     ~> Eff effs
-handleChainEffect = \case
-    Chain.QueueTx tx     -> runChainEffects @t $ Chain.queueTx tx
-    Chain.GetCurrentSlot -> runChainEffects @t $ Chain.getCurrentSlot
+handleChainEffect slotCfg = \case
+    Chain.QueueTx tx     -> runChainEffects @t slotCfg $ Chain.queueTx tx
+    Chain.GetCurrentSlot -> runChainEffects @t slotCfg Chain.getCurrentSlot
+    Chain.GetSlotConfig  -> pure slotCfg
 
 handleChainIndexEffect ::
     forall t effs.
@@ -580,8 +591,9 @@ advanceClock ::
     , Member DelayEffect effs
     , Member TimeEffect effs
     )
-    => Eff effs ()
-advanceClock = forever (makeBlock @t)
+    => SlotConfig
+    -> Eff effs ()
+advanceClock slotCfg = forever (makeBlock @t slotCfg)
 
 -- | Handle the 'ContractStore' effect by writing the state to the
 --   TVar in 'SimulatorState'

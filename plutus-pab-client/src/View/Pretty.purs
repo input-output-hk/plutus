@@ -50,6 +50,12 @@ instance prettyResponse :: Pretty a => Pretty (Response a) where
       ]
 
 instance prettyPABResp :: Pretty PABResp where
+  pretty (GetSlotConfigResp slotCfg) =
+    span_
+      [ text "GetSlotConfigResp:"
+      , nbsp
+      , text $ show slotCfg
+      ]
   pretty (AwaitSlotResp slot) =
     span_
       [ text "AwaitSlotResponse:"
@@ -126,6 +132,10 @@ instance prettyPABResp :: Pretty PABResp where
       ]
 
 instance prettyContractPABRequest :: Pretty PABReq where
+  pretty GetSlotConfigReq =
+    span_
+      [ text "GetSlotConfigRequest"
+      ]
   pretty (AwaitSlotReq slot) =
     span_
       [ text "AwaitSlotRequest:"

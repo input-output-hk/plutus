@@ -47,12 +47,19 @@ import           Wallet.Effects                      (balanceTx, ownPubKey, star
 import           Wallet.Emulator.Wallet              (Wallet (..), emptyWalletState)
 import qualified Wallet.Emulator.Wallet              as Wallet
 
-app :: Trace IO WalletMsg -> MockClient.TxSendHandle -> Client.ChainSyncHandle Block -> ClientEnv -> MVar Wallets -> FeeConfig -> Application
-app trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg =
+app :: Trace IO WalletMsg
+    -> MockClient.TxSendHandle
+    -> Client.ChainSyncHandle Block
+    -> ClientEnv
+    -> MVar Wallets
+    -> FeeConfig
+    -> SlotConfig
+    -> Application
+app trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg slotCfg =
     serve (Proxy @(API Integer)) $
     hoistServer
         (Proxy @(API Integer))
-        (processWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg) $
+        (processWalletEffects trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg slotCfg) $
             createWallet :<|>
             (\w tx -> multiWallet (Wallet w) (submitTxn tx) >>= const (pure NoContent)) :<|>
             (\w -> (\pk -> WalletInfo{wiWallet = Wallet w, wiPubKey = pk, wiPubKeyHash = pubKeyHash pk}) <$> multiWallet (Wallet w) ownPubKey) :<|>
@@ -61,15 +68,22 @@ app trace txSendHandle chainSyncHandle chainIndexEnv mVarState feeCfg =
             (\w tx -> multiWallet (Wallet w) (walletAddSignature tx))
 
 main :: Trace IO WalletMsg -> WalletConfig -> FeeConfig -> FilePath -> SlotConfig -> ChainIndexUrl -> Availability -> IO ()
-main trace WalletConfig { baseUrl, wallet } feeCfg serverSocket slotConfig (ChainIndexUrl chainUrl) availability = LM.runLogEffects trace $ do
+main trace WalletConfig { baseUrl, wallet } feeCfg serverSocket slotCfg (ChainIndexUrl chainUrl) availability = LM.runLogEffects trace $ do
     chainIndexEnv <- buildEnv chainUrl defaultManagerSettings
     let knownWallets = Map.fromList $ (\w -> (w, emptyWalletState w)) . Wallet.Wallet <$> [1..10]
     mVarState <- liftIO $ newMVar knownWallets
     txSendHandle    <- liftIO $ MockClient.runTxSender   serverSocket
-    chainSyncHandle <- liftIO $ MockClient.runChainSync' serverSocket slotConfig
+    chainSyncHandle <- liftIO $ MockClient.runChainSync' serverSocket slotCfg
     runClient chainIndexEnv
     logInfo $ StartingWallet (Port servicePort)
-    liftIO $ Warp.runSettings warpSettings $ app trace txSendHandle chainSyncHandle  chainIndexEnv mVarState feeCfg
+    liftIO $ Warp.runSettings warpSettings
+           $ app trace
+                 txSendHandle
+                 chainSyncHandle
+                 chainIndexEnv
+                 mVarState
+                 feeCfg
+                 slotCfg
     where
         servicePort = baseUrlPort (coerce baseUrl)
         warpSettings = Warp.defaultSettings & Warp.setPort servicePort & Warp.setBeforeMainLoop (available availability)

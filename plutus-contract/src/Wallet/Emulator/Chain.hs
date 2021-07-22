@@ -8,6 +8,7 @@
 {-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TupleSections         #-}
 {-# LANGUAGE TypeApplications      #-}
@@ -33,6 +34,7 @@ import           Ledger                         (Block, Blockchain, OnChainTx (.
                                                  Tx (..), TxId, eitherTx, txId)
 import qualified Ledger.Index                   as Index
 import qualified Ledger.Interval                as Interval
+import           Ledger.TimeSlot                (SlotConfig)
 import           Plutus.Contract.Util           (uncurry3)
 
 -- | Events produced by the blockchain emulator.
@@ -73,6 +75,7 @@ data ChainControlEffect r where
 data ChainEffect r where
     QueueTx :: Tx -> ChainEffect ()
     GetCurrentSlot :: ChainEffect Slot
+    GetSlotConfig :: ChainEffect SlotConfig
 
 -- | Make a new block
 processBlock :: Member ChainControlEffect effs => Eff effs Block
@@ -84,6 +87,9 @@ modifySlot = send . ModifySlot
 
 queueTx :: Member ChainEffect effs => Tx -> Eff effs ()
 queueTx tx = send (QueueTx tx)
+
+getSlotConfig :: Member ChainEffect effs => Eff effs SlotConfig
+getSlotConfig = send GetSlotConfig
 
 getCurrentSlot :: Member ChainEffect effs => Eff effs Slot
 getCurrentSlot = send GetCurrentSlot
@@ -115,10 +121,11 @@ logEvent e = case e of
     TxnValidationFail{} -> logWarn e
     TxnValidate{}       -> logInfo e
 
-handleChain :: (Members ChainEffs effs) => ChainEffect ~> Eff effs
-handleChain = \case
+handleChain :: (Members ChainEffs effs) => SlotConfig -> ChainEffect ~> Eff effs
+handleChain slotConfig = \case
     QueueTx tx     -> modify $ over txPool (addTxToPool tx)
     GetCurrentSlot -> gets _currentSlot
+    GetSlotConfig  -> pure slotConfig
 
 -- | The result of validating a block.
 data ValidatedBlock = ValidatedBlock

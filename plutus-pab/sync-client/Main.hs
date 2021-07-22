@@ -27,8 +27,8 @@ data Configuration = Configuration
 slotConfig :: SlotConfig
 slotConfig =
   SlotConfig
-    { scZeroSlotTime = 1591566291000
-    , scSlotLength   = 1
+    { scSlotZeroTime = 1591566291000
+    , scSlotLength   = 1000
     }
 
 -- | A simple callback that reads the incoming data, from the node.

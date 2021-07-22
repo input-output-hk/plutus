@@ -13,6 +13,7 @@ import           Control.Monad.Freer.Reader          (Reader, ask)
 import           Control.Monad.IO.Class
 import           Data.Proxy                          (Proxy (Proxy))
 import           Ledger                              (Block, Tx)
+import           Ledger.TimeSlot                     (SlotConfig)
 import           Servant                             (NoContent, (:<|>) (..))
 import           Servant.Client                      (ClientEnv, ClientError, ClientM, client, runClientM)
 
@@ -59,12 +60,14 @@ handleNodeClientClient ::
     , Member (Reader MockClient.TxSendHandle) effs
     , Member (Reader (Client.ChainSyncHandle Block)) effs
     )
-    => NodeClientEffect
+    => SlotConfig
+    -> NodeClientEffect
     ~> Eff effs
-handleNodeClientClient e = do
+handleNodeClientClient slotCfg e = do
     txSendHandle <- ask @MockClient.TxSendHandle
     chainSyncHandle <- ask @(Client.ChainSyncHandle Block)
     case e of
         PublishTx tx  ->
             liftIO $ MockClient.queueTx txSendHandle tx
         GetClientSlot -> liftIO $ MockClient.getCurrentSlot chainSyncHandle
+        GetClientSlotConfig -> pure slotCfg

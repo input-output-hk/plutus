@@ -60,7 +60,7 @@ coin = Stablecoin
     }
 
 signConversionRate :: ConversionRate -> SignedMessage (Observation ConversionRate)
-signConversionRate rate = signObservation (TimeSlot.scZeroSlotTime def) rate (walletPrivKey oracle)
+signConversionRate rate = signObservation (TimeSlot.scSlotZeroTime def) rate (walletPrivKey oracle)
 
 stablecoinAddress :: Address
 stablecoinAddress = validatorAddress $ Stablecoin.typedValidator coin
